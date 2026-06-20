@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Ansor Med — Design System  ·  "Luminous Clinical"
+   Light, precise, premium. Cobalt-indigo accent, IBM Plex type,
+   instrument/calibration vernacular. 3D neural model as signature.
+   ============================================================ */
+
+@theme {
+  /* Surfaces */
+  --color-base: #f6f8fc;
+  --color-base-2: #eef2f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #f2f6fc;
+
+  /* Hairlines */
+  --color-line: #e3e9f2;
+  --color-line-strong: #cfd8e8;
+
+  /* Ink */
+  --color-ink: #0a1124;
+  --color-ink-muted: #56657e;
+  --color-ink-dim: #8b97ac;
+
+  /* Accent — clinical cobalt-indigo */
+  --color-accent: #2a41e8;
+  --color-accent-soft: #5566f2;
+  --color-accent-deep: #121a4a;
+  --color-accent-wash: #eef1fe;
+
+  /* Vital signal — used very sparingly (ticks, pulse dot) */
+  --color-signal: #ff4d6a;
+
+  /* Fonts */
+  --font-display: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: var(--color-base);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent-deep);
+}
+
+h1, h2, h3, h4, h5, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* ---------- Utility layer ---------- */
+@layer utilities {
+  /* Mono instrument label */
+  .label {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+
+  /* Accent gradient text — for the one emphasized phrase */
+  .text-accent-gradient {
+    background: linear-gradient(95deg, var(--color-accent-deep) 0%, var(--color-accent) 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Frosted white panel */
+  .glass {
+    background: color-mix(in srgb, #ffffff 72%, transparent);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    border: 1px solid var(--color-line);
+  }
+  .glass-strong {
+    background: color-mix(in srgb, #ffffff 86%, transparent);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid var(--color-line);
+  }
+
+  /* Premium soft shadows for white cards */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px rgba(10, 17, 36, 0.04),
+      0 14px 40px -20px rgba(10, 17, 36, 0.16);
+  }
+  .shadow-float {
+    box-shadow:
+      0 2px 6px rgba(10, 17, 36, 0.05),
+      0 30px 60px -28px rgba(42, 65, 232, 0.28);
+  }
+
+  /* Faint clinical dot grid */
+  .grid-dots {
+    background-image: radial-gradient(circle at 1px 1px, rgba(10, 17, 36, 0.07) 1px, transparent 0);
+    background-size: 26px 26px;
+  }
+  /* Hairline ruled background (calibration feel) */
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Soft accent spotlight */
+  .spotlight {
+    background: radial-gradient(
+      55% 55% at 50% 30%,
+      color-mix(in srgb, var(--color-accent) 14%, transparent) 0%,
+      transparent 70%
+    );
+  }
+
+  .container-x {
+    width: 100%;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-x { padding-inline: 2rem; }
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Accessible focus ring */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Light scrollbar */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--color-base-2); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 999px;
+  border: 3px solid var(--color-base-2);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-accent) 45%, var(--color-line-strong));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
