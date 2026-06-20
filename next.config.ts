@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Полностью статическая сборка (out/) — деплоится на любой статик-хостинг (Netlify).
+  output: "export",
+  images: { unoptimized: true },
 };
 
 export default nextConfig;

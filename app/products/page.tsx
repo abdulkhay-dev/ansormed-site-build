@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { Container } from "@/components/ui/Section";
 import { ProductsExplorer } from "@/components/sections/ProductsExplorer";
-import { categories } from "@/lib/data/categories";
 
 export const metadata: Metadata = {
   title: "Продукция",
@@ -10,15 +9,7 @@ export const metadata: Metadata = {
     "Каталог медицинского оборудования Ansor Med: диагностика, нейрохирургия, реабилитация, мониторинг, лаборатория и расходные материалы.",
 };
 
-export default async function ProductsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string }>;
-}) {
-  const { category } = await searchParams;
-  const valid = category && categories.some((c) => c.id === category);
-  const initialCategory = valid ? category! : "all";
-
+export default function ProductsPage() {
   return (
     <>
       <PageHeader
@@ -28,7 +19,7 @@ export default async function ProductsPage({
       />
       <section className="py-12 md:py-16">
         <Container>
-          <ProductsExplorer initialCategory={initialCategory} />
+          <ProductsExplorer />
         </Container>
       </section>
     </>

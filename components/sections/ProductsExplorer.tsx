@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, SlidersHorizontal, SearchX, ChevronDown } from "lucide-react";
 import { products } from "@/lib/data/products";
@@ -20,6 +20,12 @@ export function ProductsExplorer({
   const [active, setActive] = useState(initialCategory);
   const [sort, setSort] = useState<Sort>("default");
   const [catOpen, setCatOpen] = useState(false);
+
+  // Deep-link по категории (?category=…) — читаем на клиенте, чтобы работало в статике.
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("category");
+    if (c && categories.some((cat) => cat.id === c)) setActive(c);
+  }, []);
 
   // Count per category (respects the current search query so numbers stay honest).
   const counts = useMemo(() => {
