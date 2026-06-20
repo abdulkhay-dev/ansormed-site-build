@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   // CORS к API решается прокси: на проде — redirect /api/* в netlify.toml,
   // в dev — локальный CORS-прокси из scripts/dev.mjs (NEXT_PUBLIC_API_BASE).
   output: "export",
+  // Папка статического экспорта: out -> dist (используется CI-деплоем).
+  distDir: "dist",
   images: { unoptimized: true },
 };
 
