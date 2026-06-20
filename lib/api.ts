@@ -118,6 +118,33 @@ export function listProducts(
 export const getProduct = (id: string | number) =>
   req<ApiProduct>(`/api/v1/products/${encodeURIComponent(String(id))}`);
 
+/**
+ * Товар по id с устойчивостью к бэкенду: сначала прямой эндпоинт
+ * /products/{id}; если он недоступен/не находит — ищем товар в каталоге
+ * (список рабочий). Когда get-by-id на бэке починят, фолбэк не понадобится.
+ */
+export async function getProductById(id: string | number): Promise<ApiProduct | null> {
+  const wanted = String(id);
+  try {
+    const direct = await getProduct(wanted);
+    if (direct) return direct;
+  } catch {
+    /* падаем в фолбэк */
+  }
+  const pageSize = 100;
+  const first = await listProducts({ page: 1, pageSize });
+  if (!first) return null;
+  const inFirst = first.items.find((p) => String(p.id) === wanted);
+  if (inFirst) return inFirst;
+  const totalPages = Math.min(12, Math.ceil((first.total || 0) / pageSize));
+  for (let page = 2; page <= totalPages; page++) {
+    const res = await listProducts({ page, pageSize });
+    const hit = res?.items.find((p) => String(p.id) === wanted);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 /** Категории — /api/v1/categories/. */
 export const listCategories = () => req<ApiCategory[]>(`/api/v1/categories/`);
 

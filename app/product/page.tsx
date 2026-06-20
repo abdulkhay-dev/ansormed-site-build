@@ -11,7 +11,7 @@ import {
   Loader2,
   PackageX,
 } from "lucide-react";
-import { getProduct, type ApiProduct } from "@/lib/api";
+import { getProductById, type ApiProduct } from "@/lib/api";
 import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { MediaVisual } from "@/components/ui/MediaVisual";
@@ -33,7 +33,7 @@ export default function ProductPage() {
       return;
     }
     let cancelled = false;
-    getProduct(id)
+    getProductById(id)
       .then((product) => {
         if (cancelled) return;
         setState(product ? { status: "ok", product } : { status: "missing" });
