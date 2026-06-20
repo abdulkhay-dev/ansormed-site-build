@@ -21,7 +21,7 @@ export function Preloader() {
   const reduce = useReducedMotion();
 
   useEffect(() => {
-    const duration = reduce ? 800 : 2200;
+    const duration = reduce ? 800 : 3200;
     const start = performance.now();
     let raf = 0;
     const tick = (now: number) => {

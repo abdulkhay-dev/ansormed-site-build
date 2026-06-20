@@ -23,13 +23,13 @@ function mulberry32(seed: number) {
 }
 
 const palettes: [string, string][] = [
-  ["#eaf0ff", "#ffffff"], // indigo wash
-  ["#e9f5ff", "#f4f9ff"], // sky wash
-  ["#eef0ff", "#f8f6ff"], // violet wash
-  ["#e8f1ff", "#ffffff"], // blue wash
+  ["#0a1530", "#0e244e"], // indigo wash
+  ["#091a38", "#10305c"], // sky wash
+  ["#0c1330", "#171f4c"], // violet wash
+  ["#08152f", "#0e2350"], // blue wash
 ];
 
-const dotColors = ["#2a41e8", "#5566f2", "#6d56e0", "#3a7bff"];
+const dotColors = ["#3a7bff", "#5e9bff", "#6d8cff", "#4f9bff"];
 
 /**
  * On-brand abstract medical-tech visual: seeded gradient + neuron motif +

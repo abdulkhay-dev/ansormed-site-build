@@ -65,7 +65,7 @@ export interface Stat {
 
 export const stats: Stat[] = [
   { value: 500, suffix: "+", label: "единиц оборудования поставлено" },
-  { value: 10, suffix: " лет", label: "на рынке медтехники" },
+  { value: 5, suffix: " лет", label: "на рынке медтехники" },
   { value: 1000, suffix: "+", label: "клиник и партнёров" },
   { value: 24, suffix: "/7", label: "сервисная поддержка" },
 ];

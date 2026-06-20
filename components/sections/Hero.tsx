@@ -77,7 +77,7 @@ export function Hero() {
             className="mt-12 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6"
           >
             <HeroStat value="500+" label="поставок" />
-            <HeroStat value="10 лет" label="на рынке" />
+            <HeroStat value="5 лет" label="на рынке" />
             <HeroStat value="1000+" label="клиник" />
           </motion.dl>
         </motion.div>
