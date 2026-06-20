@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   output: "export",
   // Папка статического экспорта: out -> dist (используется CI-деплоем).
   distDir: "dist",
+  // Каждый маршрут — это папка с index.html (contacts/index.html), чтобы nginx
+  // отдавал URL со слэшем (/contacts/) при прямой загрузке/перезагрузке без 403.
+  trailingSlash: true,
   images: { unoptimized: true },
 };
 
