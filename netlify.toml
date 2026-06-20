@@ -4,3 +4,11 @@
 
 [build.environment]
   NODE_VERSION = "20"
+
+# Прокси к REST API через свой домен — убирает CORS (запросы становятся same-origin).
+# Фронтенд обращается к /api/*, Netlify проксирует на реальный бэкенд.
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.ansormed.uz/api/:splat"
+  status = 200
+  force = true

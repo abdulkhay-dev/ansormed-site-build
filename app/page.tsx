@@ -6,15 +6,12 @@ import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
-import { BlogCard } from "@/components/cards/BlogCard";
+import { LatestPosts } from "@/components/sections/LatestPosts";
 import { ButtonLink } from "@/components/ui/Button";
 import { advantages, stats } from "@/lib/data/site";
 import { categories } from "@/lib/data/categories";
-import { posts } from "@/lib/data/posts";
 
 export default function HomePage() {
-  const latestPosts = posts.slice(0, 3);
-
   return (
     <>
       <Hero />
@@ -99,13 +96,7 @@ export default function HomePage() {
               </ButtonLink>
             </Reveal>
           </div>
-          <RevealGroup className="mt-14 grid gap-6 md:grid-cols-3">
-            {latestPosts.map((p) => (
-              <RevealItem key={p.slug}>
-                <BlogCard post={p} />
-              </RevealItem>
-            ))}
-          </RevealGroup>
+          <LatestPosts />
         </Container>
       </section>
 

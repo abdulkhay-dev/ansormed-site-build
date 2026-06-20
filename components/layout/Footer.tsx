@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, Mail, MapPin, Send, MessageCircle, Camera } from "lucide-react";
+import { Phone, Mail, MapPin, Send, Camera } from "lucide-react";
 import { nav, site } from "@/lib/data/site";
 import { categories } from "@/lib/data/categories";
 import { Logo } from "@/components/ui/Logo";
@@ -19,9 +19,6 @@ export function Footer() {
           <div className="flex gap-2.5">
             <SocialLink href={site.socials.telegram} label="Telegram">
               <Send className="h-5 w-5" />
-            </SocialLink>
-            <SocialLink href={site.socials.whatsapp} label="WhatsApp">
-              <MessageCircle className="h-5 w-5" />
             </SocialLink>
             <SocialLink href={site.socials.instagram} label="Instagram">
               <Camera className="h-5 w-5" />

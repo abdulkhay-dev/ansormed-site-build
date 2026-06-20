@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { createLead } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 interface Fields {
@@ -37,6 +38,7 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
   const [status, setStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const update = (key: keyof Fields, value: string) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -58,11 +60,25 @@ export function ContactForm() {
     if (Object.keys(found).length > 0) return;
 
     setStatus("loading");
-    // Simulated submission — replace with real API call.
-    await new Promise((r) => setTimeout(r, 1100));
-    setStatus("success");
-    setValues(empty);
-    setTouched({});
+    setSubmitError(null);
+    try {
+      await createLead({
+        name: values.name.trim(),
+        phone: values.phone.trim(),
+        email: values.email.trim() || null,
+        message: values.message.trim() || null,
+      });
+      setStatus("success");
+      setValues(empty);
+      setTouched({});
+    } catch (err) {
+      setStatus("idle");
+      setSubmitError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Не удалось отправить заявку. Попробуйте ещё раз или позвоните нам.",
+      );
+    }
   };
 
   return (
@@ -144,6 +160,16 @@ export function ContactForm() {
               onBlur={() => onBlur("message")}
               placeholder="Опишите задачу или интересующее оборудование…"
             />
+
+            {submitError && (
+              <p
+                role="alert"
+                className="flex items-center gap-2 rounded-2xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300"
+              >
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {submitError}
+              </p>
+            )}
 
             <Button
               type="submit"

@@ -3,14 +3,14 @@ export const site = {
   tagline: "Медицинское оборудование нового поколения",
   description:
     "Поставка, монтаж и сервис современного медицинского оборудования по всему Узбекистану.",
-  phone: "+998 71 200 70 70",
-  phoneHref: "+998712007070",
+  phone: "+998 95 222 32 32",
+  phoneHref: "+998952223232",
   email: "info@ansormed.uz",
-  address: "г. Ташкент, Мирзо-Улугбекский район, ул. Технопарк, 12",
-  hours: "Пн–Пт, 9:00–18:00",
+  address: "г. Ташкент",
+  hours: "9:00 — 20:00",
+  hoursNote: "Ежедневно, без выходных",
   socials: {
     telegram: "https://t.me/ansormed",
-    whatsapp: "https://wa.me/998712007070",
     instagram: "https://instagram.com/ansormed",
   },
 };

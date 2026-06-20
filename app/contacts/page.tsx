@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Phone, Mail, MapPin, Clock, Send, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
@@ -47,6 +47,7 @@ export default function ContactsPage() {
                 icon={<Clock className="h-5 w-5" />}
                 title="Режим работы"
                 value={site.hours}
+                note={site.hoursNote}
               />
 
               <div className="mt-2 flex flex-col gap-3 rounded-3xl glass p-6">
@@ -62,15 +63,6 @@ export default function ContactsPage() {
                   >
                     <Send className="h-4 w-4" />
                     Telegram
-                  </a>
-                  <a
-                    href={site.socials.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/15 px-4 py-2.5 text-sm font-medium text-[#7ef0a3] ring-1 ring-[#25D366]/30 transition-colors hover:bg-[#25D366]/25"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    WhatsApp
                   </a>
                 </div>
               </div>
@@ -126,11 +118,13 @@ function InfoCard({
   icon,
   title,
   value,
+  note,
   href,
 }: {
   icon: React.ReactNode;
   title: string;
   value: string;
+  note?: string;
   href?: string;
 }) {
   const inner = (
@@ -141,6 +135,7 @@ function InfoCard({
       <div className="flex flex-col">
         <span className="text-xs uppercase tracking-wider text-ink-dim">{title}</span>
         <span className="text-ink">{value}</span>
+        {note && <span className="text-sm text-ink-muted">{note}</span>}
       </div>
     </div>
   );
