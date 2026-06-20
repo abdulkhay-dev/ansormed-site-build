@@ -1,12 +1,14 @@
 /**
  * Клиент Ansor Med REST API (по openapi.json).
  *
- * Запросы идут через свой домен (same-origin `/api/*`): на проде проксирует
- * Netlify (netlify.toml), в dev — локальный прокси из scripts/dev.mjs.
- * Базовый URL переопределяется через NEXT_PUBLIC_API_BASE.
+ * По умолчанию запросы идут напрямую на бэкенд-поддомен https://api.ansormed.uz.
+ * В dev переопределяется на локальный прокси через NEXT_PUBLIC_API_BASE
+ * (scripts/dev.mjs), чтобы не упираться в CORS на localhost.
  */
 
-const BASE = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
+const BASE = (
+  process.env.NEXT_PUBLIC_API_BASE || "https://api.ansormed.uz"
+).replace(/\/$/, "");
 
 /* ---------- Типы ответов API ---------- */
 
