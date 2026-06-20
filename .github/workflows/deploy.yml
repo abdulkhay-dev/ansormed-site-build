@@ -21,13 +21,13 @@ jobs:
       - name: Create target directory
         uses: appleboy/ssh-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST || 'https://ansormed.uz/' }}
+          host: ${{ secrets.SERVER_HOST || 'https://api.ansormed.uz' }}
           script: |
             mkdir -p /var/www/ansormed_frontend
 
       - name: Upload dist
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SERVER_HOST || 'https://ansormed.uz/' }}
+          host: ${{ secrets.SERVER_HOST || 'https://api.ansormed.uz' }}
           source: "dist/*"
           target: "/var/www/ansormed_frontend"
