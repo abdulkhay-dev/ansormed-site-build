@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Environment, Lightformer } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
+import { useIsMobile, useOnScreen } from "@/lib/use-device";
 
 const MODEL_URL = "/models/body.glb";
 const NERVE_URL = "/models/nervous-system.glb";
@@ -490,31 +491,39 @@ export default function AnatomyScene({
   progress: RefObject<number>;
   reduce?: boolean;
 }) {
+  const mobile = useIsMobile();
+  const wrap = useRef<HTMLDivElement>(null);
+  const onScreen = useOnScreen(wrap); // пауза рендера, когда секция за экраном
+
   return (
-    <Canvas
-      dpr={[1, 1.6]}
-      camera={{ position: [MODEL_X, 0.2, 3.6], fov: 38, near: 0.05, far: 60 }}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      style={{ width: "100%", height: "100%" }}
-    >
-      <hemisphereLight args={["#eaf1ff", "#0a1020", 1.2]} />
-      <directionalLight position={[2.5, 3.5, 4]} intensity={1.6} />
-      <directionalLight position={[-3.5, 1.5, -2.5]} intensity={1} color={ACCENT} />
+    <div ref={wrap} style={{ width: "100%", height: "100%" }}>
+      <Canvas
+        frameloop={onScreen ? "always" : "never"}
+        dpr={mobile ? [1, 1.25] : [1, 1.6]}
+        camera={{ position: [MODEL_X, 0.2, 3.6], fov: 38, near: 0.05, far: 60 }}
+        gl={{ antialias: !mobile, alpha: true, powerPreference: "high-performance" }}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <hemisphereLight args={["#eaf1ff", "#0a1020", 1.2]} />
+        <directionalLight position={[2.5, 3.5, 4]} intensity={1.6} />
+        <directionalLight position={[-3.5, 1.5, -2.5]} intensity={1} color={ACCENT} />
 
-      <Suspense fallback={null}>
-        <Anatomy stages={stages} progress={progress} reduce={reduce} />
-      </Suspense>
+        <Suspense fallback={null}>
+          <Anatomy stages={stages} progress={progress} reduce={reduce} />
+        </Suspense>
 
-      <Environment resolution={128}>
-        <Lightformer form="rect" intensity={1.4} position={[0, 3, 3]} scale={[6, 3, 1]} color="#ffffff" />
-        <Lightformer form="rect" intensity={0.9} position={[-4, 0, 2]} scale={[3, 4, 1]} color="#aab4ff" />
-      </Environment>
+        <Environment resolution={mobile ? 64 : 128}>
+          <Lightformer form="rect" intensity={1.4} position={[0, 3, 3]} scale={[6, 3, 1]} color="#ffffff" />
+          <Lightformer form="rect" intensity={0.9} position={[-4, 0, 2]} scale={[3, 4, 1]} color="#aab4ff" />
+        </Environment>
 
-      {!reduce && (
-        <EffectComposer>
-          <Bloom intensity={0.3} luminanceThreshold={0.65} luminanceSmoothing={0.2} mipmapBlur />
-        </EffectComposer>
-      )}
-    </Canvas>
+        {/* bloom — самый тяжёлый проход на мобилке, выключаем */}
+        {!reduce && !mobile && (
+          <EffectComposer>
+            <Bloom intensity={0.3} luminanceThreshold={0.65} luminanceSmoothing={0.2} mipmapBlur />
+          </EffectComposer>
+        )}
+      </Canvas>
+    </div>
   );
 }
