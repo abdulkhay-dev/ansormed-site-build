@@ -17,90 +17,42 @@ import * as THREE from "three";
 
 const ACCENT = "#2a41e8";
 const ACCENT_SOFT = "#5566f2";
-const HEAD_URL = "/models/nervous-system.glb"; // та же x-ray модель нервной системы — берём только голову (мозг)
+const BRAIN_URL = "/models/brain.glb"; // модель мозга с её родными текстурами/материалом
 
-/**
- * Вырезает верхнюю часть (голову) из модели тела: собирает треугольники выше
- * уровня шеи в единую геометрию, центрирует и масштабирует под центр сцены.
- */
-function buildHeadGeometry(scene: THREE.Object3D, headFrac: number, target: number) {
-  const root = scene.clone(true);
-  root.updateMatrixWorld(true);
-
-  // 1) общий bbox всей модели в мировых координатах
-  const box = new THREE.Box3();
-  const v = new THREE.Vector3();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh;
-    if (m.isMesh && m.geometry?.attributes.position) {
-      const pos = m.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        v.fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
-        box.expandByPoint(v);
-      }
-    }
-  });
-  const size = box.getSize(new THREE.Vector3());
-  const cutY = box.max.y - size.y * headFrac; // уровень среза (шея)
-
-  // 2) собираем треугольники, чей центр выше среза
-  const out: number[] = [];
-  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh;
-    if (!(m.isMesh && m.geometry?.attributes.position)) return;
-    const pos = m.geometry.attributes.position;
-    const idx = m.geometry.index;
-    const triCount = idx ? idx.count / 3 : pos.count / 3;
-    for (let t = 0; t < triCount; t++) {
-      const i0 = idx ? idx.getX(t * 3) : t * 3;
-      const i1 = idx ? idx.getX(t * 3 + 1) : t * 3 + 1;
-      const i2 = idx ? idx.getX(t * 3 + 2) : t * 3 + 2;
-      a.fromBufferAttribute(pos, i0).applyMatrix4(m.matrixWorld);
-      b.fromBufferAttribute(pos, i1).applyMatrix4(m.matrixWorld);
-      c.fromBufferAttribute(pos, i2).applyMatrix4(m.matrixWorld);
-      if ((a.y + b.y + c.y) / 3 < cutY) continue;
-      out.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
-    }
-  });
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(out), 3));
-  geo.computeVertexNormals();
-
-  // 3) центрируем и масштабируем голову к нужному размеру
-  geo.computeBoundingBox();
-  const hb = geo.boundingBox!;
-  const hsize = hb.getSize(new THREE.Vector3());
-  const hcenter = hb.getCenter(new THREE.Vector3());
-  geo.translate(-hcenter.x, -hcenter.y, -hcenter.z);
-  const s = target / (hsize.y || 1);
-  geo.scale(s, s, s);
-  return geo;
-}
-
-/** Голова от модели тела со стеклянно-иридесцентным материалом — центр сцены. */
+/** Мозг с РОДНЫМ материалом модели (текстура, нормали) — центр сцены, без своих стилей. */
 function HeadModel() {
-  const { scene } = useGLTF(HEAD_URL);
-  const geometry = useMemo(() => buildHeadGeometry(scene, 0.12, 2.2), [scene]);
+  const { scene } = useGLTF(BRAIN_URL);
+  const model = useMemo(() => {
+    const root = scene.clone(true);
+    // Материал реалистичного мозга: розовато-телесный, матово-влажная ткань.
+    const brainMat = new THREE.MeshPhysicalMaterial({
+      color: "#c0837a",
+      roughness: 0.62,
+      metalness: 0,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.6,
+      sheen: 0.5,
+      sheenColor: new THREE.Color("#e7a79c"),
+      sheenRoughness: 0.8,
+      envMapIntensity: 0.4,
+    });
+    root.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (!m.isMesh) return;
+      if (!m.geometry.attributes.normal) m.geometry.computeVertexNormals(); // в OBJ нормалей нет
+      m.material = brainMat;
+    });
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const s = 2.2 / (size.y || 1); // масштаб по высоте под центр сцены
+    root.scale.setScalar(s);
+    root.position.set(-center.x * s, -center.y * s, -center.z * s); // центрируем
+    return root;
+  }, [scene]);
   return (
     <group rotation={[0, -Math.PI / 2, 0]}>
-      <mesh geometry={geometry}>
-        <meshPhysicalMaterial
-          color="#dfe4ff"
-          metalness={0.1}
-          roughness={0.12}
-          clearcoat={1}
-          clearcoatRoughness={0.15}
-          transmission={0.22}
-          thickness={1.4}
-          ior={1.35}
-          iridescence={0.85}
-          iridescenceIOR={1.4}
-          envMapIntensity={1.1}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      <primitive object={model} />
     </group>
   );
 }
@@ -230,7 +182,7 @@ function NeuralModel({ reduce }: { reduce: boolean }) {
   );
 }
 
-useGLTF.preload(HEAD_URL);
+useGLTF.preload(BRAIN_URL);
 
 export default function NeuralBrainScene({ reduce = false }: { reduce?: boolean }) {
   return (
