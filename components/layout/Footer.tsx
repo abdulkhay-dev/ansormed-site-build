@@ -1,11 +1,23 @@
-import Link from "next/link";
 import { Phone, Mail, MapPin, Send, Camera } from "lucide-react";
-import { nav, site } from "@/lib/data/site";
-import { categories } from "@/lib/data/categories";
+import { site } from "@/lib/data/site";
+import { getCategories } from "@/lib/data/categories";
 import { Logo } from "@/components/ui/Logo";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
+import { getDictionary, interpolate, type Locale } from "@/lib/i18n";
 
-export function Footer() {
+export function Footer({ lang }: { lang: Locale }) {
+  const dict = getDictionary(lang);
+  const categories = getCategories(lang);
   const year = 2026;
+
+  const nav = [
+    { label: dict.nav.home, href: "/" },
+    { label: dict.nav.products, href: "/products" },
+    { label: dict.nav.blog, href: "/blog" },
+    { label: dict.nav.about, href: "/about" },
+    { label: dict.nav.contacts, href: "/contacts" },
+  ];
+
   return (
     <footer className="relative mt-24 border-t border-line bg-base-2">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
@@ -14,7 +26,7 @@ export function Footer() {
         <div className="flex flex-col gap-5">
           <Logo />
           <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
-            {site.description}
+            {dict.meta.description}
           </p>
           <div className="flex gap-2.5">
             <SocialLink href={site.socials.telegram} label="Telegram">
@@ -27,7 +39,7 @@ export function Footer() {
         </div>
 
         {/* Nav */}
-        <FooterCol title="Навигация">
+        <FooterCol title={dict.footer.navTitle}>
           {nav.map((item) => (
             <FooterLink key={item.href} href={item.href}>
               {item.label}
@@ -36,7 +48,7 @@ export function Footer() {
         </FooterCol>
 
         {/* Categories */}
-        <FooterCol title="Категории">
+        <FooterCol title={dict.footer.categoriesTitle}>
           {categories.slice(0, 5).map((c) => (
             <FooterLink key={c.id} href={`/products?category=${c.id}`}>
               {c.short}
@@ -45,7 +57,7 @@ export function Footer() {
         </FooterCol>
 
         {/* Contacts */}
-        <FooterCol title="Контакты">
+        <FooterCol title={dict.footer.contactsTitle}>
           <FooterContact icon={<Phone className="h-4 w-4" />} href={`tel:${site.phoneHref}`}>
             {site.phone}
           </FooterContact>
@@ -54,15 +66,15 @@ export function Footer() {
           </FooterContact>
           <li className="flex items-start gap-2.5 text-sm text-ink-muted">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-            <span>{site.address}</span>
+            <span>{dict.site.addressDisplay}</span>
           </li>
         </FooterCol>
       </div>
 
       <div className="border-t border-line">
         <div className="container-x flex flex-col items-center justify-between gap-3 py-6 text-sm text-ink-dim sm:flex-row">
-          <p>© {year} {site.name}. Все права защищены.</p>
-          <p>Поставка медицинского оборудования по всему Узбекистану</p>
+          <p>{interpolate(dict.footer.rights, { year, name: site.name })}</p>
+          <p>{dict.footer.tagline}</p>
         </div>
       </div>
     </footer>

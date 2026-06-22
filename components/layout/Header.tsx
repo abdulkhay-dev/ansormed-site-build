@@ -1,19 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone, ArrowUpRight, Mail, Clock } from "lucide-react";
-import { nav, site } from "@/lib/data/site";
+import { site } from "@/lib/data/site";
 import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { localizeHref } from "@/lib/i18n";
 import { cn, EASE } from "@/lib/utils";
 
 export function Header() {
+  const dict = useDict();
+  const lang = useLang();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const nav = [
+    { label: dict.nav.home, href: "/" },
+    { label: dict.nav.products, href: "/products" },
+    { label: dict.nav.blog, href: "/blog" },
+    { label: dict.nav.about, href: "/about" },
+    { label: dict.nav.contacts, href: "/contacts" },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -35,8 +48,11 @@ export function Header() {
     };
   }, [open]);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => {
+    const target = localizeHref(lang, href);
+    const path = (pathname || "/").replace(/\/$/, "") || "/";
+    return href === "/" ? path === target : path.startsWith(target);
+  };
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -50,7 +66,7 @@ export function Header() {
       >
         <nav
           className="container-x flex h-16 items-center justify-between md:h-20"
-          aria-label="Основная навигация"
+          aria-label={dict.header.mainNavAria}
         >
           <Logo />
 
@@ -80,16 +96,17 @@ export function Header() {
           </ul>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
             <span className="hidden sm:inline-flex">
               <ButtonLink href="/contacts" size="md">
                 <Phone className="h-4 w-4" />
-                Связаться
+                {dict.header.contact}
               </ButtonLink>
             </span>
 
             <button
               type="button"
-              aria-label={open ? "Закрыть меню" : "Открыть меню"}
+              aria-label={open ? dict.header.closeMenu : dict.header.openMenu}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full glass text-ink shadow-soft lg:hidden cursor-pointer"
@@ -123,11 +140,14 @@ export function Header() {
 
               <div className="relative p-3">
                 <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-                  <span className="label text-ink-dim">Навигация</span>
-                  <span className="label flex items-center gap-1.5 text-ink-dim">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-signal" />
-                    24/7
-                  </span>
+                  <span className="label text-ink-dim">{dict.header.navLabel}</span>
+                  <div className="flex items-center gap-3">
+                    <LanguageSwitcher />
+                    <span className="label flex items-center gap-1.5 text-ink-dim">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-signal" />
+                      24/7
+                    </span>
+                  </div>
                 </div>
 
                 <ul className="flex flex-col">
@@ -195,7 +215,7 @@ export function Header() {
                     </a>
                     <span className="flex shrink-0 items-center gap-1.5 text-xs text-ink-dim">
                       <Clock className="h-3.5 w-3.5" />
-                      {site.hours}
+                      {dict.site.hours}
                     </span>
                   </div>
                 </div>

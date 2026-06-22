@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Category } from "@/lib/data/categories";
 import { Icon } from "@/components/ui/Icon";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 
 const accentMap: Record<string, string> = {
   cyan: "text-accent",
@@ -10,7 +10,13 @@ const accentMap: Record<string, string> = {
   amber: "text-accent",
 };
 
-export function CategoryCard({ category }: { category: Category }) {
+export function CategoryCard({
+  category,
+  cta,
+}: {
+  category: Category;
+  cta: string;
+}) {
   return (
     <Link
       href={`/products?category=${category.id}`}
@@ -37,7 +43,7 @@ export function CategoryCard({ category }: { category: Category }) {
       </div>
 
       <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-        Смотреть
+        {cta}
         <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
       </span>
     </Link>

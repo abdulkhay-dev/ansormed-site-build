@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
@@ -20,6 +19,9 @@ import {
 } from "@/lib/api";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
+import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { interpolate } from "@/lib/i18n";
 import { cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
@@ -42,6 +44,9 @@ export function ProductsExplorer({
 }: {
   initialCategory?: string;
 }) {
+  const dict = useDict();
+  const lang = useLang();
+  const t = dict.products;
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [active, setActive] = useState(initialCategory);
@@ -120,8 +125,11 @@ export function ProductsExplorer({
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const catName = (c: ApiCategory) =>
+    (lang === "uz" && c.name_uz) || c.name_ru;
   const activeCat = categories.find((c) => c.slug === active);
-  const currentLabel = active === "all" ? "Все категории" : activeCat?.name_ru ?? active;
+  const currentLabel =
+    active === "all" ? t.allCategories : activeCat ? catName(activeCat) : active;
   const currentIcon = active === "all" ? "LayoutGrid" : iconForCategory(activeCat?.slug ?? active);
 
   return (
@@ -130,11 +138,11 @@ export function ProductsExplorer({
       <aside className="mb-8 lg:mb-0">
         {/* Desktop */}
         <div className="hidden lg:block lg:sticky lg:top-28">
-          <p className="label mb-3 px-1 text-ink-dim">Категории</p>
+          <p className="label mb-3 px-1 text-ink-dim">{t.categoriesLabel}</p>
           <nav className="flex max-h-[70vh] flex-col gap-1 overflow-y-auto pr-1">
             <CatItem
               icon="LayoutGrid"
-              label="Все"
+              label={t.all}
               active={active === "all"}
               onClick={() => setActive("all")}
             />
@@ -142,7 +150,7 @@ export function ProductsExplorer({
               <CatItem
                 key={c.id}
                 icon={iconForCategory(c.slug || c.name_ru)}
-                label={c.name_ru}
+                label={catName(c)}
                 active={active === c.slug}
                 onClick={() => setActive(c.slug)}
               />
@@ -156,14 +164,14 @@ export function ProductsExplorer({
             type="button"
             onClick={() => setCatOpen((v) => !v)}
             aria-expanded={catOpen}
-            aria-label="Выбрать категорию"
+            aria-label={t.selectCategory}
             className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-line bg-surface px-3 py-2.5 text-left shadow-soft transition-colors hover:border-line-strong"
           >
             <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent text-white">
               <Icon name={currentIcon} className="h-4 w-4" />
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
-              <span className="label text-ink-dim">Категория</span>
+              <span className="label text-ink-dim">{t.categoryLabel}</span>
               <span className="truncate text-sm font-medium text-ink">{currentLabel}</span>
             </span>
             <ChevronDown
@@ -179,7 +187,7 @@ export function ProductsExplorer({
               <>
                 <button
                   type="button"
-                  aria-label="Закрыть список категорий"
+                  aria-label={t.closeCategories}
                   onClick={() => setCatOpen(false)}
                   className="fixed inset-0 z-30 cursor-default"
                 />
@@ -194,7 +202,7 @@ export function ProductsExplorer({
                     <nav className="flex flex-col gap-1">
                       <CatItem
                         icon="LayoutGrid"
-                        label="Все категории"
+                        label={t.allCategories}
                         active={active === "all"}
                         onClick={() => {
                           setActive("all");
@@ -205,7 +213,7 @@ export function ProductsExplorer({
                         <CatItem
                           key={c.id}
                           icon={iconForCategory(c.slug || c.name_ru)}
-                          label={c.name_ru}
+                          label={catName(c)}
                           active={active === c.slug}
                           onClick={() => {
                             setActive(c.slug);
@@ -230,8 +238,8 @@ export function ProductsExplorer({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Поиск по названию оборудования…"
-            aria-label="Поиск по продукции"
+            placeholder={t.searchPlaceholder}
+            aria-label={t.searchAria}
             className="h-12 w-full rounded-2xl border border-line bg-surface/70 pl-12 pr-4 text-base text-ink placeholder:text-ink-dim transition-colors focus:border-accent/60 focus:outline-none"
           />
         </div>
@@ -239,10 +247,10 @@ export function ProductsExplorer({
         <p className="mt-4 flex items-center gap-2 text-sm text-ink-dim" aria-live="polite">
           {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {loading
-            ? "Загружаем каталог…"
+            ? t.loading
             : total > 0
-              ? `Показаны ${rangeStart}–${rangeEnd} из ${total}`
-              : "Найдено: 0"}
+              ? interpolate(t.showing, { start: rangeStart, end: rangeEnd, total })
+              : t.foundNone}
         </p>
 
         {items.length > 0 ? (
@@ -284,7 +292,9 @@ export function ProductsExplorer({
 /* ---------- Карточка товара ---------- */
 
 function CatalogCard({ product }: { product: ApiProduct }) {
-  const price = formatPrice(product.price, product.currency);
+  const dict = useDict();
+  const t = dict.products;
+  const price = formatPrice(product.price, product.currency, dict.currencyUnit);
   return (
     <Link
       href={`/product?id=${encodeURIComponent(product.id)}`}
@@ -303,17 +313,17 @@ function CatalogCard({ product }: { product: ApiProduct }) {
           <MediaVisual
             seed={product.id}
             icon={iconForCategory(product.category)}
-            label={`${product.name} — ${product.category ?? "оборудование"}`}
+            label={`${product.name} — ${product.category ?? t.fallbackEquip}`}
             className="h-full w-full"
           />
         )}
         {product.in_stock ? (
           <span className="label absolute left-4 top-4 rounded-full bg-signal/15 px-2.5 py-1 text-signal ring-1 ring-signal/30 backdrop-blur">
-            В наличии
+            {t.inStock}
           </span>
         ) : (
           <span className="label absolute left-4 top-4 rounded-full bg-surface/90 px-2.5 py-1 text-ink-muted ring-1 ring-line backdrop-blur">
-            Под заказ
+            {t.onOrder}
           </span>
         )}
         <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full glass-strong text-ink-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent">
@@ -338,10 +348,10 @@ function CatalogCard({ product }: { product: ApiProduct }) {
           {price ? (
             <span className="font-display text-base font-semibold text-ink">{price}</span>
           ) : (
-            <span className="text-sm text-ink-dim">Цена по запросу</span>
+            <span className="text-sm text-ink-dim">{t.priceOnRequest}</span>
           )}
           <span className="shrink-0 text-sm font-medium text-accent group-hover:underline">
-            Подробнее →
+            {t.more}
           </span>
         </div>
       </div>
@@ -360,9 +370,10 @@ function Pager({
   total: number;
   onChange: (page: number) => void;
 }) {
+  const t = useDict().products;
   return (
-    <nav className="mt-10 flex items-center justify-center gap-1.5" aria-label="Страницы каталога">
-      <PagerButton onClick={() => onChange(current - 1)} disabled={current <= 1} aria-label="Предыдущая страница">
+    <nav className="mt-10 flex items-center justify-center gap-1.5" aria-label={t.pagerAria}>
+      <PagerButton onClick={() => onChange(current - 1)} disabled={current <= 1} aria-label={t.prevPage}>
         <ChevronLeft className="h-4 w-4" />
       </PagerButton>
 
@@ -376,7 +387,7 @@ function Pager({
             key={p}
             onClick={() => onChange(p)}
             active={p === current}
-            aria-label={`Страница ${p}`}
+            aria-label={interpolate(t.pageN, { n: p })}
             aria-current={p === current ? "page" : undefined}
           >
             {p}
@@ -384,7 +395,7 @@ function Pager({
         ),
       )}
 
-      <PagerButton onClick={() => onChange(current + 1)} disabled={current >= total} aria-label="Следующая страница">
+      <PagerButton onClick={() => onChange(current + 1)} disabled={current >= total} aria-label={t.nextPage}>
         <ChevronRight className="h-4 w-4" />
       </PagerButton>
     </nav>
@@ -459,19 +470,20 @@ function CatItem({
 }
 
 function EmptyState({ onReset }: { onReset: () => void }) {
+  const t = useDict().products;
   return (
     <div className="mt-12 flex flex-col items-center gap-4 rounded-3xl glass px-6 py-16 text-center">
       <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-surface-2 ring-1 ring-line-strong">
         <SearchX className="h-7 w-7 text-ink-muted" />
       </span>
-      <h3 className="font-display text-xl font-semibold text-ink">Ничего не найдено</h3>
-      <p className="max-w-sm text-ink-muted">Попробуйте изменить запрос или выбрать другую категорию.</p>
+      <h3 className="font-display text-xl font-semibold text-ink">{t.emptyTitle}</h3>
+      <p className="max-w-sm text-ink-muted">{t.emptyText}</p>
       <button
         type="button"
         onClick={onReset}
         className="cursor-pointer text-sm font-medium text-accent hover:underline"
       >
-        Сбросить фильтры
+        {t.resetFilters}
       </button>
     </div>
   );

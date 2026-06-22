@@ -8,10 +8,21 @@ import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { LatestPosts } from "@/components/sections/LatestPosts";
 import { ButtonLink } from "@/components/ui/Button";
-import { advantages, stats } from "@/lib/data/site";
-import { categories } from "@/lib/data/categories";
+import { statValues } from "@/lib/data/site";
+import { getCategories } from "@/lib/data/categories";
+import { getDictionary, isLocale } from "@/lib/i18n";
+import { notFound } from "next/navigation";
 
-export default function HomePage() {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = getDictionary(lang);
+  const categories = getCategories(lang);
+
   return (
     <>
       <Hero />
@@ -20,14 +31,18 @@ export default function HomePage() {
       <section className="relative py-20 md:py-28">
         <Container>
           <SectionHeading
-            eyebrow="Почему Ansor Med"
-            title={<>Надёжный партнёр для современной клиники</>}
-            subtitle="Мы отвечаем не только за поставку, но и за то, чтобы оборудование работало без сбоев на всём жизненном цикле."
+            eyebrow={dict.home.advantages.eyebrow}
+            title={<>{dict.home.advantages.title}</>}
+            subtitle={dict.home.advantages.subtitle}
           />
           <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {advantages.map((a) => (
+            {dict.advantages.map((a, i) => (
               <RevealItem key={a.title}>
-                <FeatureCard icon={a.icon} title={a.title} text={a.text} />
+                <FeatureCard
+                  icon={["ShieldCheck", "Wrench", "Truck", "GraduationCap"][i]}
+                  title={a.title}
+                  text={a.text}
+                />
               </RevealItem>
             ))}
           </RevealGroup>
@@ -44,13 +59,13 @@ export default function HomePage() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <SectionHeading
               align="left"
-              eyebrow="Каталог"
-              title={<>Популярные категории оборудования</>}
-              subtitle="Полный спектр медтехники — от диагностики до расходных материалов."
+              eyebrow={dict.home.categories.eyebrow}
+              title={<>{dict.home.categories.title}</>}
+              subtitle={dict.home.categories.subtitle}
             />
             <Reveal>
               <ButtonLink href="/products" variant="secondary">
-                Весь каталог
+                {dict.home.categories.viewAll}
                 <ArrowRight className="h-4 w-4" />
               </ButtonLink>
             </Reveal>
@@ -58,7 +73,7 @@ export default function HomePage() {
           <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((c) => (
               <RevealItem key={c.id}>
-                <CategoryCard category={c} />
+                <CategoryCard category={c} cta={dict.home.categories.cardCta} />
               </RevealItem>
             ))}
           </RevealGroup>
@@ -70,9 +85,9 @@ export default function HomePage() {
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-80 w-[50rem] -translate-x-1/2 -translate-y-1/2 spotlight" />
         <Container className="relative z-10">
           <RevealGroup className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            {stats.map((s) => (
+            {dict.stats.map((s, i) => (
               <RevealItem key={s.label}>
-                <StatCard value={s.value} suffix={s.suffix} label={s.label} />
+                <StatCard value={statValues[i]} suffix={s.suffix} label={s.label} />
               </RevealItem>
             ))}
           </RevealGroup>
@@ -85,13 +100,13 @@ export default function HomePage() {
           <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
             <SectionHeading
               align="left"
-              eyebrow="Блог"
-              title={<>Экспертиза и тренды медтехники</>}
-              subtitle="Разбираем технологии, делимся опытом внедрения и сервиса."
+              eyebrow={dict.home.blog.eyebrow}
+              title={<>{dict.home.blog.title}</>}
+              subtitle={dict.home.blog.subtitle}
             />
             <Reveal>
               <ButtonLink href="/blog" variant="secondary">
-                Все статьи
+                {dict.home.blog.viewAll}
                 <ArrowRight className="h-4 w-4" />
               </ButtonLink>
             </Reveal>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
 import { Hero3D } from "@/components/three/Hero3D";
 import { ButtonLink } from "@/components/ui/Button";
+import { useDict } from "@/components/i18n/I18nProvider";
 import { EASE } from "@/lib/utils";
 
 const stagger = {
@@ -16,6 +17,8 @@ const item = {
 };
 
 export function Hero() {
+  const dict = useDict();
+  const h = dict.hero;
   return (
     <section className="relative isolate overflow-hidden">
       <div className="pointer-events-none absolute inset-0 grid-lines opacity-[0.5]" />
@@ -36,26 +39,22 @@ export function Hero() {
             className="label inline-flex items-center gap-2 text-accent"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-signal" />
-            Медтехника · Нейротехнологии · Узбекистан
+            {h.badge}
           </motion.span>
 
           <motion.h1
             variants={item}
             className="mt-6 text-[2.6rem] font-semibold leading-[0.98] tracking-tight text-ink sm:text-6xl md:text-7xl"
           >
-            Оборудование,
-            <br />
-            которому{" "}
-            <span className="text-accent-gradient">доверяют клиники</span>
+            {h.titlePre}
+            <span className="text-accent-gradient">{h.titleAccent}</span>
           </motion.h1>
 
           <motion.p
             variants={item}
             className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted"
           >
-            Ansor Med поставляет, монтирует и обслуживает высокотехнологичную
-            медтехнику по всему Узбекистану — от диагностики и нейрохирургии до
-            реабилитации и мониторинга пациентов.
+            {h.subtitle}
           </motion.p>
 
           <motion.div
@@ -63,12 +62,12 @@ export function Hero() {
             className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <ButtonLink href="/products" size="lg">
-              Каталог продукции
+              {h.ctaCatalog}
               <ArrowRight className="h-4 w-4" />
             </ButtonLink>
             <ButtonLink href="/contacts" variant="secondary" size="lg">
               <Phone className="h-4 w-4" />
-              Связаться с нами
+              {h.ctaContact}
             </ButtonLink>
           </motion.div>
 
@@ -76,9 +75,9 @@ export function Hero() {
             variants={item}
             className="mt-12 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6"
           >
-            <HeroStat value="500+" label="поставок" />
-            <HeroStat value="5 лет" label="на рынке" />
-            <HeroStat value="1000+" label="клиник" />
+            <HeroStat value={h.stats.deliveries.value} label={h.stats.deliveries.label} />
+            <HeroStat value={h.stats.years.value} label={h.stats.years.label} />
+            <HeroStat value={h.stats.clinics.value} label={h.stats.clinics.label} />
           </motion.dl>
         </motion.div>
 

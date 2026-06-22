@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
+import { notFound } from "next/navigation";
 import Script from "next/script";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Preloader } from "@/components/layout/Preloader";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { site } from "@/lib/data/site";
+import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -21,28 +24,41 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://ansormed.uz"),
-  title: {
-    default: `${site.name} — ${site.tagline}`,
-    template: `%s — ${site.name}`,
-  },
-  description: site.description,
-  keywords: [
-    "медицинское оборудование",
-    "медтехника",
-    "Узбекистан",
-    "диагностическое оборудование",
-    "нейрохирургия",
-    "Ansor Med",
-  ],
-  openGraph: {
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
-    locale: "ru_RU",
-    type: "website",
-  },
-};
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const locale: Locale = isLocale(lang) ? lang : "ru";
+  const dict = getDictionary(locale);
+
+  return {
+    metadataBase: new URL("https://ansormed.uz"),
+    title: {
+      default: `${site.name} — ${dict.meta.tagline}`,
+      template: `%s — ${site.name}`,
+    },
+    description: dict.meta.description,
+    keywords: dict.meta.keywords,
+    alternates: {
+      languages: {
+        ru: "/ru",
+        uz: "/uz",
+      },
+    },
+    openGraph: {
+      title: `${site.name} — ${dict.meta.tagline}`,
+      description: dict.meta.description,
+      locale: dict.meta.ogLocale,
+      type: "website",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#f6f8fc",
@@ -50,14 +66,20 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ lang: string }>;
 }>) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = getDictionary(lang);
+
   return (
     <html
-      lang="ru"
+      lang={lang}
       className={`${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-base">
@@ -81,19 +103,21 @@ export default function RootLayout({
           </div>
         </noscript>
         {/* /Yandex.Metrika counter */}
-        <Preloader />
-        {/* Skip link for keyboard users */}
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-        >
-          Перейти к содержимому
-        </a>
-        <Header />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        <I18nProvider lang={lang} dict={dict}>
+          <Preloader />
+          {/* Skip link for keyboard users */}
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+          >
+            {dict.skipToContent}
+          </a>
+          <Header />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <Footer lang={lang} />
+        </I18nProvider>
       </body>
     </html>
   );

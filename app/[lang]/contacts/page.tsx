@@ -1,24 +1,42 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/data/site";
+import { getDictionary, isLocale } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "Контакты",
-  description:
-    "Свяжитесь с Ansor Med: телефон, email, адрес офиса в Ташкенте и мессенджеры. Оставьте заявку — мы перезвоним.",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const dict = getDictionary(isLocale(lang) ? lang : "ru");
+  return {
+    title: dict.contacts.meta.title,
+    description: dict.contacts.meta.description,
+  };
+}
 
-export default function ContactsPage() {
+export default async function ContactsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = getDictionary(lang);
+  const c = dict.contacts;
+
   return (
     <>
       <PageHeader
-        eyebrow="Контакты"
-        title={<>Давайте обсудим ваш проект</>}
-        subtitle="Ответим на вопросы, подберём оборудование и подготовим коммерческое предложение. Мы на связи в рабочее время и в мессенджерах."
+        eyebrow={c.header.eyebrow}
+        title={<>{c.header.title}</>}
+        subtitle={c.header.subtitle}
       />
 
       <section className="py-12 md:py-16">
@@ -28,31 +46,31 @@ export default function ContactsPage() {
             <Reveal className="flex flex-col gap-4">
               <InfoCard
                 icon={<Phone className="h-5 w-5" />}
-                title="Телефон"
+                title={c.phoneLabel}
                 href={`tel:${site.phoneHref}`}
                 value={site.phone}
               />
               <InfoCard
                 icon={<Mail className="h-5 w-5" />}
-                title="Email"
+                title={c.emailLabel}
                 href={`mailto:${site.email}`}
                 value={site.email}
               />
               <InfoCard
                 icon={<MapPin className="h-5 w-5" />}
-                title="Адрес"
-                value={site.address}
+                title={c.addressLabel}
+                value={dict.site.addressDisplay}
               />
               <InfoCard
                 icon={<Clock className="h-5 w-5" />}
-                title="Режим работы"
-                value={site.hours}
-                note={site.hoursNote}
+                title={c.hoursLabel}
+                value={dict.site.hours}
+                note={dict.site.hoursNote}
               />
 
               <div className="mt-2 flex flex-col gap-3 rounded-3xl glass p-6">
                 <h3 className="font-display text-base font-semibold text-ink">
-                  Напишите в мессенджер
+                  {c.messengerTitle}
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   <a
@@ -72,10 +90,10 @@ export default function ContactsPage() {
             <Reveal delay={0.1}>
               <div className="rounded-[2rem] glass-strong p-6 md:p-9">
                 <h2 className="font-display text-2xl font-semibold text-ink">
-                  Оставить заявку
+                  {c.formTitle}
                 </h2>
                 <p className="mt-2 text-ink-muted">
-                  Заполните форму — специалист свяжется с вами в ближайшее время.
+                  {c.formSubtitle}
                 </p>
                 <div className="mt-7">
                   <ContactForm />
@@ -93,7 +111,7 @@ export default function ContactsPage() {
             <div className="relative">
               <div className="aspect-[16/10] w-full sm:aspect-[21/9]">
                 <iframe
-                  title="Карта — офис Ansor Med в Ташкенте"
+                  title={c.mapTitle}
                   src="https://www.openstreetmap.org/export/embed.html?bbox=69.20%2C41.27%2C69.36%2C41.35&layer=mapnik&marker=41.311081%2C69.279737"
                   className="h-full w-full grayscale-[0.2] [filter:invert(0.9)_hue-rotate(170deg)]"
                   loading="lazy"
@@ -103,7 +121,7 @@ export default function ContactsPage() {
               <div className="pointer-events-none absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-sm">
                 <div className="pointer-events-auto rounded-2xl glass-strong p-4">
                   <p className="font-display font-semibold text-ink">{site.name}</p>
-                  <p className="mt-1 text-sm text-ink-muted">{site.address}</p>
+                  <p className="mt-1 text-sm text-ink-muted">{dict.site.addressDisplay}</p>
                 </div>
               </div>
             </div>

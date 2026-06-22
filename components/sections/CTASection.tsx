@@ -1,10 +1,15 @@
+"use client";
+
 import { Phone, Mail, MapPin } from "lucide-react";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { site } from "@/lib/data/site";
+import { useDict } from "@/components/i18n/I18nProvider";
 
 export function CTASection() {
+  const dict = useDict();
+  const c = dict.cta;
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
       <div className="pointer-events-none absolute inset-0 grid-dots opacity-30" />
@@ -15,25 +20,24 @@ export function CTASection() {
             <Reveal className="flex flex-col gap-6">
               <span className="label inline-flex w-fit items-center gap-2 text-accent">
                 <span className="h-1.5 w-1.5 rounded-full bg-signal" />
-                Свяжитесь с нами
+                {c.badge}
               </span>
               <h2 className="text-balance text-3xl font-semibold leading-tight sm:text-4xl">
-                Подберём оборудование под задачи вашей клиники
+                {c.title}
               </h2>
               <p className="text-pretty leading-relaxed text-ink-muted">
-                Оставьте заявку — специалист Ansor Med свяжется с вами,
-                проконсультирует и подготовит коммерческое предложение.
+                {c.text}
               </p>
 
               <ul className="mt-2 flex flex-col gap-4">
-                <ContactRow icon={<Phone className="h-5 w-5" />} href={`tel:${site.phoneHref}`} label="Телефон">
+                <ContactRow icon={<Phone className="h-5 w-5" />} href={`tel:${site.phoneHref}`} label={c.phoneLabel}>
                   {site.phone}
                 </ContactRow>
-                <ContactRow icon={<Mail className="h-5 w-5" />} href={`mailto:${site.email}`} label="Email">
+                <ContactRow icon={<Mail className="h-5 w-5" />} href={`mailto:${site.email}`} label={c.emailLabel}>
                   {site.email}
                 </ContactRow>
-                <ContactRow icon={<MapPin className="h-5 w-5" />} label="Адрес">
-                  {site.address}
+                <ContactRow icon={<MapPin className="h-5 w-5" />} label={c.addressLabel}>
+                  {dict.site.addressDisplay}
                 </ContactRow>
               </ul>
             </Reveal>

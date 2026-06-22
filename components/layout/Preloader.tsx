@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useDict } from "@/components/i18n/I18nProvider";
 import { EASE } from "@/lib/utils";
 
 const NODES = [
@@ -16,6 +17,7 @@ const NODES = [
  * load and never re-triggers on client-side route changes.
  */
 export function Preloader() {
+  const dict = useDict();
   const [visible, setVisible] = useState(true);
   const [pct, setPct] = useState(0);
   const reduce = useReducedMotion();
@@ -177,7 +179,7 @@ export function Preloader() {
               </div>
               <span className="label w-9 text-right text-ink-dim tabular-nums">{pct}%</span>
             </div>
-            <span className="label mt-3 text-ink-dim">подготовка системы</span>
+            <span className="label mt-3 text-ink-dim">{dict.preloader.loading}</span>
           </motion.div>
         </motion.div>
       )}

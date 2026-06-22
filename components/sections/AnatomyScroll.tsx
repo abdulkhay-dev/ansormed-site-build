@@ -4,75 +4,44 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useDict } from "@/components/i18n/I18nProvider";
 import type { StageDef } from "@/components/three/AnatomyScene";
 
 const AnatomyScene = dynamic(() => import("@/components/three/AnatomyScene"), {
   ssr: false,
 });
 
-interface Stage extends StageDef {
-  key: string;
-  label: string;
-  title: string;
-  text: string;
-}
-
-const STAGES: Stage[] = [
-  {
-    key: "body",
-    label: "Ansor Med",
-    title: "Весь организм под контролем",
-    text: "Поставляем оборудование для каждой области медицины — более 1000 клиник по всему Узбекистану доверяют нам.",
-    yFrac: 0.53,
-    zoom: 0.9,
-  },
-  {
-    key: "head",
-    label: "Неврология · Радиология",
-    title: "Голова и нервная система",
-    text: "МРТ, КТ и нейродиагностика экспертного класса. Точные изображения — для точных решений врача.",
-    yFrac: 0.9,
-    zoom: 3.2,
-  },
-  {
-    key: "torso",
-    label: "Кардиология · Диагностика",
-    title: "Сердце и внутренние органы",
-    text: "УЗИ-аппараты, ЭКГ, мониторинг пациента и эндоскопия — видим то, что скрыто от глаз.",
-    yFrac: 0.64,
-    zoom: 2.3,
-  },
-  {
-    key: "arms",
-    label: "Хирургия · Операционные",
-    title: "Руки хирурга — наша техника",
-    text: "Операционные столы, светильники, наркозно-дыхательная аппаратура и инструменты для уверенной работы.",
-    yFrac: 0.58,
-    zoom: 1.8,
-  },
-  {
-    key: "legs",
-    label: "Реабилитация · Ортопедия",
-    title: "Возвращаем движение",
-    text: "Оборудование для восстановления и физиотерапии: от первых шагов реабилитации до полного возвращения к жизни.",
-    yFrac: 0.22,
-    zoom: 2.1,
-  },
+/** Числовая конфигурация сцены (язык-независимая); тексты берутся из словаря. */
+const STAGE_CONFIG: (StageDef & { key: string })[] = [
+  { key: "body", yFrac: 0.53, zoom: 0.9 },
+  { key: "head", yFrac: 0.9, zoom: 3.2 },
+  { key: "torso", yFrac: 0.64, zoom: 2.3 },
+  { key: "arms", yFrac: 0.58, zoom: 1.8 },
+  { key: "legs", yFrac: 0.22, zoom: 2.1 },
 ];
 
-const sceneStages: StageDef[] = STAGES.map((s) => ({ yFrac: s.yFrac, zoom: s.zoom }));
+const sceneStages: StageDef[] = STAGE_CONFIG.map((s) => ({ yFrac: s.yFrac, zoom: s.zoom }));
 
-const NERVE_LEGEND = [
-  { color: "#bfe0ff", label: "Центральная нервная система" },
-  { color: "#5f9fe6", label: "Периферическая нервная система" },
-] as const;
-
-function NerveLegend({ className }: { className?: string }) {
+function NerveLegend({
+  className,
+  title,
+  cns,
+  pns,
+}: {
+  className?: string;
+  title: string;
+  cns: string;
+  pns: string;
+}) {
+  const items = [
+    { color: "#bfe0ff", label: cns },
+    { color: "#5f9fe6", label: pns },
+  ];
   return (
     <div className={className}>
-      <span className="label mb-2.5 block text-white/35">Нервная система</span>
+      <span className="label mb-2.5 block text-white/35">{title}</span>
       <ul className="flex flex-col gap-2">
-        {NERVE_LEGEND.map((n) => (
+        {items.map((n) => (
           <li key={n.label} className="flex items-center gap-2.5 text-xs text-white/65">
             <i
               className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -88,6 +57,9 @@ function NerveLegend({ className }: { className?: string }) {
 
 
 export function AnatomyScroll() {
+  const dict = useDict();
+  const a = dict.anatomy;
+  const STAGES = STAGE_CONFIG.map((c, i) => ({ ...c, ...a.stages[i] }));
   const sectionRef = useRef<HTMLElement>(null);
   const progress = useRef(0);
   const [nearest, setNearest] = useState(0);
@@ -129,7 +101,7 @@ export function AnatomyScroll() {
     <section
       ref={sectionRef}
       className="relative h-[520vh] bg-[#070b16]"
-      aria-label="Оборудование для всего организма"
+      aria-label={a.sectionAria}
     >
       <div className="sticky top-0 h-screen overflow-hidden">
         {/* faint clinical grid */}
@@ -143,7 +115,7 @@ export function AnatomyScroll() {
         )}
 
         <span className="label absolute left-[6%] top-10 z-10 text-[#8ea2ff]">
-          Карта медицины
+          {a.sectionLabel}
         </span>
 
         {/* step text panels */}
@@ -190,7 +162,12 @@ export function AnatomyScroll() {
           ))}
         </div>
 
-        <NerveLegend className="absolute bottom-8 left-[6%] z-10 hidden md:block" />
+        <NerveLegend
+          className="absolute bottom-8 left-[6%] z-10 hidden md:block"
+          title={a.nerveTitle}
+          cns={a.cns}
+          pns={a.pns}
+        />
 
         <div
           className={cn(
@@ -198,7 +175,7 @@ export function AnatomyScroll() {
             nearest > 0 ? "opacity-0" : "opacity-100",
           )}
         >
-          прокрутите ↓
+          {a.scrollHint}
         </div>
       </div>
     </section>

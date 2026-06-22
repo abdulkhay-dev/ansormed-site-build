@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import { listPosts, type ApiBlogPost } from "@/lib/api";
 import { PostCard } from "@/components/cards/PostCard";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
+import { useDict, useLang } from "@/components/i18n/I18nProvider";
 
 /** Превью последних статей на главной — реальные данные из /api/v1/blog/. */
 export function LatestPosts() {
+  const dict = useDict();
+  const lang = useLang();
   const [posts, setPosts] = useState<ApiBlogPost[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -17,7 +20,11 @@ export function LatestPosts() {
         if (cancelled) return;
         setPosts(
           (res ?? [])
-            .filter((p) => p.is_published !== false && p.display_ru !== false)
+            .filter(
+              (p) =>
+                p.is_published !== false &&
+                (lang === "uz" ? p.display_uz !== false : p.display_ru !== false),
+            )
             .slice(0, 3),
         );
       })
@@ -28,12 +35,12 @@ export function LatestPosts() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [lang]);
 
   if (loaded && posts.length === 0) {
     return (
       <p className="mt-14 rounded-3xl glass px-6 py-12 text-center text-ink-muted">
-        Скоро здесь появятся статьи о технологиях и сервисе медтехники.
+        {dict.blog.latestEmpty}
       </p>
     );
   }

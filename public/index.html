@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Ansor Med</title>
+    <!-- Корень сайта не имеет языка: уводим на /ru/ или /uz/ по языку браузера. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("lang");
+          var nav = (navigator.language || "ru").toLowerCase();
+          var lang =
+            saved === "uz" || saved === "ru"
+              ? saved
+              : nav.indexOf("uz") === 0
+                ? "uz"
+                : "ru";
+          location.replace("/" + lang + "/");
+        } catch (e) {
+          location.replace("/ru/");
+        }
+      })();
+    </script>
+    <meta http-equiv="refresh" content="0; url=/ru/" />
+  </head>
+  <body>
+    <noscript>
+      <a href="/ru/">Перейти на сайт / Saytga o'tish</a>
+    </noscript>
+  </body>
+</html>

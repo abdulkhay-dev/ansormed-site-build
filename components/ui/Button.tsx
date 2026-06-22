@@ -1,4 +1,5 @@
-import Link from "next/link";
+import type Link from "next/link";
+import { LocaleLink } from "@/components/ui/LocaleLink";
 import { cn } from "@/lib/utils";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -54,12 +55,12 @@ export function ButtonLink({
   ...props
 }: CommonProps & ComponentProps<typeof Link>) {
   return (
-    <Link
+    <LocaleLink
       href={href}
       className={cn(base, variants[variant], sizes[size], className)}
       {...props}
     >
       {children}
-    </Link>
+    </LocaleLink>
   );
 }

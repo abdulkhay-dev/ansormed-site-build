@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { createLead } from "@/lib/api";
+import { useDict } from "@/components/i18n/I18nProvider";
 import { cn } from "@/lib/utils";
 
 interface Fields {
@@ -15,25 +16,34 @@ interface Fields {
 }
 
 type Errors = Partial<Record<keyof Fields, string>>;
+type ErrorMessages = {
+  name: string;
+  phoneRequired: string;
+  phoneFormat: string;
+  email: string;
+  message: string;
+};
 
 const empty: Fields = { name: "", phone: "", email: "", message: "" };
 
-function validate(values: Fields): Errors {
+function validate(values: Fields, msg: ErrorMessages): Errors {
   const errors: Errors = {};
-  if (!values.name.trim()) errors.name = "Укажите ваше имя";
+  if (!values.name.trim()) errors.name = msg.name;
   if (!values.phone.trim()) {
-    errors.phone = "Укажите телефон";
+    errors.phone = msg.phoneRequired;
   } else if (!/^[+\d][\d\s()-]{6,}$/.test(values.phone.trim())) {
-    errors.phone = "Проверьте формат номера";
+    errors.phone = msg.phoneFormat;
   }
   if (values.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-    errors.email = "Проверьте email";
+    errors.email = msg.email;
   }
-  if (!values.message.trim()) errors.message = "Напишите сообщение";
+  if (!values.message.trim()) errors.message = msg.message;
   return errors;
 }
 
 export function ContactForm() {
+  const dict = useDict();
+  const t = dict.contactForm;
   const [values, setValues] = useState<Fields>(empty);
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
@@ -43,18 +53,18 @@ export function ContactForm() {
   const update = (key: keyof Fields, value: string) => {
     setValues((v) => ({ ...v, [key]: value }));
     if (touched[key]) {
-      setErrors(validate({ ...values, [key]: value }));
+      setErrors(validate({ ...values, [key]: value }, t.errors));
     }
   };
 
   const onBlur = (key: keyof Fields) => {
-    setTouched((t) => ({ ...t, [key]: true }));
-    setErrors(validate(values));
+    setTouched((tt) => ({ ...tt, [key]: true }));
+    setErrors(validate(values, t.errors));
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const found = validate(values);
+    const found = validate(values, t.errors);
     setErrors(found);
     setTouched({ name: true, phone: true, email: true, message: true });
     if (Object.keys(found).length > 0) return;
@@ -74,9 +84,7 @@ export function ContactForm() {
     } catch (err) {
       setStatus("idle");
       setSubmitError(
-        err instanceof Error && err.message
-          ? err.message
-          : "Не удалось отправить заявку. Попробуйте ещё раз или позвоните нам.",
+        err instanceof Error && err.message ? err.message : t.submitError,
       );
     }
   };
@@ -96,13 +104,13 @@ export function ContactForm() {
               <CheckCircle2 className="h-8 w-8 text-accent" />
             </span>
             <h3 className="font-display text-2xl font-semibold text-ink">
-              Заявка отправлена
+              {t.successTitle}
             </h3>
             <p className="max-w-sm text-ink-muted">
-              Спасибо! Наш специалист свяжется с вами в ближайшее рабочее время.
+              {t.successText}
             </p>
             <Button variant="secondary" onClick={() => setStatus("idle")}>
-              Отправить ещё одну
+              {t.sendAnother}
             </Button>
           </motion.div>
         ) : (
@@ -118,47 +126,51 @@ export function ContactForm() {
             <div className="grid gap-5 sm:grid-cols-2">
               <Field
                 id="name"
-                label="Имя"
+                label={t.nameLabel}
                 value={values.name}
                 error={errors.name}
                 onChange={(v) => update("name", v)}
                 onBlur={() => onBlur("name")}
-                placeholder="Иван Иванов"
+                placeholder={t.namePlaceholder}
                 autoComplete="name"
+                optionalLabel={t.optional}
               />
               <Field
                 id="phone"
-                label="Телефон"
+                label={t.phoneLabel}
                 type="tel"
                 value={values.phone}
                 error={errors.phone}
                 onChange={(v) => update("phone", v)}
                 onBlur={() => onBlur("phone")}
-                placeholder="+998 90 123 45 67"
+                placeholder={t.phonePlaceholder}
                 autoComplete="tel"
+                optionalLabel={t.optional}
               />
             </div>
             <Field
               id="email"
-              label="Email"
+              label={t.emailLabel}
               type="email"
               optional
               value={values.email}
               error={errors.email}
               onChange={(v) => update("email", v)}
               onBlur={() => onBlur("email")}
-              placeholder="you@clinic.uz"
+              placeholder={t.emailPlaceholder}
               autoComplete="email"
+              optionalLabel={t.optional}
             />
             <Field
               id="message"
-              label="Сообщение"
+              label={t.messageLabel}
               textarea
               value={values.message}
               error={errors.message}
               onChange={(v) => update("message", v)}
               onBlur={() => onBlur("message")}
-              placeholder="Опишите задачу или интересующее оборудование…"
+              placeholder={t.messagePlaceholder}
+              optionalLabel={t.optional}
             />
 
             {submitError && (
@@ -180,12 +192,12 @@ export function ContactForm() {
               {status === "loading" ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Отправляем…
+                  {t.submitting}
                 </>
               ) : (
                 <>
                   <Send className="h-4 w-4" />
-                  Отправить заявку
+                  {t.submit}
                 </>
               )}
             </Button>
@@ -207,6 +219,7 @@ function Field({
   type = "text",
   textarea = false,
   optional = false,
+  optionalLabel,
   autoComplete,
 }: {
   id: string;
@@ -219,6 +232,7 @@ function Field({
   type?: string;
   textarea?: boolean;
   optional?: boolean;
+  optionalLabel?: string;
   autoComplete?: string;
 }) {
   const base =
@@ -231,7 +245,9 @@ function Field({
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium text-ink">
         {label}
-        {optional && <span className="ml-1 text-ink-dim">(необязательно)</span>}
+        {optional && optionalLabel && (
+          <span className="ml-1 text-ink-dim">{optionalLabel}</span>
+        )}
       </label>
       {textarea ? (
         <textarea

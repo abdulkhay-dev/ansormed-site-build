@@ -8,26 +8,28 @@ export function cn(...classes: ClassValue[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-/** Format an ISO date string to Russian long form, e.g. "12 мая 2026". */
-const RU_MONTHS = [
-  "января", "февраля", "марта", "апреля", "мая", "июня",
-  "июля", "августа", "сентября", "октября", "ноября", "декабря",
-];
-
-export function formatDateRu(iso: string): string {
+/**
+ * Format an ISO date string to a localized long form, e.g. "12 мая 2026"
+ * or "12 may 2026". Названия месяцев берутся из словаря (dict.months).
+ */
+export function formatDate(iso: string, months: readonly string[]): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  return `${d.getUTCDate()} ${RU_MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
-/** Цена в формате "40 000 сум". null → null (показываем «Цена по запросу»). */
+/**
+ * Цена в формате "40 000 сум" / "40 000 so'm". null → null (показываем
+ * «Цена по запросу»). Денежная единица по умолчанию берётся из словаря.
+ */
 export function formatPrice(
-  price?: number | null,
-  currency?: string | null,
+  price: number | null | undefined,
+  currency: string | null | undefined,
+  defaultUnit: string,
 ): string | null {
   if (price == null) return null;
   const n = new Intl.NumberFormat("ru-RU").format(price);
-  const unit = currency === "UZS" || !currency ? "сум" : currency;
+  const unit = currency === "UZS" || !currency ? defaultUnit : currency;
   return `${n} ${unit}`.trim();
 }
 
