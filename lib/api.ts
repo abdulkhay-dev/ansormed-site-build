@@ -55,6 +55,16 @@ export interface ApiBlogPost {
   author_id: number;
 }
 
+export interface ApiContent {
+  id: number;
+  section: string;
+  key: string;
+  value_ru: string;
+  value_uz: string;
+  content_type: string;
+  updated_at: string;
+}
+
 export interface LeadInput {
   name: string;
   phone: string;
@@ -246,6 +256,35 @@ export async function getProductById(id: string | number): Promise<ApiProduct | 
 
 /** Категории — /api/v1/categories/. */
 export const listCategories = () => req<ApiCategory[]>(`/api/v1/categories/`);
+
+/* ---------- Site content (тексты из админки) ---------- */
+
+let contentCache: { at: number; data: ApiContent[] } | null = null;
+let contentInflight: Promise<ApiContent[]> | null = null;
+const CONTENT_TTL = 60_000; // 1 минута
+
+/**
+ * Все редактируемые тексты сайта — /api/v1/content/. Кешируется на короткий
+ * TTL в памяти; параллельные вызовы дедуплицируются. При ошибке возвращает [].
+ */
+export async function getContent(force = false): Promise<ApiContent[]> {
+  const now = Date.now();
+  if (!force) {
+    if (contentCache && now - contentCache.at < CONTENT_TTL) return contentCache.data;
+    if (contentInflight) return contentInflight;
+  }
+  contentInflight = req<ApiContent[]>(`/api/v1/content/`)
+    .then((rows) => {
+      const data = rows ?? [];
+      if (data.length) contentCache = { at: Date.now(), data };
+      return data;
+    })
+    .catch(() => [] as ApiContent[])
+    .finally(() => {
+      contentInflight = null;
+    });
+  return contentInflight;
+}
 
 /* ---------- Leads ---------- */
 

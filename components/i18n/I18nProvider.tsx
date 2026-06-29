@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { Dictionary, Locale } from "@/lib/i18n";
+import { getContent } from "@/lib/api";
+import { CONTENT_PATHS, setStringPath } from "@/lib/i18n/content-fields";
 
 interface I18nValue {
   lang: Locale;
@@ -19,8 +21,43 @@ export function I18nProvider({
   dict: Dictionary;
   children: React.ReactNode;
 }) {
+  // Базовый словарь из сборки + переопределения текстов из админки (ru/uz).
+  const [merged, setMerged] = useState<Dictionary>(dict);
+
+  // Сбрасываем на серверный словарь при смене языка/сборки.
+  useEffect(() => {
+    setMerged(dict);
+  }, [dict]);
+
+  useEffect(() => {
+    // EN из админки пока не редактируется — оставляем словарь как есть.
+    if (lang === "en") return;
+    let cancelled = false;
+
+    getContent()
+      .then((rows) => {
+        if (cancelled || rows.length === 0) return;
+        const next = structuredClone(dict) as Dictionary;
+        let changed = false;
+        // Применяем контент по полному пути (row.key); section игнорируем —
+        // он только «корзина» из-за enum'а API.
+        for (const row of rows) {
+          if (!CONTENT_PATHS.has(row.key)) continue;
+          const value = lang === "uz" ? row.value_uz : row.value_ru;
+          if (!value) continue;
+          if (setStringPath(next, row.key, value)) changed = true;
+        }
+        if (changed && !cancelled) setMerged(next);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, dict]);
+
   return (
-    <I18nContext.Provider value={{ lang, dict }}>
+    <I18nContext.Provider value={{ lang, dict: merged }}>
       {children}
     </I18nContext.Provider>
   );
