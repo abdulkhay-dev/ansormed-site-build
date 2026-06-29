@@ -118,23 +118,103 @@ export function listProducts(
 export const getProduct = (id: string | number) =>
   req<ApiProduct>(`/api/v1/products/${encodeURIComponent(String(id))}`);
 
+/* --- Кеш полного каталога (клиентский) --- */
+
+const PRODUCTS_TTL = 5 * 60_000; // 5 минут
+const PRODUCTS_SS_KEY = "ansormed:allProducts:v1";
+
+type ProductsCache = { at: number; data: ApiProduct[] };
+let productsCache: ProductsCache | null = null;
+let productsInflight: Promise<ApiProduct[]> | null = null;
+
+function readProductsSession(): ProductsCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(PRODUCTS_SS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ProductsCache;
+    if (parsed && typeof parsed.at === "number" && Array.isArray(parsed.data)) {
+      return parsed;
+    }
+  } catch {
+    /* битый кеш — игнорируем */
+  }
+  return null;
+}
+
+function writeProductsSession(entry: ProductsCache): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(PRODUCTS_SS_KEY, JSON.stringify(entry));
+  } catch {
+    /* квота/приватный режим — кеш остаётся только в памяти */
+  }
+}
+
+/** Сбрасывает кеш каталога (на случай ручного обновления данных). */
+export function invalidateProductsCache(): void {
+  productsCache = null;
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.removeItem(PRODUCTS_SS_KEY);
+    } catch {
+      /* no-op */
+    }
+  }
+}
+
 /**
  * Загружает весь каталог постранично (page_size=100) — нужно, чтобы собрать
  * список категорий прямо из товаров и фильтровать на клиенте. Ограничено
  * `maxPages`, чтобы не уйти в бесконечную выкачку на больших каталогах.
+ *
+ * Результат кешируется на TTL: в памяти (переживает переходы внутри SPA) и в
+ * sessionStorage (переживает перезагрузку вкладки). Параллельные вызовы
+ * дедуплицируются. `force` обходит кеш.
  */
-export async function listAllProducts(maxPages = 30): Promise<ApiProduct[]> {
-  const pageSize = 100;
-  const first = await listProducts({ page: 1, pageSize });
-  if (!first) return [];
-  const items = [...first.items];
-  const totalPages = Math.min(maxPages, Math.ceil((first.total || 0) / pageSize));
-  for (let page = 2; page <= totalPages; page++) {
-    const res = await listProducts({ page, pageSize });
-    if (res?.items?.length) items.push(...res.items);
-    else break;
+export async function listAllProducts(
+  maxPages = 30,
+  { force = false }: { force?: boolean } = {},
+): Promise<ApiProduct[]> {
+  const now = Date.now();
+
+  if (!force) {
+    if (productsCache && now - productsCache.at < PRODUCTS_TTL) {
+      return productsCache.data;
+    }
+    if (!productsCache) {
+      const ss = readProductsSession();
+      if (ss && now - ss.at < PRODUCTS_TTL) {
+        productsCache = ss;
+        return ss.data;
+      }
+    }
+    if (productsInflight) return productsInflight;
   }
-  return items;
+
+  const fetchAll = (async () => {
+    const pageSize = 100;
+    const first = await listProducts({ page: 1, pageSize });
+    if (!first) return [];
+    const items = [...first.items];
+    const totalPages = Math.min(maxPages, Math.ceil((first.total || 0) / pageSize));
+    for (let page = 2; page <= totalPages; page++) {
+      const res = await listProducts({ page, pageSize });
+      if (res?.items?.length) items.push(...res.items);
+      else break;
+    }
+    // Кешируем только непустой результат, чтобы сетевой сбой не «залип».
+    if (items.length > 0) {
+      productsCache = { at: Date.now(), data: items };
+      writeProductsSession(productsCache);
+    }
+    return items;
+  })();
+
+  productsInflight = fetchAll.finally(() => {
+    productsInflight = null;
+  });
+  return productsInflight;
 }
 
 /**
