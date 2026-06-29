@@ -12,11 +12,13 @@
           var saved = localStorage.getItem("lang");
           var nav = (navigator.language || "ru").toLowerCase();
           var lang =
-            saved === "uz" || saved === "ru"
+            saved === "uz" || saved === "ru" || saved === "en"
               ? saved
               : nav.indexOf("uz") === 0
                 ? "uz"
-                : "ru";
+                : nav.indexOf("en") === 0
+                  ? "en"
+                  : "ru";
           location.replace("/" + lang + "/");
         } catch (e) {
           location.replace("/ru/");

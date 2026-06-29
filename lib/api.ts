@@ -119,6 +119,25 @@ export const getProduct = (id: string | number) =>
   req<ApiProduct>(`/api/v1/products/${encodeURIComponent(String(id))}`);
 
 /**
+ * Загружает весь каталог постранично (page_size=100) — нужно, чтобы собрать
+ * список категорий прямо из товаров и фильтровать на клиенте. Ограничено
+ * `maxPages`, чтобы не уйти в бесконечную выкачку на больших каталогах.
+ */
+export async function listAllProducts(maxPages = 30): Promise<ApiProduct[]> {
+  const pageSize = 100;
+  const first = await listProducts({ page: 1, pageSize });
+  if (!first) return [];
+  const items = [...first.items];
+  const totalPages = Math.min(maxPages, Math.ceil((first.total || 0) / pageSize));
+  for (let page = 2; page <= totalPages; page++) {
+    const res = await listProducts({ page, pageSize });
+    if (res?.items?.length) items.push(...res.items);
+    else break;
+  }
+  return items;
+}
+
+/**
  * Товар по id с устойчивостью к бэкенду: сначала прямой эндпоинт
  * /products/{id}; если он недоступен/не находит — ищем товар в каталоге
  * (список рабочий). Когда get-by-id на бэке починят, фолбэк не понадобится.

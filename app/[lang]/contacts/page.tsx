@@ -112,7 +112,7 @@ export default async function ContactsPage({
               <div className="aspect-[16/10] w-full sm:aspect-[21/9]">
                 <iframe
                   title={c.mapTitle}
-                  src="https://www.openstreetmap.org/export/embed.html?bbox=69.20%2C41.27%2C69.36%2C41.35&layer=mapnik&marker=41.311081%2C69.279737"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=69.18%2C41.33%2C69.29%2C41.38&layer=mapnik&marker=41.354458%2C69.236303"
                   className="h-full w-full grayscale-[0.2] [filter:invert(0.9)_hue-rotate(170deg)]"
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"

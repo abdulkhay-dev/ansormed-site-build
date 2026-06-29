@@ -17,7 +17,7 @@ const uz: Dictionary = {
   },
 
   site: {
-    addressDisplay: "Toshkent sh.",
+    addressDisplay: "Toshkent sh., Olmazor tumani, Qoraqamish massivi, 1/2, 20A",
     hours: "9:00 — 20:00",
     hoursNote: "Har kuni, dam olishsiz",
   },

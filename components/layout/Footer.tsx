@@ -50,7 +50,7 @@ export function Footer({ lang }: { lang: Locale }) {
         {/* Categories */}
         <FooterCol title={dict.footer.categoriesTitle}>
           {categories.slice(0, 5).map((c) => (
-            <FooterLink key={c.id} href={`/products?category=${c.id}`}>
+            <FooterLink key={c.id} href={`/products?category=${encodeURIComponent(c.apiCategory)}`}>
               {c.short}
             </FooterLink>
           ))}

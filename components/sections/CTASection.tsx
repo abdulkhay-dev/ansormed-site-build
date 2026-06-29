@@ -46,6 +46,26 @@ export function CTASection() {
               <ContactForm />
             </Reveal>
           </div>
+
+          <Reveal className="border-t border-line-strong">
+            <div className="relative">
+              <div className="aspect-[16/10] w-full sm:aspect-[21/9]">
+                <iframe
+                  title={dict.contacts.mapTitle}
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=69.18%2C41.33%2C69.29%2C41.38&layer=mapnik&marker=41.354458%2C69.236303"
+                  className="h-full w-full grayscale-[0.2] [filter:invert(0.9)_hue-rotate(170deg)]"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+              <div className="pointer-events-none absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-sm">
+                <div className="pointer-events-auto rounded-2xl glass-strong p-4">
+                  <p className="font-display font-semibold text-ink">{site.name}</p>
+                  <p className="mt-1 text-sm text-ink-muted">{dict.site.addressDisplay}</p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </Container>
     </section>

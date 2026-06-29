@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
+import { FloatingIcons } from "@/components/motion/FloatingIcons";
 import { Hero3D } from "@/components/three/Hero3D";
 import { ButtonLink } from "@/components/ui/Button";
 import { useDict } from "@/components/i18n/I18nProvider";
@@ -25,6 +26,8 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(70%_60%_at_50%_40%,#000,transparent)]">
         <div className="absolute inset-0 grid-lines opacity-40" />
       </div>
+
+      <FloatingIcons focal={{ x: 72, y: 50 }} />
 
       <div className="container-x relative grid items-center gap-10 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
         {/* Copy */}

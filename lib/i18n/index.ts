@@ -1,12 +1,13 @@
 import ru, { type Dictionary } from "./dictionaries/ru";
 import uz from "./dictionaries/uz";
-import { type Locale } from "./config";
+import en from "./dictionaries/en";
+import { isLocale, type Locale } from "./config";
 
 export { locales, defaultLocale, isLocale, localeLabels } from "./config";
 export type { Locale } from "./config";
 export type { Dictionary } from "./dictionaries/ru";
 
-const dictionaries: Record<Locale, Dictionary> = { ru, uz };
+const dictionaries: Record<Locale, Dictionary> = { ru, uz, en };
 
 /** Синхронно возвращает словарь для локали. */
 export function getDictionary(locale: Locale): Dictionary {
@@ -21,7 +22,7 @@ export function getDictionary(locale: Locale): Dictionary {
 export function localizeHref(locale: Locale, href: string): string {
   if (!href.startsWith("/") || href.startsWith("//")) return href;
   const seg = href.split(/[/?#]/)[1];
-  if (seg === "ru" || seg === "uz") return href;
+  if (isLocale(seg)) return href;
   return `/${locale}${href === "/" ? "" : href}`;
 }
 

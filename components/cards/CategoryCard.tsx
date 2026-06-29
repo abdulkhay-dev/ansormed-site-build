@@ -19,7 +19,7 @@ export function CategoryCard({
 }) {
   return (
     <Link
-      href={`/products?category=${category.id}`}
+      href={`/products?category=${encodeURIComponent(category.apiCategory)}`}
       className="group relative flex flex-col gap-4 overflow-hidden rounded-3xl bg-surface border border-line p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-line-strong hover:shadow-float"
     >
       {/* hover glow */}

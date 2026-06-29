@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
@@ -11,20 +11,45 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import {
-  listProducts,
-  listCategories,
-  type ApiProduct,
-  type ApiCategory,
-} from "@/lib/api";
+import { listAllProducts, type ApiProduct } from "@/lib/api";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
-import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { useDict } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
 import { cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
+
+/**
+ * Категории, которые показываем в фильтре (порядок сохраняется). Значения —
+ * полные строки `category` из API; сопоставление нормализованное, поэтому
+ * терпимо к регистру/пробелам/дефисам.
+ */
+const ALLOWED_CATEGORIES = [
+  "REHABILITATION",
+  "SURGICAL EQUIPMENT",
+  "PHYSIOTHERAPY",
+  "OTHER",
+  "ONCOLOGY",
+  "NEUROLOGY",
+  "PEDIATRICS",
+  "EMERGENCY MEDICAL CARE",
+  "BREATHING APPARATUS",
+  "SURGICAL INSTRUMENT",
+  "RADIOLOGY",
+  "GYNECOLOGY",
+  "DIAGNOSTIC DEVICES",
+  "FURNITURE-TROLLEYS",
+];
+
+/** Нормализация названия категории для устойчивого сравнения. */
+const normCat = (s: string) =>
+  s.trim().toUpperCase().replace(/\s+/g, " ").replace(/\s*-\s*/g, "-");
+
+const CATEGORY_ORDER = new Map(
+  ALLOWED_CATEGORIES.map((c, i) => [normCat(c), i] as const),
+);
 
 /** Компактный набор номеров страниц с многоточиями вокруг текущей. */
 function pageWindow(current: number, total: number): (number | "…")[] {
@@ -45,7 +70,6 @@ export function ProductsExplorer({
   initialCategory?: string;
 }) {
   const dict = useDict();
-  const lang = useLang();
   const t = dict.products;
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -53,60 +77,19 @@ export function ProductsExplorer({
   const [catOpen, setCatOpen] = useState(false);
   const [page, setPage] = useState(1);
 
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [items, setItems] = useState<ApiProduct[]>([]);
-  const [total, setTotal] = useState(0);
+  const [allItems, setAllItems] = useState<ApiProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Категории — один раз при загрузке (/api/v1/categories/).
-  useEffect(() => {
-    let cancelled = false;
-    listCategories()
-      .then((cats) => {
-        if (!cancelled && cats) setCategories(cats.filter((c) => c.is_active !== false));
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Deep-link по категории (?category=slug).
-  useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get("category");
-    if (c) setActive(c);
-  }, []);
-
-  // Дебаунс поискового запроса.
-  useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 350);
-    return () => clearTimeout(t);
-  }, [query]);
-
-  // Сброс на 1-ю страницу при смене поиска/категории.
-  useEffect(() => {
-    setPage(1);
-  }, [debounced, active]);
-
-  // Загрузка страницы товаров (серверная пагинация/фильтр/поиск).
+  // Весь каталог — один раз при загрузке. Категории и фильтр строятся из него.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listProducts({
-      page,
-      pageSize: PAGE_SIZE,
-      category: active === "all" ? undefined : active,
-      search: debounced || undefined,
-    })
-      .then((res) => {
-        if (cancelled) return;
-        setItems(res?.items ?? []);
-        setTotal(res?.total ?? 0);
+    listAllProducts()
+      .then((products) => {
+        if (!cancelled) setAllItems(products);
       })
       .catch(() => {
-        if (cancelled) return;
-        setItems([]);
-        setTotal(0);
+        if (!cancelled) setAllItems([]);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -114,23 +97,84 @@ export function ProductsExplorer({
     return () => {
       cancelled = true;
     };
-  }, [page, active, debounced]);
+  }, []);
 
+  // Deep-link по категории (?category=...).
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("category");
+    if (c) setActive(c);
+  }, []);
+
+  // Дебаунс поискового запроса.
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(query.trim()), 250);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  // Сброс на 1-ю страницу при смене поиска/категории.
+  useEffect(() => {
+    setPage(1);
+  }, [debounced, active]);
+
+  // Категории из товаров, ограниченные allowlist'ом, в заданном порядке.
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const p of allItems) {
+      const c = p.category?.trim();
+      if (c) counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([name, count]) => ({ name, count, order: CATEGORY_ORDER.get(normCat(name)) ?? -1 }))
+      .filter((c) => c.order >= 0)
+      .sort((a, b) => a.order - b.order);
+  }, [allItems]);
+
+  // После загрузки сверяем активную категорию с реальными (из товаров):
+  // точное → без учёта регистра → по вхождению; иначе показываем всё. Это
+  // защищает старые ссылки (?category=slug) от пустого каталога.
+  const resolvedRef = useRef(false);
+  useEffect(() => {
+    if (resolvedRef.current || allItems.length === 0) return;
+    resolvedRef.current = true;
+    setActive((cur) => {
+      if (cur === "all") return cur;
+      const names = categories.map((c) => c.name);
+      if (names.includes(cur)) return cur;
+      const low = cur.toLowerCase();
+      return (
+        names.find((n) => n.toLowerCase() === low) ??
+        names.find((n) => n.toLowerCase().includes(low) || low.includes(n.toLowerCase())) ??
+        "all"
+      );
+    });
+  }, [allItems, categories]);
+
+  // Клиентская фильтрация по категории и поиску.
+  const filtered = useMemo(() => {
+    const q = debounced.toLowerCase();
+    return allItems.filter((p) => {
+      if (active !== "all" && p.category?.trim() !== active) return false;
+      if (!q) return true;
+      return (
+        p.name.toLowerCase().includes(q) ||
+        (p.brand?.toLowerCase().includes(q) ?? false)
+      );
+    });
+  }, [allItems, active, debounced]);
+
+  const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
+  const items = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const goToPage = (p: number) => {
     setPage(Math.min(Math.max(1, p), pageCount));
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const catName = (c: ApiCategory) =>
-    (lang === "uz" && c.name_uz) || c.name_ru;
-  const activeCat = categories.find((c) => c.slug === active);
-  const currentLabel =
-    active === "all" ? t.allCategories : activeCat ? catName(activeCat) : active;
-  const currentIcon = active === "all" ? "LayoutGrid" : iconForCategory(activeCat?.slug ?? active);
+  const currentLabel = active === "all" ? t.allCategories : active;
+  const currentIcon = active === "all" ? "LayoutGrid" : iconForCategory(active);
 
   return (
     <div className="lg:grid lg:grid-cols-[clamp(220px,22vw,280px)_1fr] lg:gap-8 xl:gap-10">
@@ -148,11 +192,12 @@ export function ProductsExplorer({
             />
             {categories.map((c) => (
               <CatItem
-                key={c.id}
-                icon={iconForCategory(c.slug || c.name_ru)}
-                label={catName(c)}
-                active={active === c.slug}
-                onClick={() => setActive(c.slug)}
+                key={c.name}
+                icon={iconForCategory(c.name)}
+                label={c.name}
+                count={c.count}
+                active={active === c.name}
+                onClick={() => setActive(c.name)}
               />
             ))}
           </nav>
@@ -211,12 +256,13 @@ export function ProductsExplorer({
                       />
                       {categories.map((c) => (
                         <CatItem
-                          key={c.id}
-                          icon={iconForCategory(c.slug || c.name_ru)}
-                          label={catName(c)}
-                          active={active === c.slug}
+                          key={c.name}
+                          icon={iconForCategory(c.name)}
+                          label={c.name}
+                          count={c.count}
+                          active={active === c.name}
                           onClick={() => {
-                            setActive(c.slug);
+                            setActive(c.name);
                             setCatOpen(false);
                           }}
                         />
@@ -436,11 +482,13 @@ function PagerButton({
 function CatItem({
   icon,
   label,
+  count,
   active,
   onClick,
 }: {
   icon: string;
   label: string;
+  count?: number;
   active: boolean;
   onClick: () => void;
 }) {
@@ -465,6 +513,16 @@ function CatItem({
         <Icon name={icon} className="h-4 w-4" />
       </span>
       <span className="flex-1 truncate">{label}</span>
+      {count != null && (
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-1.5 text-xs tabular-nums",
+            active ? "bg-accent/15 text-accent" : "bg-surface-2 text-ink-dim",
+          )}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }

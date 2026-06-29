@@ -4,7 +4,7 @@
  * Маршруты строятся с префиксом языка: /ru/... и /uz/...
  * Язык по умолчанию (ru) используется при заходе на корень / (см. public/index.html).
  */
-export const locales = ["ru", "uz"] as const;
+export const locales = ["ru", "uz", "en"] as const;
 
 export type Locale = (typeof locales)[number];
 
@@ -19,4 +19,5 @@ export function isLocale(value: string): value is Locale {
 export const localeLabels: Record<Locale, string> = {
   ru: "RU",
   uz: "UZ",
+  en: "EN",
 };
