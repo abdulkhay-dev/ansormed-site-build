@@ -9,6 +9,8 @@ import { Preloader } from "@/components/layout/Preloader";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { site } from "@/lib/data/site";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
+import { pageAlternates, localeUrl } from "@/lib/seo";
+import { SiteJsonLd } from "@/components/seo/JsonLd";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -45,18 +47,28 @@ export async function generateMetadata({
     },
     description: dict.meta.description,
     keywords: dict.meta.keywords,
-    alternates: {
-      languages: {
-        ru: "/ru",
-        uz: "/uz",
-        en: "/en",
-      },
-    },
+    alternates: pageAlternates(locale),
     openGraph: {
+      type: "website",
+      siteName: site.name,
       title: `${site.name} — ${dict.meta.tagline}`,
       description: dict.meta.description,
+      url: localeUrl(locale),
       locale: dict.meta.ogLocale,
-      type: "website",
+      images: [
+        { url: "/og.png", width: 1200, height: 630, alt: site.name },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${site.name} — ${dict.meta.tagline}`,
+      description: dict.meta.description,
+      images: ["/og.png"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large" },
     },
   };
 }
@@ -84,6 +96,7 @@ export default async function RootLayout({
       className={`${plexSans.variable} ${plexMono.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-base">
+        <SiteJsonLd lang={lang} dict={dict} />
         {/* Yandex.Metrika counter */}
         <Script id="yandex-metrika" strategy="afterInteractive">
           {`(function(m,e,t,r,i,k,a){

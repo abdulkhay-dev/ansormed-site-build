@@ -7,6 +7,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/data/site";
 import { getDictionary, isLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -14,11 +15,13 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const dict = getDictionary(isLocale(lang) ? lang : "ru");
-  return {
+  const locale = isLocale(lang) ? lang : "ru";
+  const dict = getDictionary(locale);
+  return pageMetadata(locale, "contacts", {
     title: dict.contacts.meta.title,
     description: dict.contacts.meta.description,
-  };
+    ogLocale: dict.meta.ogLocale,
+  });
 }
 
 export default async function ContactsPage({

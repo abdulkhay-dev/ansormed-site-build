@@ -8,6 +8,7 @@ import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { partners, statValues } from "@/lib/data/site";
 import { getDictionary, isLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
 
 const VALUE_ICONS = ["Target", "HeartHandshake", "Sparkles", "LifeBuoy"];
 
@@ -17,11 +18,13 @@ export async function generateMetadata({
   params: Promise<{ lang: string }>;
 }): Promise<Metadata> {
   const { lang } = await params;
-  const dict = getDictionary(isLocale(lang) ? lang : "ru");
-  return {
+  const locale = isLocale(lang) ? lang : "ru";
+  const dict = getDictionary(locale);
+  return pageMetadata(locale, "about", {
     title: dict.about.meta.title,
     description: dict.about.meta.description,
-  };
+    ogLocale: dict.meta.ogLocale,
+  });
 }
 
 export default async function AboutPage({

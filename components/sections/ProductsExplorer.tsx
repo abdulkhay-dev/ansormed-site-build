@@ -11,45 +11,16 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import { listAllProducts, type ApiProduct } from "@/lib/api";
+import { getCatalog, listCategories, type CategoryOut, type ProductOut } from "@/lib/api";
+import { localizeProduct, localizeCategory, isProductVisible, type LocalProduct } from "@/lib/catalog";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
-import { useDict } from "@/components/i18n/I18nProvider";
+import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
 import { cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
-
-/**
- * Категории, которые показываем в фильтре (порядок сохраняется). Значения —
- * полные строки `category` из API; сопоставление нормализованное, поэтому
- * терпимо к регистру/пробелам/дефисам.
- */
-const ALLOWED_CATEGORIES = [
-  "REHABILITATION",
-  "SURGICAL EQUIPMENT",
-  "PHYSIOTHERAPY",
-  "OTHER",
-  "ONCOLOGY",
-  "NEUROLOGY",
-  "PEDIATRICS",
-  "EMERGENCY MEDICAL CARE",
-  "BREATHING APPARATUS",
-  "SURGICAL INSTRUMENT",
-  "RADIOLOGY",
-  "GYNECOLOGY",
-  "DIAGNOSTIC DEVICES",
-  "FURNITURE-TROLLEYS",
-];
-
-/** Нормализация названия категории для устойчивого сравнения. */
-const normCat = (s: string) =>
-  s.trim().toUpperCase().replace(/\s+/g, " ").replace(/\s*-\s*/g, "-");
-
-const CATEGORY_ORDER = new Map(
-  ALLOWED_CATEGORIES.map((c, i) => [normCat(c), i] as const),
-);
 
 /** Компактный набор номеров страниц с многоточиями вокруг текущей. */
 function pageWindow(current: number, total: number): (number | "…")[] {
@@ -70,6 +41,7 @@ export function ProductsExplorer({
   initialCategory?: string;
 }) {
   const dict = useDict();
+  const lang = useLang();
   const t = dict.products;
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -77,19 +49,25 @@ export function ProductsExplorer({
   const [catOpen, setCatOpen] = useState(false);
   const [page, setPage] = useState(1);
 
-  const [allItems, setAllItems] = useState<ApiProduct[]>([]);
+  const [rawItems, setRawItems] = useState<ProductOut[]>([]);
+  const [rawCats, setRawCats] = useState<CategoryOut[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Весь каталог — один раз при загрузке. Категории и фильтр строятся из него.
+  // Каталог + категории — один раз при загрузке (новые эндпоинты).
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    listAllProducts()
-      .then((products) => {
-        if (!cancelled) setAllItems(products);
+    Promise.all([getCatalog(), listCategories().catch(() => [])])
+      .then(([products, cats]) => {
+        if (cancelled) return;
+        setRawItems(products);
+        setRawCats(cats ?? []);
       })
       .catch(() => {
-        if (!cancelled) setAllItems([]);
+        if (!cancelled) {
+          setRawItems([]);
+          setRawCats([]);
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -116,51 +94,56 @@ export function ProductsExplorer({
     setPage(1);
   }, [debounced, active]);
 
-  // Категории из товаров, ограниченные allowlist'ом, в заданном порядке.
-  const categories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const p of allItems) {
-      const c = p.category?.trim();
-      if (c) counts.set(c, (counts.get(c) ?? 0) + 1);
-    }
-    return [...counts.entries()]
-      .map(([name, count]) => ({ name, count, order: CATEGORY_ORDER.get(normCat(name)) ?? -1 }))
-      .filter((c) => c.order >= 0)
-      .sort((a, b) => a.order - b.order);
-  }, [allItems]);
+  // Локализованные видимые товары.
+  const products = useMemo(
+    () =>
+      rawItems
+        .filter((p) => isProductVisible(p, lang))
+        .map((p) => localizeProduct(p, lang)),
+    [rawItems, lang],
+  );
 
-  // После загрузки сверяем активную категорию с реальными (из товаров):
-  // точное → без учёта регистра → по вхождению; иначе показываем всё. Это
-  // защищает старые ссылки (?category=slug) от пустого каталога.
+  // Категории из /api/v1/categories/ (активные, локализованные) + счётчики.
+  const categories = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const p of products) {
+      if (p.categoryId != null) counts.set(p.categoryId, (counts.get(p.categoryId) ?? 0) + 1);
+    }
+    return rawCats
+      .filter((c) => c.is_active !== false)
+      .map((c) => ({ ...localizeCategory(c, lang), count: counts.get(c.id) ?? 0 }));
+  }, [rawCats, products, lang]);
+
+  // Резолвим ?category= после загрузки: id → точное имя → вхождение → всё.
   const resolvedRef = useRef(false);
   useEffect(() => {
-    if (resolvedRef.current || allItems.length === 0) return;
+    if (resolvedRef.current || categories.length === 0) return;
     resolvedRef.current = true;
     setActive((cur) => {
       if (cur === "all") return cur;
-      const names = categories.map((c) => c.name);
-      if (names.includes(cur)) return cur;
+      if (categories.some((c) => String(c.id) === cur)) return cur;
       const low = cur.toLowerCase();
-      return (
-        names.find((n) => n.toLowerCase() === low) ??
-        names.find((n) => n.toLowerCase().includes(low) || low.includes(n.toLowerCase())) ??
-        "all"
-      );
+      const byName =
+        categories.find((c) => c.name.toLowerCase() === low) ??
+        categories.find(
+          (c) => c.name.toLowerCase().includes(low) || low.includes(c.name.toLowerCase()),
+        );
+      return byName ? String(byName.id) : "all";
     });
-  }, [allItems, categories]);
+  }, [categories]);
 
   // Клиентская фильтрация по категории и поиску.
   const filtered = useMemo(() => {
     const q = debounced.toLowerCase();
-    return allItems.filter((p) => {
-      if (active !== "all" && p.category?.trim() !== active) return false;
+    return products.filter((p) => {
+      if (active !== "all" && String(p.categoryId) !== active) return false;
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
-        (p.brand?.toLowerCase().includes(q) ?? false)
+        p.description.toLowerCase().includes(q)
       );
     });
-  }, [allItems, active, debounced]);
+  }, [products, active, debounced]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -173,8 +156,10 @@ export function ProductsExplorer({
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const currentLabel = active === "all" ? t.allCategories : active;
-  const currentIcon = active === "all" ? "LayoutGrid" : iconForCategory(active);
+  const activeCat = categories.find((c) => String(c.id) === active);
+  const currentLabel = active === "all" ? t.allCategories : activeCat?.name ?? t.allCategories;
+  const currentIcon =
+    active === "all" ? "LayoutGrid" : iconForCategory(activeCat?.name ?? "");
 
   return (
     <div className="lg:grid lg:grid-cols-[clamp(220px,22vw,280px)_1fr] lg:gap-8 xl:gap-10">
@@ -192,12 +177,12 @@ export function ProductsExplorer({
             />
             {categories.map((c) => (
               <CatItem
-                key={c.name}
+                key={c.id}
                 icon={iconForCategory(c.name)}
                 label={c.name}
                 count={c.count}
-                active={active === c.name}
-                onClick={() => setActive(c.name)}
+                active={active === String(c.id)}
+                onClick={() => setActive(String(c.id))}
               />
             ))}
           </nav>
@@ -256,13 +241,13 @@ export function ProductsExplorer({
                       />
                       {categories.map((c) => (
                         <CatItem
-                          key={c.name}
+                          key={c.id}
                           icon={iconForCategory(c.name)}
                           label={c.name}
                           count={c.count}
-                          active={active === c.name}
+                          active={active === String(c.id)}
                           onClick={() => {
-                            setActive(c.name);
+                            setActive(String(c.id));
                             setCatOpen(false);
                           }}
                         />
@@ -337,40 +322,32 @@ export function ProductsExplorer({
 
 /* ---------- Карточка товара ---------- */
 
-function CatalogCard({ product }: { product: ApiProduct }) {
+function CatalogCard({ product }: { product: LocalProduct }) {
   const dict = useDict();
   const t = dict.products;
-  const price = formatPrice(product.price, product.currency, dict.currencyUnit);
+  const price = formatPrice(product.price, null, dict.currencyUnit);
+  const oldPrice = formatPrice(product.oldPrice, null, dict.currencyUnit);
   return (
     <Link
       href={`/product?id=${encodeURIComponent(product.id)}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-line-strong hover:shadow-float"
     >
       <div className="relative aspect-[4/3] w-full">
-        {product.image_url ? (
+        {product.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.image_url}
+            src={product.image}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (
           <MediaVisual
-            seed={product.id}
-            icon={iconForCategory(product.category)}
-            label={`${product.name} — ${product.category ?? t.fallbackEquip}`}
+            seed={String(product.id)}
+            icon={iconForCategory(product.categoryName)}
+            label={`${product.name} — ${product.categoryName ?? t.fallbackEquip}`}
             className="h-full w-full"
           />
-        )}
-        {product.in_stock ? (
-          <span className="label absolute left-4 top-4 rounded-full bg-signal/15 px-2.5 py-1 text-signal ring-1 ring-signal/30 backdrop-blur">
-            {t.inStock}
-          </span>
-        ) : (
-          <span className="label absolute left-4 top-4 rounded-full bg-surface/90 px-2.5 py-1 text-ink-muted ring-1 ring-line backdrop-blur">
-            {t.onOrder}
-          </span>
         )}
         <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full glass-strong text-ink-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent">
           <ArrowUpRight className="h-4 w-4" />
@@ -378,21 +355,23 @@ function CatalogCard({ product }: { product: ApiProduct }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-5">
-        {product.category && (
+        {product.categoryName && (
           <span className="text-xs font-medium uppercase tracking-wider text-accent">
-            {product.category}
+            {product.categoryName}
           </span>
         )}
         <h3 className="font-display text-lg font-semibold leading-snug text-ink transition-colors group-hover:text-accent">
           {product.name}
         </h3>
-        {product.brand && (
-          <p className="line-clamp-1 text-sm text-ink-muted">{product.brand}</p>
-        )}
 
         <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           {price ? (
-            <span className="font-display text-base font-semibold text-ink">{price}</span>
+            <span className="flex items-baseline gap-1.5">
+              <span className="font-display text-base font-semibold text-ink">{price}</span>
+              {oldPrice && (
+                <span className="text-xs text-ink-dim line-through">{oldPrice}</span>
+              )}
+            </span>
           ) : (
             <span className="text-sm text-ink-dim">{t.priceOnRequest}</span>
           )}

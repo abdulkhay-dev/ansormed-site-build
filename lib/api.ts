@@ -10,33 +10,49 @@ const BASE = (
   process.env.NEXT_PUBLIC_API_BASE || "https://api.ansormed.uz"
 ).replace(/\/$/, "");
 
-/* ---------- Типы ответов API ---------- */
+/** Origin для медиа (/uploads/...) — всегда реальный бэкенд, не dev-прокси. */
+const MEDIA_BASE = (
+  process.env.NEXT_PUBLIC_MEDIA_BASE || "https://api.ansormed.uz"
+).replace(/\/$/, "");
 
-export interface ApiProduct {
-  id: string;
-  name: string;
-  category: string | null;
-  description: string | null;
-  price: number | null;
-  currency: string | null;
-  image_url: string | null;
-  in_stock: boolean;
-  brand: string | null;
+/** Абсолютный URL для относительных путей картинок (/uploads/...). */
+export function mediaUrl(path?: string | null): string | null {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  return `${MEDIA_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-export interface ApiProductList {
-  items: ApiProduct[];
-  total: number;
-  page: number;
-  page_size: number;
-}
+/* ---------- Типы ответов API (catalog/categories) ---------- */
 
-export interface ApiCategory {
+export interface CategoryOut {
   id: number;
   name_ru: string;
   name_uz: string;
+  name_en: string;
   slug: string;
   is_active: boolean;
+}
+
+export interface ProductOut {
+  id: number;
+  name_ru: string;
+  name_uz: string;
+  name_en: string;
+  description_ru: string;
+  description_uz: string;
+  description_en: string;
+  price: number | null;
+  discount: number | null;
+  final_price: number | null;
+  images: string[] | null;
+  image: string | null;
+  video_url: string | null;
+  is_active: boolean;
+  display_ru: boolean;
+  display_uz: boolean;
+  display_en: boolean;
+  category_id: number | null;
+  category: CategoryOut | null;
 }
 
 export interface ApiBlogPost {
@@ -111,31 +127,36 @@ async function req<T>(
   }
 }
 
-/* ---------- Products ---------- */
+/* ---------- Catalog ---------- */
 
-/** Список товаров с серверной пагинацией/фильтром/поиском. */
-export function listProducts(
-  params: { page?: number; pageSize?: number; category?: string; search?: string } = {},
-): Promise<ApiProductList | null> {
-  const { page = 1, pageSize = 15, category, search } = params;
-  const q = new URLSearchParams({ page: String(page), page_size: String(pageSize) });
-  if (category) q.set("category", category);
-  if (search) q.set("search", search);
-  return req<ApiProductList>(`/api/v1/products/?${q.toString()}`);
+/** Один товар по id — /api/v1/catalog/{product_id}. */
+export const getCatalogProduct = (id: string | number) =>
+  req<ProductOut>(`/api/v1/catalog/${encodeURIComponent(String(id))}`);
+
+/**
+ * Товар по id с фолбэком: прямой эндпоинт, иначе ищем в полном каталоге
+ * (кешированном). Имя сохранено для обратной совместимости с импортами.
+ */
+export async function getProductById(id: string | number): Promise<ProductOut | null> {
+  const wanted = String(id);
+  try {
+    const direct = await getCatalogProduct(wanted);
+    if (direct) return direct;
+  } catch {
+    /* падаем в фолбэк по каталогу */
+  }
+  const all = await getCatalog();
+  return all.find((p) => String(p.id) === wanted) ?? null;
 }
-
-/** Один товар по id — /api/v1/products/{product_id}. */
-export const getProduct = (id: string | number) =>
-  req<ApiProduct>(`/api/v1/products/${encodeURIComponent(String(id))}`);
 
 /* --- Кеш полного каталога (клиентский) --- */
 
 const PRODUCTS_TTL = 5 * 60_000; // 5 минут
-const PRODUCTS_SS_KEY = "ansormed:allProducts:v1";
+const PRODUCTS_SS_KEY = "ansormed:catalog:v2";
 
-type ProductsCache = { at: number; data: ApiProduct[] };
+type ProductsCache = { at: number; data: ProductOut[] };
 let productsCache: ProductsCache | null = null;
-let productsInflight: Promise<ApiProduct[]> | null = null;
+let productsInflight: Promise<ProductOut[]> | null = null;
 
 function readProductsSession(): ProductsCache | null {
   if (typeof window === "undefined") return null;
@@ -174,18 +195,14 @@ export function invalidateProductsCache(): void {
 }
 
 /**
- * Загружает весь каталог постранично (page_size=100) — нужно, чтобы собрать
- * список категорий прямо из товаров и фильтровать на клиенте. Ограничено
- * `maxPages`, чтобы не уйти в бесконечную выкачку на больших каталогах.
- *
- * Результат кешируется на TTL: в памяти (переживает переходы внутри SPA) и в
+ * Весь каталог — /api/v1/catalog/ (возвращает полный массив товаров).
+ * Кешируется на TTL: в памяти (переживает переходы внутри SPA) и в
  * sessionStorage (переживает перезагрузку вкладки). Параллельные вызовы
  * дедуплицируются. `force` обходит кеш.
  */
-export async function listAllProducts(
-  maxPages = 30,
+export async function getCatalog(
   { force = false }: { force?: boolean } = {},
-): Promise<ApiProduct[]> {
+): Promise<ProductOut[]> {
   const now = Date.now();
 
   if (!force) {
@@ -203,17 +220,7 @@ export async function listAllProducts(
   }
 
   const fetchAll = (async () => {
-    const pageSize = 100;
-    const first = await listProducts({ page: 1, pageSize });
-    if (!first) return [];
-    const items = [...first.items];
-    const totalPages = Math.min(maxPages, Math.ceil((first.total || 0) / pageSize));
-    for (let page = 2; page <= totalPages; page++) {
-      const res = await listProducts({ page, pageSize });
-      if (res?.items?.length) items.push(...res.items);
-      else break;
-    }
-    // Кешируем только непустой результат, чтобы сетевой сбой не «залип».
+    const items = (await req<ProductOut[]>(`/api/v1/catalog/`)) ?? [];
     if (items.length > 0) {
       productsCache = { at: Date.now(), data: items };
       writeProductsSession(productsCache);
@@ -227,35 +234,8 @@ export async function listAllProducts(
   return productsInflight;
 }
 
-/**
- * Товар по id с устойчивостью к бэкенду: сначала прямой эндпоинт
- * /products/{id}; если он недоступен/не находит — ищем товар в каталоге
- * (список рабочий). Когда get-by-id на бэке починят, фолбэк не понадобится.
- */
-export async function getProductById(id: string | number): Promise<ApiProduct | null> {
-  const wanted = String(id);
-  try {
-    const direct = await getProduct(wanted);
-    if (direct) return direct;
-  } catch {
-    /* падаем в фолбэк */
-  }
-  const pageSize = 100;
-  const first = await listProducts({ page: 1, pageSize });
-  if (!first) return null;
-  const inFirst = first.items.find((p) => String(p.id) === wanted);
-  if (inFirst) return inFirst;
-  const totalPages = Math.min(12, Math.ceil((first.total || 0) / pageSize));
-  for (let page = 2; page <= totalPages; page++) {
-    const res = await listProducts({ page, pageSize });
-    const hit = res?.items.find((p) => String(p.id) === wanted);
-    if (hit) return hit;
-  }
-  return null;
-}
-
 /** Категории — /api/v1/categories/. */
-export const listCategories = () => req<ApiCategory[]>(`/api/v1/categories/`);
+export const listCategories = () => req<CategoryOut[]>(`/api/v1/categories/`);
 
 /* ---------- Site content (тексты из админки) ---------- */
 
