@@ -80,6 +80,7 @@ export interface ApiContent {
   key: string;
   value_ru: string;
   value_uz: string;
+  value_en: string;
   content_type: string;
   updated_at: string;
 }

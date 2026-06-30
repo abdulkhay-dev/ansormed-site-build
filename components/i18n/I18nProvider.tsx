@@ -30,8 +30,6 @@ export function I18nProvider({
   }, [dict]);
 
   useEffect(() => {
-    // EN из админки пока не редактируется — оставляем словарь как есть.
-    if (lang === "en") return;
     let cancelled = false;
 
     getContent()
@@ -43,7 +41,8 @@ export function I18nProvider({
         // он только «корзина» из-за enum'а API.
         for (const row of rows) {
           if (!CONTENT_PATHS.has(row.key)) continue;
-          const value = lang === "uz" ? row.value_uz : row.value_ru;
+          const value =
+            lang === "uz" ? row.value_uz : lang === "en" ? row.value_en : row.value_ru;
           if (!value) continue;
           if (setStringPath(next, row.key, value)) changed = true;
         }

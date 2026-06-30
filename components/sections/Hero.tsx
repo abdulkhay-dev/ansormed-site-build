@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
-import { FloatingIcons } from "@/components/motion/FloatingIcons";
 import { Hero3D } from "@/components/three/Hero3D";
 import { ButtonLink } from "@/components/ui/Button";
 import { useDict } from "@/components/i18n/I18nProvider";
@@ -27,8 +26,6 @@ export function Hero() {
         <div className="absolute inset-0 grid-lines opacity-40" />
       </div>
 
-      <FloatingIcons focal={{ x: 72, y: 50 }} />
-
       <div className="container-x relative grid items-center gap-10 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
         {/* Copy */}
         <motion.div
@@ -47,7 +44,7 @@ export function Hero() {
 
           <motion.h1
             variants={item}
-            className="mt-6 text-[2.6rem] font-semibold leading-[0.98] tracking-tight text-ink sm:text-6xl md:text-7xl"
+            className="mt-6 text-[2rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-4xl md:text-5xl"
           >
             {h.titlePre}
             <span className="text-accent-gradient">{h.titleAccent}</span>

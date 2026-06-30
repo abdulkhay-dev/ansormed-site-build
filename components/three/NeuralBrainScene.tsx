@@ -18,43 +18,66 @@ import { useIsMobile, useOnScreen } from "@/lib/use-device";
 
 const ACCENT = "#2a41e8";
 const ACCENT_SOFT = "#5566f2";
-const BRAIN_URL = "/models/brain.glb"; // модель мозга с её родными текстурами/материалом
+const HUMAN_URL = "/models/nervous-system.glb"; // фигура человека (нервная система)
 
-/** Мозг с РОДНЫМ материалом модели (текстура, нормали) — центр сцены, без своих стилей. */
-function HeadModel({ mobile }: { mobile: boolean }) {
-  const { scene } = useGLTF(BRAIN_URL);
+/* Рентген-материал: френель-свечение по краям, как в анатомической секции. */
+const xrayVert = `
+  varying vec3 vN; varying vec3 vV;
+  void main(){
+    vec4 mv = modelViewMatrix * vec4(position,1.0);
+    vN = normalize(normalMatrix * normal);
+    vV = normalize(-mv.xyz);
+    gl_Position = projectionMatrix * mv;
+  }`;
+const xrayFrag = `
+  uniform vec3 uColor; uniform vec3 uRim; uniform float uPower; uniform float uIntensity; uniform float uBase;
+  varying vec3 vN; varying vec3 vV;
+  void main(){
+    float f = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), uPower);
+    float a = f * uIntensity + uBase;
+    vec3 col = mix(uColor, uRim, f) * a;
+    gl_FragColor = vec4(col, a);
+  }`;
+function makeXrayMat() {
+  return new THREE.ShaderMaterial({
+    uniforms: {
+      uColor: { value: new THREE.Color("#3f7fe0") },
+      uRim: { value: new THREE.Color("#cfe6ff") },
+      uPower: { value: 2.3 },
+      uIntensity: { value: 1.0 },
+      uBase: { value: 0.06 },
+    },
+    vertexShader: xrayVert,
+    fragmentShader: xrayFrag,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+  });
+}
+
+/** Человек (нервная система) со светящимся рентген-материалом — центр сцены. */
+function HumanModel() {
+  const { scene } = useGLTF(HUMAN_URL);
   const model = useMemo(() => {
     const root = scene.clone(true);
-    // Материал реалистичного мозга: розовато-телесный, матово-влажная ткань.
-    // На мобилке — дешёвый MeshStandard (без clearcoat/sheen — это самые
-    // дорогие фрагментные проходы), на десктопе — физический с влажным блеском.
-    const brainMat = mobile
-      ? new THREE.MeshStandardMaterial({ color: "#c0837a", roughness: 0.6, metalness: 0, envMapIntensity: 0.4 })
-      : new THREE.MeshPhysicalMaterial({
-          color: "#c0837a",
-          roughness: 0.62,
-          metalness: 0,
-          clearcoat: 0.35,
-          clearcoatRoughness: 0.6,
-          sheen: 0.5,
-          sheenColor: new THREE.Color("#e7a79c"),
-          sheenRoughness: 0.8,
-          envMapIntensity: 0.4,
-        });
+    const mat = makeXrayMat();
     root.traverse((o) => {
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
-      if (!m.geometry.attributes.normal) m.geometry.computeVertexNormals(); // в OBJ нормалей нет
-      m.material = brainMat;
+      if (!m.geometry.attributes.normal) m.geometry.computeVertexNormals();
+      m.material = mat;
+      m.frustumCulled = false;
     });
     const box = new THREE.Box3().setFromObject(root);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
-    const s = 2.2 / (size.y || 1); // масштаб по высоте под центр сцены
+    const s = 2.7 / (size.y || 1); // масштаб по росту под центр сцены
     root.scale.setScalar(s);
     root.position.set(-center.x * s, -center.y * s, -center.z * s); // центрируем
     return root;
-  }, [scene, mobile]);
+  }, [scene]);
+  // Модель в T-позе смотрит вдоль X — разворачиваем лицом к камере.
   return (
     <group rotation={[0, -Math.PI / 2, 0]}>
       <primitive object={model} />
@@ -159,7 +182,7 @@ function NeuralModel({ reduce, mobile }: { reduce: boolean; mobile: boolean }) {
     <Float speed={reduce ? 0 : 1.1} rotationIntensity={reduce ? 0 : 0.25} floatIntensity={reduce ? 0 : 0.6}>
       <group ref={point}>
         <group ref={spin}>
-          <HeadModel mobile={mobile} />
+          <HumanModel />
 
           <Icosahedron args={[1.52, 1]}>
             <meshBasicMaterial color={ACCENT} wireframe transparent opacity={0.12} />
@@ -187,7 +210,7 @@ function NeuralModel({ reduce, mobile }: { reduce: boolean; mobile: boolean }) {
   );
 }
 
-useGLTF.preload(BRAIN_URL);
+useGLTF.preload(HUMAN_URL);
 
 export default function NeuralBrainScene({ reduce = false }: { reduce?: boolean }) {
   const mobile = useIsMobile();
