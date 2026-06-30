@@ -6,6 +6,7 @@ import { useGLTF, Environment, Lightformer } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useIsMobile, useOnScreen } from "@/lib/use-device";
+import { ANNO_ANCHORS } from "@/lib/anatomyAnchors";
 
 const MODEL_URL = "/models/body.glb";
 const NERVE_URL = "/models/nervous-system.glb";
@@ -394,10 +395,12 @@ function Anatomy({
   stages,
   progress,
   reduce,
+  annoOut,
 }: {
   stages: StageDef[];
   progress: RefObject<number>;
   reduce: boolean;
+  annoOut?: RefObject<number[]>;
 }) {
   const { scene } = useGLTF(MODEL_URL);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
@@ -448,6 +451,7 @@ function Anatomy({
   const smooth = useRef(0);
   const camPos = useMemo(() => new THREE.Vector3(), []);
   const camTgt = useMemo(() => new THREE.Vector3(), []);
+  const annoV = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((state) => {
     const n = stages.length - 1;
@@ -470,6 +474,29 @@ function Anatomy({
       groupRef.current.rotation.y =
         0.18 * (pCur / n) - 0.06 + (reduce ? 0 : 0.04 * Math.sin(state.clock.elapsedTime * 0.4));
     }
+
+    // Проекция якорей тела РЕАЛЬНОЙ камерой → экранные % для DOM-оверлея.
+    if (annoOut && groupRef.current) {
+      camera.updateMatrixWorld();
+      groupRef.current.updateMatrixWorld();
+      const m = groupRef.current.matrixWorld;
+      const out = annoOut.current ?? (annoOut.current = []);
+      for (let i = 0; i < ANNO_ANCHORS.length; i++) {
+        const a = ANNO_ANCHORS[i];
+        annoV
+          .set(bb.cx + a.icon.bx * bb.H, bb.minY + a.icon.by * bb.H, bb.cz)
+          .applyMatrix4(m)
+          .project(camera);
+        out[i * 4] = (annoV.x * 0.5 + 0.5) * 100;
+        out[i * 4 + 1] = (-annoV.y * 0.5 + 0.5) * 100;
+        annoV
+          .set(bb.cx + a.node.bx * bb.H, bb.minY + a.node.by * bb.H, bb.cz)
+          .applyMatrix4(m)
+          .project(camera);
+        out[i * 4 + 2] = (annoV.x * 0.5 + 0.5) * 100;
+        out[i * 4 + 3] = (-annoV.y * 0.5 + 0.5) * 100;
+      }
+    }
   });
 
   return (
@@ -486,10 +513,12 @@ export default function AnatomyScene({
   stages,
   progress,
   reduce = false,
+  annoOut,
 }: {
   stages: StageDef[];
   progress: RefObject<number>;
   reduce?: boolean;
+  annoOut?: RefObject<number[]>;
 }) {
   const mobile = useIsMobile();
   const wrap = useRef<HTMLDivElement>(null);
@@ -509,7 +538,7 @@ export default function AnatomyScene({
         <directionalLight position={[-3.5, 1.5, -2.5]} intensity={1} color={ACCENT} />
 
         <Suspense fallback={null}>
-          <Anatomy stages={stages} progress={progress} reduce={reduce} />
+          <Anatomy stages={stages} progress={progress} reduce={reduce} annoOut={annoOut} />
         </Suspense>
 
         <Environment resolution={mobile ? 64 : 128}>

@@ -70,6 +70,14 @@ h1, h2, h3, h4, h5, .font-display {
 }
 
 /* ---------- Utility layer ---------- */
+/* Бегущий импульс вдоль линии-выноски: от тела (узел) к иконке. */
+@keyframes anno-flow {
+  0% { left: 100%; opacity: 0; }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { left: 0%; opacity: 0; }
+}
+
 @layer utilities {
   /* Mono instrument label */
   .label {

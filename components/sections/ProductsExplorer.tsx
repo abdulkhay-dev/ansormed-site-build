@@ -329,7 +329,7 @@ function CatalogCard({ product }: { product: LocalProduct }) {
   const oldPrice = formatPrice(product.oldPrice, null, dict.currencyUnit);
   return (
     <Link
-      href={`/product/${product.id}`}
+      href={`/product?id=${encodeURIComponent(product.id)}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-line-strong hover:shadow-float"
     >
       <div className="relative aspect-[4/3] w-full">

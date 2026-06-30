@@ -15,18 +15,19 @@ type State =
   | { status: "ok"; post: ApiBlogPost }
   | { status: "missing" };
 
-export default function PostView({ id }: { id: string }) {
+export default function PostView() {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    // Реальный id — из адресной строки (для постов, добавленных после сборки,
-    // Netlify отдаёт оболочку /post/none/, настоящий id — в URL).
-    const fromPath = window.location.pathname.split("/").filter(Boolean).pop();
-    const realId = fromPath && fromPath !== "post" ? decodeURIComponent(fromPath) : id;
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id) {
+      setState({ status: "missing" });
+      return;
+    }
     let cancelled = false;
-    getPost(realId)
+    getPost(id)
       .then((post) => {
         if (cancelled) return;
         setState(post ? { status: "ok", post } : { status: "missing" });
@@ -37,7 +38,7 @@ export default function PostView({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, []);
 
   if (state.status === "loading") {
     return (

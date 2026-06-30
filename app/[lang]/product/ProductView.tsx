@@ -25,18 +25,19 @@ type State =
   | { status: "ok"; product: ProductOut }
   | { status: "missing" };
 
-export default function ProductView({ id }: { id: string }) {
+export default function ProductView() {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    // Реальный id берём из адресной строки: для товаров, добавленных после
-    // сборки, Netlify отдаёт оболочку /product/none/, а настоящий id — в URL.
-    const fromPath = window.location.pathname.split("/").filter(Boolean).pop();
-    const realId = fromPath && fromPath !== "product" ? decodeURIComponent(fromPath) : id;
+    const id = new URLSearchParams(window.location.search).get("id");
+    if (!id) {
+      setState({ status: "missing" });
+      return;
+    }
     let cancelled = false;
-    getProductById(realId)
+    getProductById(id)
       .then((product) => {
         if (cancelled) return;
         setState(product ? { status: "ok", product } : { status: "missing" });
@@ -47,7 +48,7 @@ export default function ProductView({ id }: { id: string }) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, []);
 
   if (state.status === "loading") {
     return (

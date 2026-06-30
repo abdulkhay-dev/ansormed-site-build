@@ -71,6 +71,21 @@ export const ANATOMY_ICONS: IconSpec[] = [
   { Icon: Stethoscope, top: "84%", left: "64%", size: 48, depth: 0.6, delay: 0.5, target: { x: 44, y: 63 } },
 ];
 
+/**
+ * Композиция вокруг центрированной фигуры человека (Hero): иконки по периметру,
+ * линии-выноски тянутся к точкам на теле. `target` — в процентах слоя (квадрат).
+ */
+export const FIGURE_ICONS: IconSpec[] = [
+  { Icon: Brain, top: "2%", left: "42%", size: 46, depth: 0.5, delay: 0.05, target: { x: 50, y: 19 } },
+  { Icon: Heart, top: "14%", left: "8%", size: 52, depth: 0.9, delay: 0.18, target: { x: 45, y: 38 } },
+  { Icon: HeartPulse, top: "10%", left: "80%", size: 52, depth: 0.9, delay: 0.3, target: { x: 55, y: 36 } },
+  { Icon: Activity, top: "42%", left: "1%", size: 48, depth: 1, delay: 0.24, target: { x: 46, y: 50 } },
+  { Icon: Stethoscope, top: "34%", left: "88%", size: 44, depth: 0.6, delay: 0.42, target: { x: 55, y: 46 } },
+  { Icon: Dna, top: "74%", left: "7%", size: 54, depth: 0.85, delay: 0.36, target: { x: 47, y: 64 } },
+  { Icon: Atom, top: "78%", left: "82%", size: 50, depth: 0.95, delay: 0.5, target: { x: 54, y: 64 } },
+  { Icon: Microscope, top: "88%", left: "46%", size: 44, depth: 0.6, delay: 0.6, target: { x: 50, y: 74 } },
+];
+
 interface FloatingIconsProps {
   className?: string;
   /** Override the default icon composition. */
@@ -217,7 +232,14 @@ function FloatingIcon({
           delay,
         }}
       >
-        <IconBadge Icon={Icon} size={size} angle={angle} reach={reach} />
+        <IconBadge
+          Icon={Icon}
+          size={size}
+          angle={angle}
+          reach={reach}
+          delay={delay}
+          reduce={!!reduce}
+        />
       </motion.div>
     </motion.div>
   );
@@ -228,11 +250,15 @@ function IconBadge({
   size,
   angle,
   reach,
+  delay,
+  reduce,
 }: {
   Icon: LucideIcon;
   size: number;
   angle: number;
   reach: number;
+  delay: number;
+  reduce: boolean;
 }) {
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -250,6 +276,20 @@ function IconBadge({
             className="absolute right-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 translate-x-1/2 rounded-full bg-accent-soft"
             style={{ boxShadow: "0 0 8px var(--color-accent-soft)" }}
           />
+          {/* бегущий импульс: «вытекает» из тела (узел) к иконке */}
+          {!reduce && reach > 12 && (
+            <motion.span
+              className="absolute top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-white"
+              style={{ boxShadow: "0 0 6px 1px var(--color-accent-soft)" }}
+              animate={{ left: ["100%", "0%"], opacity: [0, 1, 1, 0] }}
+              transition={{
+                duration: 1.9,
+                repeat: Infinity,
+                ease: "linear",
+                delay: delay + 0.4,
+              }}
+            />
+          )}
         </div>
       </div>
 

@@ -12,18 +12,3 @@
   to = "https://api.ansormed.uz/api/:splat"
   status = 200
   force = true
-
-# Фоллбэк для товаров/постов, добавленных после сборки: если статической
-# страницы /:lang/product/{id} ещё нет, Netlify (без force) отдаёт оболочку
-# /:lang/product/none/, а клиент подтянет товар по id из адресной строки.
-# Правила без force применяются ТОЛЬКО когда файла по пути нет — поэтому
-# собранные страницы товаров продолжают отдаваться статикой (с SEO).
-[[redirects]]
-  from = "/:lang/product/*"
-  to = "/:lang/product/none/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/:lang/post/*"
-  to = "/:lang/post/none/index.html"
-  status = 200

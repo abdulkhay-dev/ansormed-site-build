@@ -62,6 +62,7 @@ export function AnatomyScroll() {
   const STAGES = STAGE_CONFIG.map((c, i) => ({ ...c, ...a.stages[i] }));
   const sectionRef = useRef<HTMLElement>(null);
   const progress = useRef(0);
+  const annoPos = useRef<number[]>([]); // экранные % якорей (пишет сцена, читает оверлей)
   const [nearest, setNearest] = useState(0);
   const [mounted, setMounted] = useState(false);
   const reduce = useReducedMotion();
@@ -110,9 +111,17 @@ export function AnatomyScroll() {
 
         {mounted && (
           <div className="absolute inset-0">
-            <AnatomyScene stages={sceneStages} progress={progress} reduce={!!reduce} />
+            <AnatomyScene
+              stages={sceneStages}
+              progress={progress}
+              reduce={!!reduce}
+              annoOut={annoPos}
+            />
           </div>
         )}
+
+        {/* медицинские иконки с линиями к телу + бегущий импульс — пока скрыто
+        <AnatomyAnnotations positions={annoPos} reduce={!!reduce} /> */}
 
         <span className="label absolute left-[6%] top-10 z-10 text-[#8ea2ff]">
           {a.sectionLabel}
