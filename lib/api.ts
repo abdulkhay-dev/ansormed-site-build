@@ -153,89 +153,9 @@ export async function getProductById(id: string | number): Promise<ProductOut | 
   return all.find((p) => String(p.id) === wanted) ?? null;
 }
 
-/* --- Кеш полного каталога (клиентский) --- */
-
-const PRODUCTS_TTL = 5 * 60_000; // 5 минут
-const PRODUCTS_SS_KEY = "ansormed:catalog:v2";
-
-type ProductsCache = { at: number; data: ProductOut[] };
-let productsCache: ProductsCache | null = null;
-let productsInflight: Promise<ProductOut[]> | null = null;
-
-function readProductsSession(): ProductsCache | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = sessionStorage.getItem(PRODUCTS_SS_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as ProductsCache;
-    if (parsed && typeof parsed.at === "number" && Array.isArray(parsed.data)) {
-      return parsed;
-    }
-  } catch {
-    /* битый кеш — игнорируем */
-  }
-  return null;
-}
-
-function writeProductsSession(entry: ProductsCache): void {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.setItem(PRODUCTS_SS_KEY, JSON.stringify(entry));
-  } catch {
-    /* квота/приватный режим — кеш остаётся только в памяти */
-  }
-}
-
-/** Сбрасывает кеш каталога (на случай ручного обновления данных). */
-export function invalidateProductsCache(): void {
-  productsCache = null;
-  if (typeof window !== "undefined") {
-    try {
-      sessionStorage.removeItem(PRODUCTS_SS_KEY);
-    } catch {
-      /* no-op */
-    }
-  }
-}
-
-/**
- * Весь каталог — /api/v1/catalog/ (возвращает полный массив товаров).
- * Кешируется на TTL: в памяти (переживает переходы внутри SPA) и в
- * sessionStorage (переживает перезагрузку вкладки). Параллельные вызовы
- * дедуплицируются. `force` обходит кеш.
- */
-export async function getCatalog(
-  { force = false }: { force?: boolean } = {},
-): Promise<ProductOut[]> {
-  const now = Date.now();
-
-  if (!force) {
-    if (productsCache && now - productsCache.at < PRODUCTS_TTL) {
-      return productsCache.data;
-    }
-    if (!productsCache) {
-      const ss = readProductsSession();
-      if (ss && now - ss.at < PRODUCTS_TTL) {
-        productsCache = ss;
-        return ss.data;
-      }
-    }
-    if (productsInflight) return productsInflight;
-  }
-
-  const fetchAll = (async () => {
-    const items = (await req<ProductOut[]>(`/api/v1/catalog/`)) ?? [];
-    if (items.length > 0) {
-      productsCache = { at: Date.now(), data: items };
-      writeProductsSession(productsCache);
-    }
-    return items;
-  })();
-
-  productsInflight = fetchAll.finally(() => {
-    productsInflight = null;
-  });
-  return productsInflight;
+/** Весь каталог — /api/v1/catalog/ (без кеша, всегда свежие данные). */
+export async function getCatalog(): Promise<ProductOut[]> {
+  return (await req<ProductOut[]>(`/api/v1/catalog/`)) ?? [];
 }
 
 /** Категории — /api/v1/categories/. */
