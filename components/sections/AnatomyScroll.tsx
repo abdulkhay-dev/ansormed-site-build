@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useDict } from "@/components/i18n/I18nProvider";
+import { AnatomyAnnotations } from "@/components/motion/AnatomyAnnotations";
 import type { StageDef } from "@/components/three/AnatomyScene";
 
 const AnatomyScene = dynamic(() => import("@/components/three/AnatomyScene"), {
@@ -120,8 +121,8 @@ export function AnatomyScroll() {
           </div>
         )}
 
-        {/* медицинские иконки с линиями к телу + бегущий импульс — пока скрыто
-        <AnatomyAnnotations positions={annoPos} reduce={!!reduce} /> */}
+        {/* медицинские иконки с линиями к телу + бегущий импульс */}
+        <AnatomyAnnotations positions={annoPos} reduce={!!reduce} />
 
         <span className="label absolute left-[6%] top-10 z-10 text-[#8ea2ff]">
           {a.sectionLabel}

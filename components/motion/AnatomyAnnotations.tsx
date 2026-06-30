@@ -113,12 +113,12 @@ export function AnatomyAnnotations({
               className="absolute right-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 translate-x-1/2 rounded-full bg-accent-soft"
               style={{ boxShadow: "0 0 8px var(--color-accent-soft)" }}
             />
-            {/* бегущий импульс: «вытекает» из тела (узел) к иконке */}
+            {/* бегущий импульс: тонкий светящийся отрезок вдоль линии */}
             {!reduce && (
               <span
-                className="absolute top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
+                className="absolute top-1/2 h-px w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white"
                 style={{
-                  boxShadow: "0 0 6px 1px var(--color-accent-soft)",
+                  boxShadow: "0 0 5px 0.5px var(--color-accent-soft)",
                   animation: "anno-flow 2s linear infinite",
                   animationDelay: `${a.delay}s`,
                 }}
@@ -134,6 +134,7 @@ export function AnatomyAnnotations({
             className="absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2"
             style={{ width: a.size, height: a.size }}
           >
+            {/* статичное мягкое свечение сзади (не мигает) */}
             <div className="absolute inset-0 -z-10 rounded-full bg-accent/20 blur-xl" />
             <div className="grid h-full w-full place-items-center rounded-full glass shadow-float ring-1 ring-accent/25">
               <a.Icon
@@ -142,6 +143,13 @@ export function AnatomyAnnotations({
                 style={{ width: a.size * 0.42, height: a.size * 0.42 }}
               />
             </div>
+            {/* вспышка самого кружка в момент прихода точки */}
+            {!reduce && (
+              <span
+                className="pointer-events-none absolute inset-0 rounded-full bg-accent-soft/35 ring-2 ring-accent-soft"
+                style={{ animation: "anno-ring 2s linear infinite", animationDelay: `${a.delay}s` }}
+              />
+            )}
           </div>
         </div>
       ))}

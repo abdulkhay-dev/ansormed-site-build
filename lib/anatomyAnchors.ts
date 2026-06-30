@@ -10,13 +10,24 @@ export interface AnnoAnchor {
   node: { bx: number; by: number };
 }
 
+// Порядок СТРОГО как у иконок в AnatomyAnnotations:
+// Brain, Heart, Activity(ЭКГ), Dna, Atom, HeartPulse, Microscope, Stethoscope.
+// node — точка на нужном органе, icon — где висит бейдж.
 export const ANNO_ANCHORS: AnnoAnchor[] = [
-  { node: { bx: 0.0, by: 0.94 }, icon: { bx: 0.0, by: 1.07 } },
-  { node: { bx: -0.12, by: 0.88 }, icon: { bx: -0.27, by: 0.95 } },
-  { node: { bx: -0.17, by: 0.75 }, icon: { bx: -0.34, by: 0.78 } },
-  { node: { bx: -0.17, by: 0.61 }, icon: { bx: -0.34, by: 0.62 } },
-  { node: { bx: -0.14, by: 0.5 }, icon: { bx: -0.28, by: 0.48 } },
-  { node: { bx: 0.12, by: 0.88 }, icon: { bx: 0.27, by: 0.95 } },
-  { node: { bx: 0.18, by: 0.76 }, icon: { bx: 0.35, by: 0.79 } },
-  { node: { bx: 0.16, by: 0.63 }, icon: { bx: 0.32, by: 0.64 } },
+  // Brain → мозг (голова)
+  { node: { bx: 0.0, by: 0.92 }, icon: { bx: 0.0, by: 1.06 } },
+  // Heart → сердце (грудь)
+  { node: { bx: 0.05, by: 0.71 }, icon: { bx: 0.3, by: 0.84 } },
+  // Activity (ЭКГ) → грудь/сердце
+  { node: { bx: -0.03, by: 0.68 }, icon: { bx: -0.3, by: 0.84 } },
+  // Dna → торс
+  { node: { bx: -0.04, by: 0.52 }, icon: { bx: -0.32, by: 0.46 } },
+  // Atom → живот (выше, чтобы не указывал между ног)
+  { node: { bx: -0.05, by: 0.57 }, icon: { bx: -0.24, by: 0.3 } },
+  // HeartPulse → сердце/грудь
+  { node: { bx: 0.08, by: 0.65 }, icon: { bx: 0.34, by: 0.66 } },
+  // Microscope → нижний торс (анализы/почки)
+  { node: { bx: 0.06, by: 0.53 }, icon: { bx: 0.32, by: 0.46 } },
+  // Stethoscope → лёгкие/грудь
+  { node: { bx: -0.08, by: 0.71 }, icon: { bx: -0.34, by: 0.66 } },
 ];
