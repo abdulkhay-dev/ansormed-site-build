@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, SearchX, Loader2, Newspaper } from "lucide-react";
 import { listPosts, type ApiBlogPost } from "@/lib/api";
+import { isPostVisible, localizePost } from "@/lib/blog";
 import { PostCard } from "@/components/cards/PostCard";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { EASE } from "@/lib/utils";
@@ -20,13 +21,7 @@ export function BlogExplorer() {
     listPosts()
       .then((res) => {
         if (cancelled) return;
-        setPosts(
-          (res ?? []).filter(
-            (p) =>
-              p.is_published !== false &&
-              (lang === "uz" ? p.display_uz !== false : p.display_ru !== false),
-          ),
-        );
+        setPosts((res ?? []).filter((p) => isPostVisible(p, lang)));
       })
       .catch(() => {})
       .finally(() => {
@@ -41,11 +36,10 @@ export function BlogExplorer() {
     const q = query.trim().toLowerCase();
     if (!q) return posts;
     return posts.filter((p) => {
-      const title = (lang === "uz" && p.title_uz) || p.title_ru;
-      const content = (lang === "uz" && p.content_uz) || p.content_ru;
+      const lp = localizePost(p, lang);
       return (
-        title.toLowerCase().includes(q) ||
-        (content ?? "").toLowerCase().includes(q)
+        lp.title.toLowerCase().includes(q) ||
+        lp.content.toLowerCase().includes(q)
       );
     });
   }, [query, posts, lang]);

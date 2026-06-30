@@ -37,6 +37,27 @@ export function SiteJsonLd({ lang, dict }: { lang: Locale; dict: Dictionary }) {
     publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
+  // Навигация сайта — подсказка Google для sitelinks (имя + своё описание).
+  const navItems = [
+    { name: dict.nav.products, path: "products", description: dict.products.meta.description },
+    { name: dict.nav.blog, path: "blog", description: dict.blog.meta.description },
+    { name: dict.nav.about, path: "about", description: dict.about.meta.description },
+    { name: dict.nav.contacts, path: "contacts", description: dict.contacts.meta.description },
+  ];
+  const navigation = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "@id": `${SITE_URL}/#sitenav`,
+    name: site.name,
+    itemListElement: navItems.map((n, i) => ({
+      "@type": "SiteNavigationElement",
+      position: i + 1,
+      name: n.name,
+      description: n.description,
+      url: localeUrl(lang, n.path),
+    })),
+  };
+
   return (
     <>
       <script
@@ -46,6 +67,10 @@ export function SiteJsonLd({ lang, dict }: { lang: Locale; dict: Dictionary }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(navigation) }}
       />
     </>
   );

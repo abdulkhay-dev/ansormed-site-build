@@ -38,21 +38,33 @@ export function pageMetadata(
     title,
     description,
     ogLocale,
-  }: { title: string; description: string; ogLocale?: string },
+    image,
+    ogType = "website",
+  }: {
+    title: string;
+    description: string;
+    ogLocale?: string;
+    /** Своя OG-картинка (абсолютный URL). По умолчанию — /og.png. */
+    image?: string | null;
+    ogType?: "website" | "article";
+  },
 ): Metadata {
+  const images = image
+    ? [{ url: image }]
+    : [{ url: "/og.png", width: 1200, height: 630, alt: site.name }];
   return {
     title,
     description,
     alternates: pageAlternates(lang, path),
     // Next не сливает openGraph между layout и страницей — задаём поля целиком.
     openGraph: {
-      type: "website",
+      type: ogType,
       siteName: site.name,
       title: `${title} — ${site.name}`,
       description,
       url: localeUrl(lang, path),
       locale: ogLocale,
-      images: [{ url: "/og.png", width: 1200, height: 630, alt: site.name }],
+      images,
     },
   };
 }

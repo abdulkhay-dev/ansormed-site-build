@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -25,17 +25,12 @@ type State =
   | { status: "ok"; product: ProductOut }
   | { status: "missing" };
 
-export default function ProductPage() {
+export default function ProductView({ id }: { id: string }) {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (!id) {
-      setState({ status: "missing" });
-      return;
-    }
     let cancelled = false;
     getProductById(id)
       .then((product) => {
@@ -48,7 +43,7 @@ export default function ProductPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [id]);
 
   if (state.status === "loading") {
     return (
@@ -188,6 +183,36 @@ export default function ProductPage() {
   );
 }
 
+/** Картинка с зум-лупой при наведении: фон увеличивается и следует за курсором. */
+function ZoomImage({ src, alt }: { src: string; alt: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    const x = Math.min(100, Math.max(0, ((e.clientX - r.left) / r.width) * 100));
+    const y = Math.min(100, Math.max(0, ((e.clientY - r.top) / r.height) * 100));
+    setPos({ x, y });
+  };
+
+  return (
+    <div
+      ref={ref}
+      role="img"
+      aria-label={alt}
+      onMouseMove={onMove}
+      onMouseLeave={() => setPos(null)}
+      className="h-full w-full cursor-zoom-in bg-surface bg-no-repeat transition-[background-size] duration-200 ease-out"
+      style={{
+        backgroundImage: `url("${src}")`,
+        backgroundSize: pos ? "220%" : "cover",
+        backgroundPosition: pos ? `${pos.x}% ${pos.y}%` : "center",
+      }}
+    />
+  );
+}
+
 /** YouTube/Vimeo → iframe-embed; иначе прямой файл в <video>. */
 function toVideoEmbed(url: string): { type: "iframe" | "video"; src: string } {
   const yt = url.match(
@@ -210,8 +235,7 @@ function ProductMedia({ product }: { product: LocalProduct }) {
     <div className="flex flex-col gap-3">
       <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-surface shadow-soft">
         {current ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={current} alt={product.name} className="h-full w-full object-cover" />
+          <ZoomImage src={current} alt={product.name} />
         ) : (
           <MediaVisual
             seed={String(product.id)}

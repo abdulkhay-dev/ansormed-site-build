@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { listPosts, type ApiBlogPost } from "@/lib/api";
+import { isPostVisible } from "@/lib/blog";
 import { PostCard } from "@/components/cards/PostCard";
 import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
@@ -18,15 +19,7 @@ export function LatestPosts() {
     listPosts()
       .then((res) => {
         if (cancelled) return;
-        setPosts(
-          (res ?? [])
-            .filter(
-              (p) =>
-                p.is_published !== false &&
-                (lang === "uz" ? p.display_uz !== false : p.display_ru !== false),
-            )
-            .slice(0, 3),
-        );
+        setPosts((res ?? []).filter((p) => isPostVisible(p, lang)).slice(0, 3));
       })
       .catch(() => {})
       .finally(() => {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronRight, Loader2, Newspaper } from "lucide-react";
 import { getPost, type ApiBlogPost } from "@/lib/api";
+import { localizePost } from "@/lib/blog";
 import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
@@ -14,17 +15,12 @@ type State =
   | { status: "ok"; post: ApiBlogPost }
   | { status: "missing" };
 
-export default function PostPage() {
+export default function PostView({ id }: { id: string }) {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (!id) {
-      setState({ status: "missing" });
-      return;
-    }
     let cancelled = false;
     getPost(id)
       .then((post) => {
@@ -37,7 +33,7 @@ export default function PostPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [id]);
 
   if (state.status === "loading") {
     return (
@@ -66,9 +62,9 @@ export default function PostPage() {
     );
   }
 
-  const p = state.post;
-  const title = (lang === "uz" && p.title_uz) || p.title_ru;
-  const content = (lang === "uz" && p.content_uz) || p.content_ru;
+  const p = localizePost(state.post, lang);
+  const title = p.title;
+  const content = p.content;
 
   return (
     <div className="pt-28 md:pt-36">
@@ -82,8 +78,8 @@ export default function PostPage() {
         </nav>
 
         <article className="mx-auto mt-8 max-w-3xl">
-          {p.created_at && (
-            <span className="label text-ink-dim">{formatDate(p.created_at, dict.months)}</span>
+          {p.createdAt && (
+            <span className="label text-ink-dim">{formatDate(p.createdAt, dict.months)}</span>
           )}
           <h1 className="mt-3 text-balance text-3xl font-semibold leading-tight sm:text-4xl">
             {title}
@@ -96,9 +92,9 @@ export default function PostPage() {
             </div>
           )}
 
-          {p.video_url && (
+          {p.video && (
             <div className="mt-8 aspect-video overflow-hidden rounded-3xl border border-line">
-              <video src={p.video_url} controls className="h-full w-full" />
+              <video src={p.video} controls className="h-full w-full" />
             </div>
           )}
 

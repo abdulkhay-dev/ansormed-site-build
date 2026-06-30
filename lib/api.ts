@@ -59,13 +59,16 @@ export interface ApiBlogPost {
   id: number;
   title_ru: string;
   title_uz: string;
+  title_en: string;
   content_ru: string;
   content_uz: string;
+  content_en: string;
   video_url: string | null;
   image: string | null;
   is_published: boolean;
   display_ru: boolean;
   display_uz: boolean;
+  display_en: boolean;
   created_at: string;
   updated_at: string;
   author_id: number;
