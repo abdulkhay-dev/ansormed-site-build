@@ -11,8 +11,9 @@ export const dynamicParams = false;
 export async function generateStaticParams() {
   const all = await getCatalog().catch(() => []);
   const ids = all.map((p) => ({ id: String(p.id) }));
-  // output: export не допускает пустой список — отдаём noindex-заглушку.
-  return ids.length ? ids : [{ id: "none" }];
+  // Всегда добавляем "none" — это статическая оболочка-фоллбэк (см. netlify.toml)
+  // для товаров, добавленных уже после сборки.
+  return [...ids, { id: "none" }];
 }
 
 function clip(s: string, n = 160): string {

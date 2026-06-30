@@ -21,8 +21,12 @@ export default function PostView({ id }: { id: string }) {
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
+    // Реальный id — из адресной строки (для постов, добавленных после сборки,
+    // Netlify отдаёт оболочку /post/none/, настоящий id — в URL).
+    const fromPath = window.location.pathname.split("/").filter(Boolean).pop();
+    const realId = fromPath && fromPath !== "post" ? decodeURIComponent(fromPath) : id;
     let cancelled = false;
-    getPost(id)
+    getPost(realId)
       .then((post) => {
         if (cancelled) return;
         setState(post ? { status: "ok", post } : { status: "missing" });

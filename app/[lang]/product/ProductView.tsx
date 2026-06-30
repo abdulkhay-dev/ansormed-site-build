@@ -31,8 +31,12 @@ export default function ProductView({ id }: { id: string }) {
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
+    // Реальный id берём из адресной строки: для товаров, добавленных после
+    // сборки, Netlify отдаёт оболочку /product/none/, а настоящий id — в URL.
+    const fromPath = window.location.pathname.split("/").filter(Boolean).pop();
+    const realId = fromPath && fromPath !== "product" ? decodeURIComponent(fromPath) : id;
     let cancelled = false;
-    getProductById(id)
+    getProductById(realId)
       .then((product) => {
         if (cancelled) return;
         setState(product ? { status: "ok", product } : { status: "missing" });

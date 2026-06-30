@@ -28,8 +28,9 @@ function clip(s: string, n = 160): string {
 export async function generateStaticParams() {
   const all = await allPosts();
   const ids = all.map((p) => ({ id: String(p.id) }));
-  // output: export не допускает пустой список — отдаём noindex-заглушку.
-  return ids.length ? ids : [{ id: "none" }];
+  // Всегда добавляем "none" — статическая оболочка-фоллбэк (см. netlify.toml)
+  // для постов, добавленных уже после сборки.
+  return [...ids, { id: "none" }];
 }
 
 export async function generateMetadata({
