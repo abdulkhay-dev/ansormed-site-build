@@ -48,10 +48,20 @@ export function Header() {
     };
   }, [open]);
 
+  // Detail routes that belong to a section's nav item (singular detail → plural section)
+  const sectionAliases: Record<string, string[]> = {
+    "/products": ["/product"],
+    "/blog": ["/post"],
+  };
+
   const isActive = (href: string) => {
-    const target = localizeHref(lang, href);
     const path = (pathname || "/").replace(/\/$/, "") || "/";
-    return href === "/" ? path === target : path.startsWith(target);
+    const matches = (h: string) => {
+      const target = localizeHref(lang, h);
+      return h === "/" ? path === target : path.startsWith(target);
+    };
+    if (matches(href)) return true;
+    return (sectionAliases[href] || []).some(matches);
   };
 
   return (
@@ -60,7 +70,7 @@ export function Header() {
         className={cn(
           "transition-all duration-300",
           scrolled
-            ? "glass-strong border-b border-line shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]"
+            ? "glass-strong border-b border-line shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)] bg-[color-mix(in_srgb,var(--color-surface)_95%,transparent)]"
             : "border-b border-transparent bg-transparent",
         )}
       >
