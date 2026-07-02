@@ -1,0 +1,47 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/sections/PageHeader";
+import { ProjectsExplorer } from "@/components/sections/ProjectsExplorer";
+import { Container } from "@/components/ui/Section";
+import { getDictionary, isLocale } from "@/lib/i18n";
+import { pageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  const locale = isLocale(lang) ? lang : "ru";
+  const dict = getDictionary(locale);
+  return pageMetadata(locale, "projects", {
+    title: dict.projects.meta.title,
+    description: dict.projects.meta.description,
+    ogLocale: dict.meta.ogLocale,
+  });
+}
+
+export default async function ProjectsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  if (!isLocale(lang)) notFound();
+  const dict = getDictionary(lang);
+
+  return (
+    <>
+      <PageHeader
+        eyebrow={dict.projects.header.eyebrow}
+        title={<>{dict.projects.header.title}</>}
+        subtitle={dict.projects.header.subtitle}
+      />
+      <section className="py-12 md:py-16">
+        <Container>
+          <ProjectsExplorer />
+        </Container>
+      </section>
+    </>
+  );
+}

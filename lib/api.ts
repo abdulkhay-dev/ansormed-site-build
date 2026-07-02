@@ -74,6 +74,19 @@ export interface ApiBlogPost {
   author_id: number;
 }
 
+export interface ApiProject {
+  id: number;
+  slug: string;
+  title_ru: string;
+  title_uz: string;
+  title_en: string;
+  content_ru: string | null;
+  content_uz: string | null;
+  content_en: string | null;
+  cover_image: string | null;
+  images: string[];
+}
+
 export interface ApiContent {
   id: number;
   section: string;
@@ -203,3 +216,12 @@ export const listPosts = () => req<ApiBlogPost[]>(`/api/v1/blog/`);
 /** Один пост — /api/v1/blog/{post_id}. */
 export const getPost = (id: string | number) =>
   req<ApiBlogPost>(`/api/v1/blog/${encodeURIComponent(String(id))}`);
+
+/* ---------- Projects ---------- */
+
+/** Список проектов — /api/v1/projects. */
+export const listProjects = () => req<ApiProject[]>(`/api/v1/projects`);
+
+/** Один проект — /api/v1/projects/{slug}. */
+export const getProject = (slug: string) =>
+  req<ApiProject>(`/api/v1/projects/${encodeURIComponent(slug)}`);

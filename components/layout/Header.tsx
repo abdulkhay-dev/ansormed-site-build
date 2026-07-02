@@ -23,6 +23,7 @@ export function Header() {
   const nav = [
     { label: dict.nav.home, href: "/" },
     { label: dict.nav.products, href: "/products" },
+    { label: dict.nav.projects, href: "/projects" },
     { label: dict.nav.blog, href: "/blog" },
     { label: dict.nav.about, href: "/about" },
     { label: dict.nav.contacts, href: "/contacts" },
@@ -51,6 +52,7 @@ export function Header() {
   // Detail routes that belong to a section's nav item (singular detail → plural section)
   const sectionAliases: Record<string, string[]> = {
     "/products": ["/product"],
+    "/projects": ["/project"],
     "/blog": ["/post"],
   };
 

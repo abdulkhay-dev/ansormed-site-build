@@ -25,6 +25,7 @@ const en: Dictionary = {
   nav: {
     home: "Home",
     products: "Products",
+    projects: "Projects",
     blog: "Blog",
     about: "About",
     contacts: "Contacts",
@@ -317,6 +318,39 @@ const en: Dictionary = {
     backToBlog: "To the blog",
     allPosts: "All articles",
     coverAlt: "Article cover",
+  },
+
+  projects: {
+    meta: {
+      title: "Projects",
+      description:
+        "Ansor Med completed projects: clinic equipment, medical-device implementation and service solutions.",
+    },
+    header: {
+      eyebrow: "Projects",
+      title: "Implementations working inside clinics",
+      subtitle:
+        "Real projects: from equipment selection and supply to installation, training and service support.",
+    },
+    searchPlaceholder: "Search projects…",
+    searchAria: "Search projects",
+    loading: "Loading projects…",
+    notFoundTitle: "No projects found",
+    changeQuery: "Try changing your query.",
+    comingSoonTitle: "Projects are coming soon",
+    comingSoonText: "We're preparing descriptions of Ansor Med's completed implementations.",
+    resetSearch: "Reset search",
+  },
+
+  project: {
+    breadcrumbHome: "Home",
+    breadcrumbProjects: "Projects",
+    breadcrumbAria: "Breadcrumbs",
+    notFoundTitle: "Project not found",
+    notFoundText: "It may have been removed or not yet published.",
+    backToProjects: "To projects",
+    allProjects: "All projects",
+    coverAlt: "Project cover",
   },
 
   products: {

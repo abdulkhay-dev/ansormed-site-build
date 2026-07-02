@@ -23,6 +23,7 @@ const ru = {
   nav: {
     home: "Главная",
     products: "Продукция",
+    projects: "Проекты",
     blog: "Блог",
     about: "О нас",
     contacts: "Контакты",
@@ -314,6 +315,39 @@ const ru = {
     backToBlog: "В блог",
     allPosts: "Все статьи",
     coverAlt: "Обложка статьи",
+  },
+
+  projects: {
+    meta: {
+      title: "Проекты",
+      description:
+        "Реализованные проекты Ansor Med: оснащение клиник, внедрение медицинского оборудования и сервисные решения.",
+    },
+    header: {
+      eyebrow: "Проекты",
+      title: "Внедрения, которые работают в клиниках",
+      subtitle:
+        "Показываем реальные проекты: от подбора и поставки оборудования до монтажа, обучения и сервисного сопровождения.",
+    },
+    searchPlaceholder: "Поиск по проектам…",
+    searchAria: "Поиск по проектам",
+    loading: "Загружаем проекты…",
+    notFoundTitle: "Проекты не найдены",
+    changeQuery: "Попробуйте изменить запрос.",
+    comingSoonTitle: "Скоро здесь появятся проекты",
+    comingSoonText: "Мы готовим описания реализованных внедрений Ansor Med.",
+    resetSearch: "Сбросить поиск",
+  },
+
+  project: {
+    breadcrumbHome: "Главная",
+    breadcrumbProjects: "Проекты",
+    breadcrumbAria: "Хлебные крошки",
+    notFoundTitle: "Проект не найден",
+    notFoundText: "Возможно, он был удалён или ещё не опубликован.",
+    backToProjects: "К проектам",
+    allProjects: "Все проекты",
+    coverAlt: "Обложка проекта",
   },
 
   products: {

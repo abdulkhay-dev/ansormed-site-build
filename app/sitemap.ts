@@ -4,9 +4,9 @@ import { localeUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
-/** Индексируемые разделы (без локали). Товары/посты — клиентские страницы
- *  с `?id=`, отдельных URL у них нет. */
-const ROUTES = ["", "products", "about", "blog", "contacts"];
+/** Индексируемые разделы (без локали). Товары/посты/проекты — клиентские
+ *  детальные страницы с query-параметрами, отдельных URL в sitemap у них нет. */
+const ROUTES = ["", "products", "projects", "about", "blog", "contacts"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();

@@ -25,6 +25,7 @@ const uz: Dictionary = {
   nav: {
     home: "Bosh sahifa",
     products: "Mahsulotlar",
+    projects: "Loyihalar",
     blog: "Blog",
     about: "Biz haqimizda",
     contacts: "Aloqa",
@@ -317,6 +318,39 @@ const uz: Dictionary = {
     backToBlog: "Blogga",
     allPosts: "Barcha maqolalar",
     coverAlt: "Maqola muqovasi",
+  },
+
+  projects: {
+    meta: {
+      title: "Loyihalar",
+      description:
+        "Ansor Med amalga oshirgan loyihalar: klinikalarni jihozlash, tibbiy uskunalarni joriy etish va servis yechimlari.",
+    },
+    header: {
+      eyebrow: "Loyihalar",
+      title: "Klinikalarda ishlayotgan joriy etishlar",
+      subtitle:
+        "Real loyihalar: uskunani tanlash va yetkazib berishdan tortib o'rnatish, o'qitish va servis kuzatuvigacha.",
+    },
+    searchPlaceholder: "Loyihalar bo'yicha qidiruv…",
+    searchAria: "Loyihalar bo'yicha qidiruv",
+    loading: "Loyihalar yuklanmoqda…",
+    notFoundTitle: "Loyihalar topilmadi",
+    changeQuery: "So'rovni o'zgartirib ko'ring.",
+    comingSoonTitle: "Tez orada bu yerda loyihalar paydo bo'ladi",
+    comingSoonText: "Ansor Med amalga oshirgan joriy etishlar tavsiflarini tayyorlamoqdamiz.",
+    resetSearch: "Qidiruvni tozalash",
+  },
+
+  project: {
+    breadcrumbHome: "Bosh sahifa",
+    breadcrumbProjects: "Loyihalar",
+    breadcrumbAria: "Yo'l xaritasi",
+    notFoundTitle: "Loyiha topilmadi",
+    notFoundText: "Ehtimol, u o'chirilgan yoki hali e'lon qilinmagan.",
+    backToProjects: "Loyihalarga",
+    allProjects: "Barcha loyihalar",
+    coverAlt: "Loyiha muqovasi",
   },
 
   products: {
