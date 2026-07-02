@@ -13,11 +13,11 @@ export interface LocalProject {
   images: string[];
 }
 
-/** Выбор значения по языку с фолбэком на любой доступный перевод. */
+/** Тексты проектов показываем строго на текущем языке, без подмены en в ru/uz. */
 function byLang(lang: Locale, ru: string | null, uz: string | null, en: string | null): string {
-  if (lang === "uz") return uz || ru || en || "";
-  if (lang === "en") return en || ru || uz || "";
-  return ru || en || uz || "";
+  if (lang === "uz") return uz || "";
+  if (lang === "en") return en || "";
+  return ru || "";
 }
 
 export function localizeProject(project: ApiProject, lang: Locale): LocalProject {
