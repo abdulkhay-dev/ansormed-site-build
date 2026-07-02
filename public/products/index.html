@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="https://ansormed.uz/ru/products/" />
+    <title>Redirecting to Ansor Med products</title>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var legacyCategory = (params.get("category") || "").toLowerCase();
+        var categoryMap = {
+          diagnostics: "DIAGNOSTIC DEVICES",
+          neurosurgery: "SURGICAL INSTRUMENT",
+          rehabilitation: "REHABILITATION",
+          monitoring: "DIAGNOSTIC DEVICES",
+          laboratory: "Лаборатория",
+          consumables: "OTHER",
+        };
+
+        if (legacyCategory && categoryMap[legacyCategory]) {
+          params.set("category", categoryMap[legacyCategory]);
+        }
+
+        var query = params.toString();
+        window.location.replace("/ru/products/" + (query ? "?" + query : ""));
+      })();
+    </script>
+    <meta http-equiv="refresh" content="0; url=/ru/products/" />
+  </head>
+  <body>
+    <noscript>
+      <a href="/ru/products/">Перейти в каталог Ansor Med</a>
+    </noscript>
+  </body>
+</html>
