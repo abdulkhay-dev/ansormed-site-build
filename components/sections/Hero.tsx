@@ -30,8 +30,6 @@ export function Hero() {
         {/* Copy */}
         <motion.div
           variants={stagger}
-          initial="hidden"
-          animate="show"
           className="order-2 flex flex-col items-start lg:order-1"
         >
           <motion.span
@@ -83,7 +81,7 @@ export function Hero() {
 
         {/* 3D instrument viewport */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.94 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1, ease: EASE, delay: 0.1 }}
           className="order-1 lg:order-2"

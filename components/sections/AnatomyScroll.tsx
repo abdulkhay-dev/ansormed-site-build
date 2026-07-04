@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { useDict } from "@/components/i18n/I18nProvider";
 import { AnatomyAnnotations } from "@/components/motion/AnatomyAnnotations";
 import type { StageDef } from "@/components/three/AnatomyScene";
+import { useOnScreen } from "@/lib/use-device";
 
 const AnatomyScene = dynamic(() => import("@/components/three/AnatomyScene"), {
   ssr: false,
@@ -62,11 +63,13 @@ export function AnatomyScroll() {
   const a = dict.anatomy;
   const STAGES = STAGE_CONFIG.map((c, i) => ({ ...c, ...a.stages[i] }));
   const sectionRef = useRef<HTMLElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const progress = useRef(0);
   const annoPos = useRef<number[]>([]); // экранные % якорей (пишет сцена, читает оверлей)
   const [nearest, setNearest] = useState(0);
   const [mounted, setMounted] = useState(false);
   const reduce = useReducedMotion();
+  const sceneNearViewport = useOnScreen(sceneRef, "900px", false);
 
   useEffect(() => {
     setMounted(true);
@@ -110,16 +113,16 @@ export function AnatomyScroll() {
         <div className="pointer-events-none absolute inset-0 grid-lines opacity-[0.05]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(110%_80%_at_70%_15%,#11203200,#070b16_70%)]" />
 
-        {mounted && (
-          <div className="absolute inset-0">
+        <div ref={sceneRef} className="absolute inset-0">
+          {mounted && sceneNearViewport && (
             <AnatomyScene
               stages={sceneStages}
               progress={progress}
               reduce={!!reduce}
               annoOut={annoPos}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* медицинские иконки с линиями к телу + бегущий импульс */}
         <AnatomyAnnotations positions={annoPos} reduce={!!reduce} />

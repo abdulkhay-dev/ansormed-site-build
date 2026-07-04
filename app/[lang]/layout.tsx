@@ -5,7 +5,6 @@ import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "../globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Preloader } from "@/components/layout/Preloader";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { site } from "@/lib/data/site";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
@@ -98,14 +97,14 @@ export default async function RootLayout({
       <body className="flex min-h-screen flex-col bg-base">
         <SiteJsonLd lang={lang} dict={dict} />
         {/* Yandex.Metrika counter */}
-        <Script id="yandex-metrika" strategy="afterInteractive">
+        <Script id="yandex-metrika" strategy="lazyOnload">
           {`(function(m,e,t,r,i,k,a){
               m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
               m[i].l=1*new Date();
               for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
               k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
           })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=110002545', 'ym');
-          ym(110002545, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`}
+          ym(110002545, 'init', {ssr:true, webvisor:false, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});`}
         </Script>
         <noscript>
           <div>
@@ -118,7 +117,6 @@ export default async function RootLayout({
         </noscript>
         {/* /Yandex.Metrika counter */}
         <I18nProvider lang={lang} dict={dict}>
-          <Preloader />
           {/* Skip link for keyboard users */}
           <a
             href="#main"

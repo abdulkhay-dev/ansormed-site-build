@@ -23,8 +23,12 @@ export function useIsMobile() {
  * Виден ли элемент во вьюпорте (с запасом rootMargin). Нужно, чтобы ставить
  * 3D-канвас на паузу (frameloop="never"), когда секция ушла за экран.
  */
-export function useOnScreen<T extends Element>(ref: RefObject<T | null>, rootMargin = "150px") {
-  const [visible, setVisible] = useState(true);
+export function useOnScreen<T extends Element>(
+  ref: RefObject<T | null>,
+  rootMargin = "150px",
+  initialVisible = true,
+) {
+  const [visible, setVisible] = useState(initialVisible);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
