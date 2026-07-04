@@ -14,12 +14,22 @@ export function PageTransition({ children }: { children: ReactNode }) {
   if (reduce) return <>{children}</>;
 
   return (
-    <motion.div
-      initial={false}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: EASE }}
-    >
-      {children}
-    </motion.div>
+    <>
+      {/* Synapse impulse flash sweeping across the neural network */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-[60] spotlight"
+        initial={{ opacity: 0.7 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 14, filter: "blur(8px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.5, ease: EASE }}
+      >
+        {children}
+      </motion.div>
+    </>
   );
 }
