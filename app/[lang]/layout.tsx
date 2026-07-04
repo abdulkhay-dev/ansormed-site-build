@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Preloader } from "@/components/layout/Preloader";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { site } from "@/lib/data/site";
+import { getCategories } from "@/lib/data/categories";
 import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
 import { pageAlternates, localeUrl } from "@/lib/seo";
 import { SiteJsonLd } from "@/components/seo/JsonLd";
@@ -89,6 +90,7 @@ export default async function RootLayout({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDictionary(lang);
+  const categories = await getCategories(lang);
 
   return (
     <html
@@ -126,7 +128,7 @@ export default async function RootLayout({
           >
             {dict.skipToContent}
           </a>
-          <Header />
+          <Header categories={categories} />
           <main id="main" className="flex-1">
             {children}
           </main>

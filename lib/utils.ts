@@ -50,3 +50,14 @@ export function iconForCategory(raw?: string | null): string {
   for (const [re, icon] of ICON_RULES) if (re.test(raw)) return icon;
   return "Boxes";
 }
+
+/** Категория реабилитации должна быть первой в публичных списках. */
+export function categorySortRank(category: {
+  id?: string | number | null;
+  name?: string | null;
+  slug?: string | null;
+}): number {
+  if (String(category.id) === "1") return 0;
+  const value = `${category.name ?? ""} ${category.slug ?? ""}`;
+  return /rehab|реабил|reabil/i.test(value) ? 0 : 1;
+}

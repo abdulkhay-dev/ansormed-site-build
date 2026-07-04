@@ -9,6 +9,7 @@ import { MediaVisual } from "@/components/ui/MediaVisual";
 import { partners, statValues } from "@/lib/data/site";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
+import {LogoMarquee} from "@/components/sections/LogoMarquee";
 
 const VALUE_ICONS = ["Target", "HeartHandshake", "Sparkles", "LifeBuoy"];
 
@@ -141,15 +142,16 @@ export default async function AboutPage({
             title={<>{dict.about.partners.title}</>}
             subtitle={dict.about.partners.subtitle}
           />
-          <RevealGroup className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {partners.map((p) => (
-              <RevealItem key={p}>
-                <div className="flex h-20 items-center justify-center rounded-2xl glass px-4 text-center font-display text-base font-semibold text-ink-muted transition-colors duration-200 hover:text-accent">
-                  {p}
-                </div>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+          <LogoMarquee />
+          {/*<RevealGroup className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">*/}
+          {/*  {partners.map((p) => (*/}
+          {/*    <RevealItem key={p}>*/}
+          {/*      <div className="flex h-20 items-center justify-center rounded-2xl glass px-4 text-center font-display text-base font-semibold text-ink-muted transition-colors duration-200 hover:text-accent">*/}
+          {/*        {p}*/}
+          {/*      </div>*/}
+          {/*    </RevealItem>*/}
+          {/*  ))}*/}
+          {/*</RevealGroup>*/}
         </Container>
       </section>
 

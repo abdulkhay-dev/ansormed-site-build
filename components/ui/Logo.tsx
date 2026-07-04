@@ -17,6 +17,7 @@ export function Logo({
         "group inline-flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight",
         className,
       )}
+      style={{display: 'flex', flexDirection: 'column'}}
     >
       <span className="relative inline-flex h-9 w-12 shrink-0 items-center justify-center">
         <img
@@ -26,6 +27,7 @@ export function Logo({
           height={313}
           className="h-9 w-12 object-contain transition-transform duration-500 group-hover:scale-105"
           aria-hidden="true"
+          style={{width: '45px', marginBottom: '-45px'}}
         />
       </span>
       <span className="text-ink">

@@ -12,8 +12,9 @@ import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { localizeHref } from "@/lib/i18n";
 import { cn, EASE } from "@/lib/utils";
+import type { Category } from "@/lib/data/categories";
 
-export function Header() {
+export function Header({ categories = [] }: { categories?: Category[] }) {
   const dict = useDict();
   const lang = useLang();
   const pathname = usePathname();
@@ -84,7 +85,7 @@ export function Header() {
 
           <ul className="hidden items-center gap-1 lg:flex">
             {nav.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="group relative">
                 <Link
                   href={item.href}
                   className={cn(
@@ -103,6 +104,24 @@ export function Header() {
                   )}
                   {item.label}
                 </Link>
+                {item.href === "/products" && categories.length > 0 && (
+                  <div className="pointer-events-none absolute left-1/2 top-full z-50 w-[34rem] -translate-x-1/2 pt-4 opacity-0 translate-y-2 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                    <div className="overflow-hidden rounded-2xl border border-line bg-surface/95 p-3 shadow-float backdrop-blur-xl">
+                      <div className="grid grid-cols-2 gap-1">
+                        {categories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={`/products?category=${encodeURIComponent(category.apiCategory)}`}
+                            className="group/item flex min-w-0 items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm text-ink-muted transition-colors hover:bg-accent-wash hover:text-ink"
+                          >
+                            <span className="truncate font-medium">{category.short}</span>
+                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-ink-dim opacity-0 transition-all group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 group-hover/item:opacity-100" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

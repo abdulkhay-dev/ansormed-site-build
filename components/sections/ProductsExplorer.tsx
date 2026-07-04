@@ -18,7 +18,7 @@ import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
-import { cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
+import { categorySortRank, cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
 
@@ -111,7 +111,8 @@ export function ProductsExplorer({
     }
     return rawCats
       .filter((c) => c.is_active !== false)
-      .map((c) => ({ ...localizeCategory(c, lang), count: counts.get(c.id) ?? 0 }));
+      .map((c) => ({ ...localizeCategory(c, lang), slug: c.slug, count: counts.get(c.id) ?? 0 }))
+      .sort((a, b) => categorySortRank(a) - categorySortRank(b));
   }, [rawCats, products, lang]);
 
   // Резолвим ?category= после загрузки: id → точное имя → вхождение → всё.
@@ -182,6 +183,7 @@ export function ProductsExplorer({
                 label={c.name}
                 count={c.count}
                 active={active === String(c.id)}
+                featured={String(c.id) === "1"}
                 onClick={() => setActive(String(c.id))}
               />
             ))}
@@ -246,6 +248,7 @@ export function ProductsExplorer({
                           label={c.name}
                           count={c.count}
                           active={active === String(c.id)}
+                          featured={String(c.id) === "1"}
                           onClick={() => {
                             setActive(String(c.id));
                             setCatOpen(false);
@@ -463,12 +466,14 @@ function CatItem({
   label,
   count,
   active,
+  featured = false,
   onClick,
 }: {
   icon: string;
   label: string;
   count?: number;
   active: boolean;
+  featured?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -491,7 +496,7 @@ function CatItem({
       >
         <Icon name={icon} className="h-4 w-4" />
       </span>
-      <span className="flex-1 truncate">{label}</span>
+      <span className={cn("flex-1 truncate", featured && "font-bold text-ink")}>{label}</span>
       {count != null && (
         <span
           className={cn(

@@ -22,7 +22,7 @@ export default async function HomePage({
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const dict = getDictionary(lang);
-  const categories = getCategories(lang);
+  const categories = (await getCategories(lang)).slice(0, 6);
 
   return (
     <>

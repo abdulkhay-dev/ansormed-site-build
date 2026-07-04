@@ -11,8 +11,8 @@ export const site = {
   phone2Href: "+998952223232",
   email: "info@ansormed.uz",
   socials: {
-    telegram: "https://t.me/ansormed",
-    instagram: "https://instagram.com/ansormed",
+    telegram: "https://t.me/Ansormed1",
+    instagram: "https://www.instagram.com/ansormed.uz?igsh=MW0xcTEwc3Q2M2JzbQ==",
   },
 };
 

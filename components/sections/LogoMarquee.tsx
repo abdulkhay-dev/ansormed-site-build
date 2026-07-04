@@ -26,7 +26,7 @@ const BRAND_LOGOS: BrandLogo[] = [
     src: "/brand-logos/shanghai-meddo-medical-devices-co.webp",
     alt: "Shanghai Meddo Medical Devices",
   },
-  { src: "/brand-logos/tabor.png", alt: "Tabor", crop: "left" },
+  { src: "/brand-logos/tabor.png", alt: "Tabor" },
   { src: "/brand-logos/brand-red-white.png", alt: "Partner logo" },
   { src: "/brand-logos/zeru.png", alt: "Zeru" },
   { src: "/brand-logos/brand-magenta.png", alt: "Partner logo" },

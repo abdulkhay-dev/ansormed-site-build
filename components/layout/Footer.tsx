@@ -5,9 +5,9 @@ import { Logo } from "@/components/ui/Logo";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { getDictionary, interpolate, type Locale } from "@/lib/i18n";
 
-export function Footer({ lang }: { lang: Locale }) {
+export async function Footer({ lang }: { lang: Locale }) {
   const dict = getDictionary(lang);
-  const categories = getCategories(lang);
+  const categories = await getCategories(lang);
   const year = 2026;
 
   const nav = [
@@ -23,7 +23,7 @@ export function Footer({ lang }: { lang: Locale }) {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
       <div className="container-x grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.1fr]">
         {/* Brand */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5" style={{alignItems: 'flex-start'}}>
           <Logo />
           <p className="max-w-xs text-sm leading-relaxed text-ink-muted">
             {dict.meta.description}

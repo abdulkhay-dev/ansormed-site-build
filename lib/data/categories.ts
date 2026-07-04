@@ -1,4 +1,7 @@
 import type { Locale } from "@/lib/i18n";
+import { listCategories } from "@/lib/api";
+import { localizeCategory } from "@/lib/catalog";
+import { categorySortRank, iconForCategory } from "@/lib/utils";
 
 export type Accent = "cyan" | "mint" | "violet" | "amber";
 
@@ -111,8 +114,8 @@ const categoriesRaw: CategoryRaw[] = [
   },
 ];
 
-/** Возвращает список категорий, локализованный под переданный язык. */
-export function getCategories(lang: Locale): Category[] {
+/** Локальные категории для фолбэка, если API временно недоступен. */
+function getFallbackCategories(lang: Locale): Category[] {
   return categoriesRaw.map((c) => ({
     id: c.id,
     name: c.name[lang],
@@ -121,5 +124,39 @@ export function getCategories(lang: Locale): Category[] {
     icon: c.icon,
     accent: c.accent,
     apiCategory: c.apiCategory,
-  }));
+  })).sort((a, b) => categorySortRank(a) - categorySortRank(b));
+}
+
+const ACCENTS: Accent[] = ["cyan", "mint", "violet", "amber"];
+
+function apiCategoryDescription(lang: Locale): string {
+  if (lang === "uz") return "Ushbu bo'limdagi mahsulotlarni ko'rish.";
+  if (lang === "en") return "View products in this category.";
+  return "Смотреть товары в этой категории.";
+}
+
+/** Возвращает категории из API, локализованные под переданный язык. */
+export async function getCategories(lang: Locale): Promise<Category[]> {
+  try {
+    const rows = (await listCategories()) ?? [];
+    const categories = rows
+      .filter((c) => c.is_active !== false)
+      .sort((a, b) => categorySortRank(a) - categorySortRank(b))
+      .map((c, index) => {
+        const localized = localizeCategory(c, lang);
+        return {
+          id: String(localized.id),
+          name: localized.name,
+          short: localized.name,
+          description: apiCategoryDescription(lang),
+          icon: iconForCategory(localized.name || c.slug),
+          accent: ACCENTS[index % ACCENTS.length],
+          apiCategory: String(localized.id),
+        };
+      });
+
+    return categories.length ? categories : getFallbackCategories(lang);
+  } catch {
+    return getFallbackCategories(lang);
+  }
 }
