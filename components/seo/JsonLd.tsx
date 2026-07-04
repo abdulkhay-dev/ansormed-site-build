@@ -16,7 +16,7 @@ export function SiteJsonLd({ lang, dict }: { lang: Locale; dict: Dictionary }) {
     logo: `${SITE_URL}/favicon.ico`,
     image: `${SITE_URL}/og.png`,
     description: dict.meta.description,
-    telephone: site.phone,
+    telephone: site.phone2 ? [site.phone, site.phone2] : site.phone,
     email: site.email,
     address: {
       "@type": "PostalAddress",

@@ -61,6 +61,11 @@ export function Footer({ lang }: { lang: Locale }) {
           <FooterContact icon={<Phone className="h-4 w-4" />} href={`tel:${site.phoneHref}`}>
             {site.phone}
           </FooterContact>
+          {site.phone2 && (
+            <FooterContact href={`tel:${site.phone2Href}`}>
+              {site.phone2}
+            </FooterContact>
+          )}
           <FooterContact icon={<Mail className="h-4 w-4" />} href={`mailto:${site.email}`}>
             {site.email}
           </FooterContact>
@@ -110,7 +115,7 @@ function FooterContact({
   href,
   children,
 }: {
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   href: string;
   children: React.ReactNode;
 }) {
@@ -120,7 +125,11 @@ function FooterContact({
         href={href}
         className="flex items-center gap-2.5 text-sm text-ink-muted transition-colors duration-200 hover:text-accent"
       >
-        <span className="text-accent">{icon}</span>
+        {icon ? (
+          <span className="text-accent shrink-0">{icon}</span>
+        ) : (
+          <span className="w-4 shrink-0" />
+        )}
         {children}
       </a>
     </li>

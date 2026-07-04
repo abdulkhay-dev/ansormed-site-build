@@ -2,9 +2,10 @@ import { ArrowRight } from "lucide-react";
 import { Hero } from "@/components/sections/Hero";
 import { AnatomyScroll } from "@/components/sections/AnatomyScroll";
 import { CTASection } from "@/components/sections/CTASection";
+import { LogoMarquee } from "@/components/sections/LogoMarquee";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
-import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
+import { StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { LatestPosts } from "@/components/sections/LatestPosts";
 import { ButtonLink } from "@/components/ui/Button";
@@ -35,17 +36,7 @@ export default async function HomePage({
             title={<>{dict.home.advantages.title}</>}
             subtitle={dict.home.advantages.subtitle}
           />
-          <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {dict.advantages.map((a, i) => (
-              <RevealItem key={a.title}>
-                <FeatureCard
-                  icon={["ShieldCheck", "Wrench", "Truck", "GraduationCap"][i]}
-                  title={a.title}
-                  text={a.text}
-                />
-              </RevealItem>
-            ))}
-          </RevealGroup>
+          <LogoMarquee />
         </Container>
       </section>
 

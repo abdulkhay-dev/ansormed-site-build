@@ -30,8 +30,17 @@ export function CTASection() {
               </p>
 
               <ul className="mt-2 flex flex-col gap-4">
-                <ContactRow icon={<Phone className="h-5 w-5" />} href={`tel:${site.phoneHref}`} label={c.phoneLabel}>
-                  {site.phone}
+                <ContactRow icon={<Phone className="h-5 w-5" />} label={c.phoneLabel}>
+                  <span className="flex flex-col gap-0.5">
+                    <a href={`tel:${site.phoneHref}`} className="transition-colors hover:text-accent">
+                      {site.phone}
+                    </a>
+                    {site.phone2 && (
+                      <a href={`tel:${site.phone2Href}`} className="transition-colors hover:text-accent">
+                        {site.phone2}
+                      </a>
+                    )}
+                  </span>
                 </ContactRow>
                 <ContactRow icon={<Mail className="h-5 w-5" />} href={`mailto:${site.email}`} label={c.emailLabel}>
                   {site.email}

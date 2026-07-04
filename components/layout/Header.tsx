@@ -211,11 +211,16 @@ export function Header() {
 
                 <div className="my-3 h-px bg-line" />
 
-                <div className="px-1">
+                <div className="px-1 flex flex-col gap-2">
                   <ButtonLink href={`tel:${site.phoneHref}`} size="lg" className="w-full">
                     <Phone className="h-4 w-4" />
                     {site.phone}
                   </ButtonLink>
+                  {site.phone2 && (
+                    <ButtonLink href={`tel:${site.phone2Href}`} size="lg" className="w-full">
+                      {site.phone2}
+                    </ButtonLink>
+                  )}
 
                   <div className="mt-3 flex items-center justify-between gap-3 px-1">
                     <a

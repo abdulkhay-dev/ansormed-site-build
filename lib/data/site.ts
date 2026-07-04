@@ -5,8 +5,10 @@
  */
 export const site = {
   name: "Ansor Med",
-  phone: "+998 95 222 32 32",
-  phoneHref: "+998952223232",
+  phone: "+998 94 618 19 91",
+  phoneHref: "+998946181991",
+  phone2: "+998 95 222 32 32",
+  phone2Href: "+998952223232",
   email: "info@ansormed.uz",
   socials: {
     telegram: "https://t.me/ansormed",

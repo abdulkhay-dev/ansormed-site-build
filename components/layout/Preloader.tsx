@@ -5,13 +5,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useDict } from "@/components/i18n/I18nProvider";
 import { EASE } from "@/lib/utils";
 
-const NODES = [
-  { x: 36, y: 42 },
-  { x: 84, y: 40 },
-  { x: 80, y: 82 },
-  { x: 40, y: 80 },
-];
-
 /**
  * Intro preloader. Mounted in the root layout, so it runs once on full page
  * load and never re-triggers on client-side route changes.
@@ -105,59 +98,16 @@ export function Preloader() {
           >
             <div className="pointer-events-none absolute inset-0 grid-lines opacity-[0.5] [mask-image:radial-gradient(45%_45%_at_50%_45%,#000,transparent)]" />
 
-            <svg viewBox="0 0 120 120" className="relative h-28 w-28">
-              <defs>
-                <linearGradient id="pre-grad" x1="0" y1="0" x2="120" y2="120">
-                  <stop offset="0%" stopColor="#5566f2" />
-                  <stop offset="100%" stopColor="#2a41e8" />
-                </linearGradient>
-              </defs>
-
-              {/* ring */}
-              <motion.circle
-                cx="60" cy="60" r="50"
-                fill="none" stroke="url(#pre-grad)" strokeWidth="1.5" strokeOpacity="0.4"
-                initial={{ pathLength: 0, rotate: -90 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: reduce ? 0.4 : 1.2, ease: EASE }}
-                style={{ transformOrigin: "60px 60px" }}
-              />
-
-              {/* synapses */}
-              {NODES.map((n, i) => (
-                <motion.line
-                  key={`l${i}`}
-                  x1="60" y1="60" x2={n.x} y2={n.y}
-                  stroke="url(#pre-grad)" strokeWidth="1.6" strokeLinecap="round"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: reduce ? 0 : 0.25 + i * 0.12, ease: EASE }}
-                />
-              ))}
-
-              {/* outer nodes */}
-              {NODES.map((n, i) => (
-                <motion.circle
-                  key={`n${i}`}
-                  cx={n.x} cy={n.y} r="3.4"
-                  fill="url(#pre-grad)"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: reduce ? 0.1 : 0.55 + i * 0.12, ease: EASE }}
-                  style={{ transformBox: "fill-box", transformOrigin: "center" }}
-                />
-              ))}
-
-              {/* core node pulse */}
-              <motion.circle
-                cx="60" cy="60" r="5"
-                fill="#5566f2"
-                initial={{ scale: 0 }}
-                animate={reduce ? { scale: 1 } : { scale: [0, 1.3, 1] }}
-                transition={{ duration: 1, delay: 0.2, ease: EASE }}
-                style={{ transformBox: "fill-box", transformOrigin: "center" }}
-              />
-            </svg>
+            <motion.img
+              src="/logo.png"
+              alt=""
+              width={512}
+              height={313}
+              className="relative h-28 w-44 object-contain drop-shadow-[0_0_32px_rgba(42,65,232,0.35)]"
+              initial={{ opacity: 0, scale: 0.82 }}
+              animate={reduce ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [0.82, 1.06, 1] }}
+              transition={{ duration: reduce ? 0.4 : 0.9, delay: reduce ? 0 : 0.2, ease: EASE }}
+            />
 
             {/* wordmark */}
             <motion.span

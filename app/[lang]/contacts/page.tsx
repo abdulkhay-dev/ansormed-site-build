@@ -50,8 +50,18 @@ export default async function ContactsPage({
               <InfoCard
                 icon={<Phone className="h-5 w-5" />}
                 title={c.phoneLabel}
-                href={`tel:${site.phoneHref}`}
-                value={site.phone}
+                value={
+                  <span className="flex flex-col gap-0.5">
+                    <a href={`tel:${site.phoneHref}`} className="transition-colors hover:text-accent">
+                      {site.phone}
+                    </a>
+                    {site.phone2 && (
+                      <a href={`tel:${site.phone2Href}`} className="transition-colors hover:text-accent">
+                        {site.phone2}
+                      </a>
+                    )}
+                  </span>
+                }
               />
               <InfoCard
                 icon={<Mail className="h-5 w-5" />}
@@ -144,7 +154,7 @@ function InfoCard({
 }: {
   icon: React.ReactNode;
   title: string;
-  value: string;
+  value: React.ReactNode;
   note?: string;
   href?: string;
 }) {
