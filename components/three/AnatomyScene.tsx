@@ -533,6 +533,7 @@ export default function AnatomyScene({
         gl={{ antialias: !mobile, alpha: true, powerPreference: "high-performance" }}
         style={{ width: "100%", height: "100%" }}
       >
+
         <hemisphereLight args={["#eaf1ff", "#0a1020", 1.2]} />
         <directionalLight position={[2.5, 3.5, 4]} intensity={1.6} />
         <directionalLight position={[-3.5, 1.5, -2.5]} intensity={1} color={ACCENT} />
