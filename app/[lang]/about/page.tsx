@@ -153,7 +153,7 @@ export default async function AboutPage({
         </Container>
       </section>
 
-      <CTASection dict={dict} />
+      <CTASection />
     </>
   );
 }

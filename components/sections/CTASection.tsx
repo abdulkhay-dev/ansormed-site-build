@@ -1,11 +1,14 @@
+"use client";
+
 import { Phone, Mail, MapPin } from "lucide-react";
-import { LazyContactForm } from "@/components/forms/LazyContactForm";
+import { ContactForm } from "@/components/forms/ContactForm";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { site } from "@/lib/data/site";
-import type { Dictionary } from "@/lib/i18n";
+import { useDict } from "@/components/i18n/I18nProvider";
 
-export function CTASection({ dict }: { dict: Dictionary }) {
+export function CTASection() {
+  const dict = useDict();
   const c = dict.cta;
   return (
     <section className="relative overflow-hidden py-20 md:py-28">
@@ -40,7 +43,7 @@ export function CTASection({ dict }: { dict: Dictionary }) {
             </Reveal>
 
             <Reveal delay={0.1}>
-              <LazyContactForm />
+              <ContactForm />
             </Reveal>
           </div>
 

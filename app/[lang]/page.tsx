@@ -25,7 +25,7 @@ export default async function HomePage({
 
   return (
     <>
-      <Hero lang={lang} hero={dict.hero} />
+      <Hero />
 
       {/* Advantages */}
       <section className="relative py-20 md:py-28">
@@ -115,7 +115,7 @@ export default async function HomePage({
         </Container>
       </section>
 
-      <CTASection dict={dict} />
+      <CTASection />
     </>
   );
 }
