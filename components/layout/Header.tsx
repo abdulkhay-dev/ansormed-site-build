@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone, ArrowUpRight, Mail, Clock } from "lucide-react";
 import { site } from "@/lib/data/site";
 import { Logo } from "@/components/ui/Logo";
@@ -11,7 +10,7 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { localizeHref } from "@/lib/i18n";
-import { cn, EASE } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const dict = useDict();
@@ -95,10 +94,8 @@ export function Header() {
                   )}
                 >
                   {isActive(item.href) && (
-                    <motion.span
-                      layoutId="nav-pill"
+                    <span
                       className="absolute inset-0 -z-10 rounded-full bg-accent-wash ring-1 ring-accent/15"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}
                   {item.label}
@@ -130,23 +127,13 @@ export function Header() {
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.div
-              className="fixed inset-0 z-40 bg-ink/45 backdrop-blur-md lg:hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
-            />
-            <motion.div
-              className="fixed inset-x-3 top-[4.75rem] z-40 origin-top overflow-hidden rounded-[28px] border border-line bg-surface shadow-float lg:hidden md:top-[5.75rem]"
-              initial={{ opacity: 0, y: -16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -16, scale: 0.98 }}
-              transition={{ duration: 0.28, ease: EASE }}
-            >
+      {open && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-ink/45 backdrop-blur-md lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <div className="fixed inset-x-3 top-[4.75rem] z-40 origin-top overflow-hidden rounded-[28px] border border-line bg-surface shadow-float lg:hidden md:top-[5.75rem]">
               {/* clinical dot texture */}
               <div className="pointer-events-none absolute inset-0 grid-dots opacity-50" />
 
@@ -166,11 +153,8 @@ export function Header() {
                   {nav.map((item, i) => {
                     const active = isActive(item.href);
                     return (
-                      <motion.li
+                      <li
                         key={item.href}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.04 + i * 0.05 }}
                       >
                         <Link
                           href={item.href}
@@ -204,7 +188,7 @@ export function Header() {
                             )}
                           />
                         </Link>
-                      </motion.li>
+                      </li>
                     );
                   })}
                 </ul>
@@ -232,10 +216,9 @@ export function Header() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          </div>
+        </>
+      )}
     </header>
   );
 }

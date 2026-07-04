@@ -1,24 +1,41 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { ArrowRight, Phone } from "lucide-react";
+import Link from "next/link";
 import { Hero3D } from "@/components/three/Hero3D";
-import { ButtonLink } from "@/components/ui/Button";
-import { useDict } from "@/components/i18n/I18nProvider";
-import { EASE } from "@/lib/utils";
+import { localizeHref, type Dictionary, type Locale } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
-};
+type HeroCopy = Dictionary["hero"];
 
-export function Hero() {
-  const dict = useDict();
-  const h = dict.hero;
+const buttonBase =
+  "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 ease-out focus-visible:outline-none cursor-pointer whitespace-nowrap h-13 px-7 text-base";
+
+function HeroLink({
+  href,
+  variant = "primary",
+  lang,
+  children,
+}: {
+  href: string;
+  variant?: "primary" | "secondary";
+  lang: Locale;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={localizeHref(lang, href)}
+      className={cn(
+        buttonBase,
+        variant === "primary"
+          ? "bg-accent text-white font-semibold shadow-[0_10px_30px_-10px_rgba(42,65,232,0.7)] hover:bg-accent-deep hover:shadow-[0_14px_40px_-10px_rgba(42,65,232,0.8)]"
+          : "bg-surface text-ink border border-line-strong hover:border-accent/40 hover:bg-surface-2 shadow-soft",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
+export function Hero({ lang, hero: h }: { lang: Locale; hero: HeroCopy }) {
   return (
     <section className="relative isolate overflow-hidden">
       <div className="pointer-events-none absolute inset-0 grid-lines opacity-[0.5]" />
@@ -28,66 +45,43 @@ export function Hero() {
 
       <div className="container-x relative grid items-center gap-10 pb-16 pt-28 md:pb-24 md:pt-36 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
         {/* Copy */}
-        <motion.div
-          variants={stagger}
-          className="order-2 flex flex-col items-start lg:order-1"
-        >
-          <motion.span
-            variants={item}
-            className="label inline-flex items-center gap-2 text-accent"
-          >
+        <div className="order-2 flex flex-col items-start lg:order-1">
+          <span className="label inline-flex items-center gap-2 text-accent">
             <span className="h-1.5 w-1.5 rounded-full bg-signal" />
             {h.badge}
-          </motion.span>
+          </span>
 
-          <motion.h1
-            variants={item}
-            className="mt-6 text-[2rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-4xl md:text-5xl"
-          >
+          <h1 className="mt-6 text-[2rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-4xl md:text-5xl">
             {h.titlePre}
             <span className="text-accent-gradient">{h.titleAccent}</span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            variants={item}
-            className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted"
-          >
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted">
             {h.subtitle}
-          </motion.p>
+          </p>
 
-          <motion.div
-            variants={item}
-            className="mt-9 flex flex-col gap-3 sm:flex-row"
-          >
-            <ButtonLink href="/products" size="lg">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <HeroLink href="/products" lang={lang}>
               {h.ctaCatalog}
               <ArrowRight className="h-4 w-4" />
-            </ButtonLink>
-            <ButtonLink href="/contacts" variant="secondary" size="lg">
+            </HeroLink>
+            <HeroLink href="/contacts" variant="secondary" lang={lang}>
               <Phone className="h-4 w-4" />
               {h.ctaContact}
-            </ButtonLink>
-          </motion.div>
+            </HeroLink>
+          </div>
 
-          <motion.dl
-            variants={item}
-            className="mt-12 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6"
-          >
+          <dl className="mt-12 grid w-full max-w-md grid-cols-3 gap-6 border-t border-line pt-6">
             <HeroStat value={h.stats.deliveries.value} label={h.stats.deliveries.label} />
             <HeroStat value={h.stats.years.value} label={h.stats.years.label} />
             <HeroStat value={h.stats.clinics.value} label={h.stats.clinics.label} />
-          </motion.dl>
-        </motion.div>
+          </dl>
+        </div>
 
         {/* 3D instrument viewport */}
-        <motion.div
-          initial={false}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.1 }}
-          className="order-1 lg:order-2"
-        >
+        <div className="order-1 lg:order-2">
           <InstrumentViewport />
-        </motion.div>
+        </div>
       </div>
     </section>
   );
