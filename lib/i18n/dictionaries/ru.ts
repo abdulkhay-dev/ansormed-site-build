@@ -195,6 +195,16 @@ const ru = {
     nerveTitle: "Нервная система",
     cns: "Центральная нервная система",
     pns: "Периферическая нервная система",
+    organs: {
+      brain: "Мозг",
+      heart: "Сердце",
+      lungs: "Лёгкие",
+      kidneys: "Почки",
+      cell: "Клетки",
+      ecg: "ЭКГ",
+      dna: "ДНК",
+      lab: "Анализы",
+    },
     stages: [
       {
         label: "Ansor Med",

@@ -6,7 +6,7 @@ import { useGLTF, Environment, Lightformer } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useIsMobile, useOnScreen } from "@/lib/use-device";
-import { ANNO_ANCHORS } from "@/lib/anatomyAnchors";
+import { ANNO_ANCHORS, HOTSPOT_ANCHORS } from "@/lib/anatomyAnchors";
 
 const MODEL_URL = "/models/body.glb";
 const NERVE_URL = "/models/nervous-system.glb";
@@ -495,6 +495,17 @@ function Anatomy({
           .project(camera);
         out[i * 4 + 2] = (annoV.x * 0.5 + 0.5) * 100;
         out[i * 4 + 3] = (-annoV.y * 0.5 + 0.5) * 100;
+      }
+      // Хотспоты суставов — по 2 числа на точку, после блока аннотаций.
+      const base = ANNO_ANCHORS.length * 4;
+      for (let i = 0; i < HOTSPOT_ANCHORS.length; i++) {
+        const h = HOTSPOT_ANCHORS[i];
+        annoV
+          .set(bb.cx + h.bx * bb.H, bb.minY + h.by * bb.H, bb.cz)
+          .applyMatrix4(m)
+          .project(camera);
+        out[base + i * 2] = (annoV.x * 0.5 + 0.5) * 100;
+        out[base + i * 2 + 1] = (-annoV.y * 0.5 + 0.5) * 100;
       }
     }
   });

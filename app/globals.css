@@ -70,26 +70,23 @@ h1, h2, h3, h4, h5, .font-display {
 }
 
 /* ---------- Utility layer ---------- */
-/* Бегущий импульс вдоль линии-выноски: от тела (узел) к иконке. */
-@keyframes anno-flow {
-  0% { left: 100%; opacity: 0; }
-  12% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { left: 0%; opacity: 0; }
+/* HUD анатомии: расходящееся кольцо хотспота на суставе. */
+@keyframes hud-ping {
+  0% { transform: scale(0.5); opacity: 0.7; }
+  80% { transform: scale(1.8); opacity: 0; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
-/* Вспышка свечения иконки в момент, когда импульс до неё доходит (конец цикла). */
-@keyframes anno-glow {
-  0%, 80% { opacity: 0.3; transform: scale(0.9); }
-  96% { opacity: 1; transform: scale(1.35); }
-  100% { opacity: 0.3; transform: scale(0.9); }
+/* HUD анатомии: пробег яркого отрезка по кривой ЭКГ (dashoffset). */
+@keyframes hud-ecg {
+  from { stroke-dashoffset: 130; }
+  to { stroke-dashoffset: 0; }
 }
 
-/* Вспышка самого кружка-бейджа — когда точка касается иконки. */
-@keyframes anno-ring {
-  0%, 78% { opacity: 0; box-shadow: 0 0 0 0 rgba(94, 155, 255, 0); }
-  90% { opacity: 1; box-shadow: 0 0 22px 4px rgba(94, 155, 255, 0.85); }
-  100% { opacity: 0; box-shadow: 0 0 0 0 rgba(94, 155, 255, 0); }
+/* HUD анатомии: лёгкое парение декоративных панелей. */
+@keyframes hud-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 @keyframes brand-marquee {

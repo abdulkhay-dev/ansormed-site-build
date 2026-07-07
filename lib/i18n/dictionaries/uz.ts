@@ -198,6 +198,16 @@ const uz: Dictionary = {
     nerveTitle: "Asab tizimi",
     cns: "Markaziy asab tizimi",
     pns: "Periferik asab tizimi",
+    organs: {
+      brain: "Miya",
+      heart: "Yurak",
+      lungs: "O‘pka",
+      kidneys: "Buyraklar",
+      cell: "Hujayralar",
+      ecg: "EKG",
+      dna: "DNK",
+      lab: "Tahlillar",
+    },
     stages: [
       {
         label: "Ansor Med",

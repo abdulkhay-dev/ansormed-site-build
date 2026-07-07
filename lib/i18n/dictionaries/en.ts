@@ -198,6 +198,16 @@ const en: Dictionary = {
     nerveTitle: "Nervous system",
     cns: "Central nervous system",
     pns: "Peripheral nervous system",
+    organs: {
+      brain: "Brain",
+      heart: "Heart",
+      lungs: "Lungs",
+      kidneys: "Kidneys",
+      cell: "Cells",
+      ecg: "ECG",
+      dna: "DNA",
+      lab: "Lab tests",
+    },
     stages: [
       {
         label: "Ansor Med",
