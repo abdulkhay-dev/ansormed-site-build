@@ -89,6 +89,18 @@ h1, h2, h3, h4, h5, .font-display {
   50% { transform: translateY(-6px); }
 }
 
+/* HUD анатомии: полоса прогресса сканирования (панель с таблицей органов). */
+@keyframes hud-scan {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(300%); }
+}
+
+/* HUD анатомии: поочерёдная подсветка строк в таблице сканирования. */
+@keyframes hud-row {
+  0%, 8% { background: rgba(126, 227, 255, 0.12); }
+  16%, 100% { background: transparent; }
+}
+
 @keyframes brand-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

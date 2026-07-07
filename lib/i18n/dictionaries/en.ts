@@ -208,31 +208,66 @@ const en: Dictionary = {
       dna: "DNA",
       lab: "Lab tests",
     },
+    vitals: {
+      title: "Vitals",
+      rows: [
+        { label: "SpO₂", value: "98%" },
+        { label: "Pulse", value: "72 bpm" },
+        { label: "BP", value: "120/80" },
+        { label: "Temp", value: "36.6°" },
+      ],
+    },
+    scan: { title: "Scanning", ok: "OK" },
     stages: [
       {
         label: "Ansor Med",
         title: "The whole body under control",
         text: "We supply equipment for every field of medicine — more than 1000 clinics across Uzbekistan trust us.",
+        rows: [
+          { k: "Clinics", v: "1000+" },
+          { k: "Specialties", v: "15+" },
+          { k: "Service", v: "24/7" },
+        ],
       },
       {
         label: "Neurology · Radiology",
         title: "The head and nervous system",
         text: "Expert-class MRI, CT and neurodiagnostics. Precise images — for precise clinical decisions.",
+        rows: [
+          { k: "MRI", v: "1.5–3.0 T" },
+          { k: "CT", v: "16–128 slices" },
+          { k: "EEG", v: "21+ channels" },
+        ],
       },
       {
         label: "Cardiology · Diagnostics",
         title: "The heart and internal organs",
         text: "Ultrasound machines, ECG, patient monitoring and endoscopy — we see what's hidden from view.",
+        rows: [
+          { k: "Ultrasound", v: "4D Doppler" },
+          { k: "ECG", v: "12-lead" },
+          { k: "Endoscopy", v: "Full HD" },
+        ],
       },
       {
         label: "Surgery · Operating rooms",
         title: "A surgeon's hands — our equipment",
         text: "Operating tables, lights, anesthesia-respiratory machines and instruments for confident work.",
+        rows: [
+          { k: "OR tables", v: "motorized" },
+          { k: "Lighting", v: "160,000 lux" },
+          { k: "Ventilators", v: "turbine" },
+        ],
       },
       {
         label: "Rehabilitation · Orthopedics",
         title: "Bringing movement back",
         text: "Equipment for recovery and physiotherapy: from the first steps of rehabilitation to a full return to life.",
+        rows: [
+          { k: "Physiotherapy", v: "12+ methods" },
+          { k: "Rehab machines", v: "active" },
+          { k: "Diagnostics", v: "stabilometry" },
+        ],
       },
     ],
   },

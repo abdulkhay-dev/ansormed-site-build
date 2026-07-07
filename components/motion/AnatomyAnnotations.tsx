@@ -229,19 +229,43 @@ function Silhouette({ className, color }: { className?: string; color: string })
   );
 }
 
-function DataRow({ color, w, value }: { color: string; w: string; value: string }) {
+function DataRow({
+  color,
+  w,
+  label,
+  value,
+}: {
+  color: string;
+  w: string;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex items-center gap-2">
       <i className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
+      <span className="label w-11 shrink-0 !text-[9px] text-white/45" style={{ textTransform: "none" }}>
+        {label}
+      </span>
       <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/10">
         <div className="h-full rounded-full bg-white/30" style={{ width: w }} />
       </div>
-      <span className="label !text-[9px] text-white/55">{value}</span>
+      <span className="label !text-[9px] text-white/60" style={{ textTransform: "none" }}>
+        {value}
+      </span>
     </div>
   );
 }
 
-function HudDecor({ reduce }: { reduce: boolean }) {
+const VITAL_COLORS = ["#7ee3ff", "#ff7d8c", "#ffb469", "#6fe5dc"];
+const VITAL_BARS = ["72%", "55%", "64%", "60%"];
+
+interface HudTables {
+  vitals: { title: string; rows: { label: string; value: string }[] };
+  scan: { title: string; ok: string };
+  organs: Record<AnnoDef["key"], string>;
+}
+
+function HudDecor({ reduce, tables }: { reduce: boolean; tables: HudTables }) {
   const float = (d: number) =>
     reduce ? undefined : { animation: `hud-float 7s ease-in-out ${d}s infinite` };
   return (
@@ -271,20 +295,61 @@ function HudDecor({ reduce }: { reduce: boolean }) {
       {/* сканирующая линия у головы */}
       <div className="absolute left-[24%] top-[15%] h-px w-40 bg-gradient-to-r from-[#7ee3ff]/0 via-[#7ee3ff]/70 to-[#7ee3ff]/0" />
 
-      {/* панель показателей */}
+      {/* таблица показателей пациента */}
       <div
-        className="glass absolute right-[6%] top-[13%] w-44 rounded-xl p-3.5 ring-1 ring-white/10"
+        className="glass absolute right-[6%] top-[13%] w-52 rounded-xl p-3.5 ring-1 ring-white/10"
         style={float(0.5)}
       >
         <div className="mb-2.5 flex items-center justify-between">
-          <span className="label !text-[9px] text-white/40">ID · 0417</span>
+          <span className="label !text-[9px] text-white/40">{tables.vitals.title} · 0417</span>
           <i className="h-1.5 w-1.5 rounded-full bg-[#6fe5dc]" style={{ boxShadow: "0 0 6px #6fe5dc" }} />
         </div>
         <div className="flex flex-col gap-2">
-          <DataRow color="#7ee3ff" w="72%" value="98%" />
-          <DataRow color="#ff7d8c" w="55%" value="72" />
-          <DataRow color="#ffb469" w="63%" value="36.6°" />
+          {tables.vitals.rows.map((r, i) => (
+            <DataRow
+              key={r.label}
+              color={VITAL_COLORS[i % VITAL_COLORS.length]}
+              w={VITAL_BARS[i % VITAL_BARS.length]}
+              label={r.label}
+              value={r.value}
+            />
+          ))}
         </div>
+      </div>
+
+      {/* таблица сканирования органов: строки подсвечиваются по очереди */}
+      <div
+        className="glass absolute bottom-[9%] right-[5%] w-48 rounded-xl p-3.5 ring-1 ring-white/10"
+        style={float(1.4)}
+      >
+        <div className="mb-2 flex items-center justify-between">
+          <span className="label !text-[9px] text-white/40">{tables.scan.title}</span>
+          <span className="label !text-[8px] text-[#6fe5dc]">● LIVE</span>
+        </div>
+        <div className="mb-2 h-px overflow-hidden rounded-full bg-white/10">
+          <i
+            className="block h-full w-1/3 rounded-full bg-[#6fe5dc]/70"
+            style={reduce ? undefined : { animation: "hud-scan 2.8s linear infinite" }}
+          />
+        </div>
+        <ul className="flex flex-col">
+          {ANNOTATIONS.slice(0, 6).map((a, i) => (
+            <li
+              key={a.key}
+              className="flex items-center gap-2 rounded-md px-1.5 py-[3px]"
+              style={reduce ? undefined : { animation: `hud-row 4.2s linear ${i * 0.7}s infinite` }}
+            >
+              <i
+                className="h-1 w-1 shrink-0 rounded-full"
+                style={{ background: a.color, boxShadow: `0 0 5px ${a.color}` }}
+              />
+              <span className="label flex-1 !text-[9px] text-white/50" style={{ textTransform: "none" }}>
+                {tables.organs[a.key]}
+              </span>
+              <span className="label !text-[9px] text-[#6fe5dc]">{tables.scan.ok}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* пунктирные силуэты-«пациенты» */}
@@ -318,7 +383,8 @@ export function AnatomyAnnotations({
   className?: string;
 }) {
   const dict = useDict();
-  const labels = dict.anatomy.organs;
+  const anat = dict.anatomy;
+  const labels = anat.organs;
 
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -412,7 +478,10 @@ export function AnatomyAnnotations({
         className,
       )}
     >
-      <HudDecor reduce={reduce} />
+      <HudDecor
+        reduce={reduce}
+        tables={{ vitals: anat.vitals, scan: anat.scan, organs: anat.organs }}
+      />
 
       {/* линии-выноски, узлы и импульсы — один SVG на весь экран */}
       <svg className="absolute inset-0 h-full w-full">

@@ -208,31 +208,66 @@ const uz: Dictionary = {
       dna: "DNK",
       lab: "Tahlillar",
     },
+    vitals: {
+      title: "Ko'rsatkichlar",
+      rows: [
+        { label: "SpO₂", value: "98%" },
+        { label: "Puls", value: "72 zarb/min" },
+        { label: "Bosim", value: "120/80" },
+        { label: "Harorat", value: "36.6°" },
+      ],
+    },
+    scan: { title: "Skanerlash", ok: "OK" },
     stages: [
       {
         label: "Ansor Med",
         title: "Butun organizm nazoratda",
         text: "Tibbiyotning har bir sohasi uchun uskunalar yetkazib beramiz — butun O'zbekiston bo'ylab 1000 dan ortiq klinika bizga ishonadi.",
+        rows: [
+          { k: "Klinikalar", v: "1000+" },
+          { k: "Yo'nalishlar", v: "15+" },
+          { k: "Servis", v: "24/7" },
+        ],
       },
       {
         label: "Nevrologiya · Radiologiya",
         title: "Bosh va asab tizimi",
         text: "Ekspert darajasidagi MRT, KT va neyrodiagnostika. Aniq tasvirlar — shifokorning aniq qarorlari uchun.",
+        rows: [
+          { k: "MRT", v: "1.5–3.0 Tl" },
+          { k: "KT", v: "16–128 kesim" },
+          { k: "EEG", v: "21+ kanal" },
+        ],
       },
       {
         label: "Kardiologiya · Diagnostika",
         title: "Yurak va ichki a'zolar",
         text: "UTT apparatlari, EKG, bemor monitoringi va endoskopiya — ko'zdan yashiringan narsalarni ko'ramiz.",
+        rows: [
+          { k: "UTT", v: "4D Doppler" },
+          { k: "EKG", v: "12 tarmoqli" },
+          { k: "Endoskopiya", v: "Full HD" },
+        ],
       },
       {
         label: "Jarrohlik · Operatsiya xonalari",
         title: "Jarroh qo'llari — bizning texnikamiz",
         text: "Ishonchli ish uchun operatsiya stollari, chiroqlar, narkoz-nafas apparatlari va asboblar.",
+        rows: [
+          { k: "Op. stollari", v: "elektr yuritma" },
+          { k: "Yoritish", v: "160 000 lk" },
+          { k: "Nafas apparati", v: "turbinali" },
+        ],
       },
       {
         label: "Reabilitatsiya · Ortopediya",
         title: "Harakatni qaytaramiz",
         text: "Tiklanish va fizioterapiya uchun uskunalar: reabilitatsiyaning birinchi qadamlaridan to hayotga to'liq qaytishgacha.",
+        rows: [
+          { k: "Fizioterapiya", v: "12+ usul" },
+          { k: "Trenajyorlar", v: "reabilitatsiya" },
+          { k: "Diagnostika", v: "stabilometriya" },
+        ],
       },
     ],
   },

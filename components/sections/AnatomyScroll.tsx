@@ -127,6 +127,19 @@ export function AnatomyScroll() {
         <span className="label absolute left-[6%] top-10 z-10 text-[#8ea2ff]">
           {a.sectionLabel}
         </span>
+        {/* технический ридаут текущей стадии (декор) */}
+        <span className="label absolute left-[6%] top-[4.1rem] z-10 hidden !text-[9px] text-white/30 md:block">
+          FIG.02 · {String(nearest + 1).padStart(2, "0")}/{String(STAGES.length).padStart(2, "0")} ·
+          ZOOM {STAGE_CONFIG[nearest].zoom.toFixed(1)}×
+        </span>
+
+        {/* угловые скобки «видоискателя» */}
+        <div className="pointer-events-none absolute inset-x-5 bottom-5 top-24 z-10 hidden md:block">
+          <i className="absolute left-0 top-0 h-5 w-5 border-l border-t border-white/15" />
+          <i className="absolute right-0 top-0 h-5 w-5 border-r border-t border-white/15" />
+          <i className="absolute bottom-0 left-0 h-5 w-5 border-b border-l border-white/15" />
+          <i className="absolute bottom-0 right-0 h-5 w-5 border-b border-r border-white/15" />
+        </div>
 
         {/* step text panels */}
         {STAGES.map((s, i) => (
@@ -153,6 +166,21 @@ export function AnatomyScroll() {
             <p className="mt-3 hidden text-sm leading-relaxed text-white/55 md:mt-4 md:block">
               {s.text}
             </p>
+            {/* HUD-таблица: параметры оборудования стадии */}
+            <ul className="mt-5 hidden flex-col gap-2 border-t border-white/10 pt-4 md:flex">
+              {s.rows.map((r) => (
+                <li key={r.k} className="flex items-baseline gap-3">
+                  <span className="label !text-[10px] text-white/40">{r.k}</span>
+                  <i className="flex-1 border-b border-dotted border-white/15" />
+                  <span
+                    className="label !text-[10px] !tracking-[0.08em] text-[#7ee3ff]"
+                    style={{ textTransform: "none" }}
+                  >
+                    {r.v}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
 
