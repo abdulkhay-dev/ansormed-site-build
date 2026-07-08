@@ -1,20 +1,16 @@
 /**
  * Клиент Ansor Med REST API (по openapi.json).
  *
- * В браузере запросы идут на same-origin `/api/*` — их проксирует сам сервер
- * (nginx в проде, redirect в netlify.toml), поэтому CORS не нужен и хост API
- * прописывать не надо. В Node (сборка статики: generateStaticParams/Metadata)
- * относительный URL недоступен, поэтому там ходим на абсолютный бэкенд.
- * В dev браузер ходит на локальный CORS-прокси через NEXT_PUBLIC_API_BASE
+ * Запросы идут напрямую на бэкенд https://api.ansormed.uz (и в браузере, и при
+ * сборке). Для работы в браузере бэкенд ДОЛЖЕН отдавать CORS-заголовки для
+ * https://ansormed.uz (django-cors-headers), иначе fetch блокируется.
+ * В dev база переопределяется на локальный CORS-прокси через NEXT_PUBLIC_API_BASE
  * (scripts/dev.mjs).
  */
 
-/** Явный override базы (dev-прокси). В проде пустой. */
-const OVERRIDE = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-/** Абсолютный бэкенд для серверных (build-time) запросов, если override не задан. */
-const BACKEND = OVERRIDE || "https://api.ansormed.uz";
-/** В браузере — same-origin `/api`; в Node — абсолютный бэкенд; dev — override. */
-const BASE = OVERRIDE || (typeof window === "undefined" ? BACKEND : "");
+const BASE = (
+  process.env.NEXT_PUBLIC_API_BASE || "https://api.ansormed.uz"
+).replace(/\/$/, "");
 
 /** Origin для медиа (/uploads/...) — всегда реальный бэкенд, не dev-прокси. */
 const MEDIA_BASE = (
