@@ -18,8 +18,7 @@ const uz: Dictionary = {
 
   site: {
     addressDisplay: "Toshkent sh., Olmazor tumani, Qoraqamish massivi, 1/2, 20A",
-    hours: "9:00 — 20:00",
-    hoursNote: "Har kuni, dam olishsiz",
+    hours: "9:00 — 18:00",
   },
 
   nav: {
@@ -38,7 +37,7 @@ const uz: Dictionary = {
   skipToContent: "Mazmunga o'tish",
 
   header: {
-    contact: "Bog'lanish",
+    contact: "Aloqa",
     openMenu: "Menyuni ochish",
     closeMenu: "Menyuni yopish",
     navLabel: "Navigatsiya",
@@ -111,7 +110,6 @@ const uz: Dictionary = {
     { suffix: "+", label: "dona uskuna yetkazildi" },
     { suffix: " yil", label: "tibbiy texnika bozorida" },
     { suffix: "+", label: "klinika va hamkor" },
-    { suffix: "/7", label: "servis qo'llab-quvvatlash" },
   ],
 
   values: [

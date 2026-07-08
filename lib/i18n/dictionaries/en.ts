@@ -18,8 +18,7 @@ const en: Dictionary = {
 
   site: {
     addressDisplay: "Tashkent, Almazar district, Qoraqamish massif, 1/2, 20A",
-    hours: "9:00 — 20:00",
-    hoursNote: "Daily, no days off",
+    hours: "9:00 — 18:00",
   },
 
   nav: {
@@ -38,7 +37,7 @@ const en: Dictionary = {
   skipToContent: "Skip to content",
 
   header: {
-    contact: "Contact",
+    contact: "Contacts",
     openMenu: "Open menu",
     closeMenu: "Close menu",
     navLabel: "Navigation",
@@ -111,7 +110,6 @@ const en: Dictionary = {
     { suffix: "+", label: "units of equipment delivered" },
     { suffix: " years", label: "in the medical-equipment market" },
     { suffix: "+", label: "clinics and partners" },
-    { suffix: "/7", label: "service support" },
   ],
 
   values: [

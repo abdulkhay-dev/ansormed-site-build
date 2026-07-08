@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone, ArrowUpRight, Mail, Clock } from "lucide-react";
@@ -20,6 +20,23 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openProducts = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setProductsOpen(true);
+  };
+  const closeProducts = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setProductsOpen(false), 140);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current) clearTimeout(closeTimer.current);
+    };
+  }, []);
 
   const nav = [
     { label: dict.nav.home, href: "/" },
@@ -27,7 +44,6 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
     { label: dict.nav.products, href: "/products" },
     { label: dict.nav.projects, href: "/projects" },
     { label: dict.nav.blog, href: "/blog" },
-    { label: dict.nav.contacts, href: "/contacts" },
   ];
 
   useEffect(() => {
@@ -37,9 +53,10 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   useEffect(() => {
     setOpen(false);
+    setProductsOpen(false);
   }, [pathname]);
 
   // Lock body scroll when menu open
@@ -84,46 +101,72 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
           <Logo />
 
           <ul className="hidden items-center gap-1 lg:flex">
-            {nav.map((item) => (
-              <li key={item.href} className="group relative">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200",
-                    isActive(item.href)
-                      ? "text-accent"
-                      : "text-ink-muted hover:text-ink",
-                  )}
+            {nav.map((item) => {
+              const hasMenu = item.href === "/products" && categories.length > 0;
+              return (
+                <li
+                  key={item.href}
+                  className="relative"
+                  onMouseEnter={hasMenu ? openProducts : undefined}
+                  onMouseLeave={hasMenu ? closeProducts : undefined}
+                  onFocus={hasMenu ? openProducts : undefined}
+                  onBlur={
+                    hasMenu
+                      ? (e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget as Node))
+                            closeProducts();
+                        }
+                      : undefined
+                  }
                 >
-                  {isActive(item.href) && (
-                    <motion.span
-                      layoutId="nav-pill"
-                      className="absolute inset-0 -z-10 rounded-full bg-accent-wash ring-1 ring-accent/15"
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  {item.label}
-                </Link>
-                {item.href === "/products" && categories.length > 0 && (
-                  <div className="pointer-events-none absolute left-1/2 top-full z-50 w-[34rem] -translate-x-1/2 pt-4 opacity-0 translate-y-2 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
-                    <div className="overflow-hidden rounded-2xl border border-line bg-surface/95 p-3 shadow-float backdrop-blur-xl">
-                      <div className="grid grid-cols-2 gap-1">
-                        {categories.map((category) => (
-                          <Link
-                            key={category.id}
-                            href={`/products?category=${encodeURIComponent(category.apiCategory)}`}
-                            className="group/item flex min-w-0 items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm text-ink-muted transition-colors hover:bg-accent-wash hover:text-ink"
-                          >
-                            <span className="truncate font-medium">{category.short}</span>
-                            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-ink-dim opacity-0 transition-all group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 group-hover/item:opacity-100" />
-                          </Link>
-                        ))}
+                  <Link
+                    href={item.href}
+                    aria-haspopup={hasMenu ? "menu" : undefined}
+                    aria-expanded={hasMenu ? productsOpen : undefined}
+                    className={cn(
+                      "relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200",
+                      isActive(item.href)
+                        ? "text-accent"
+                        : "text-ink-muted hover:text-ink",
+                    )}
+                  >
+                    {isActive(item.href) && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 -z-10 rounded-full bg-accent-wash ring-1 ring-accent/15"
+                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    {item.label}
+                  </Link>
+                  {hasMenu && (
+                    <div
+                      className={cn(
+                        "absolute left-1/2 top-full z-50 w-[34rem] -translate-x-1/2 pt-4 transition-all duration-200",
+                        productsOpen
+                          ? "pointer-events-auto translate-y-0 opacity-100"
+                          : "pointer-events-none translate-y-2 opacity-0",
+                      )}
+                    >
+                      <div className="overflow-hidden rounded-2xl border border-line bg-surface/95 p-3 shadow-float backdrop-blur-xl">
+                        <div className="grid grid-cols-2 gap-1">
+                          {categories.map((category) => (
+                            <Link
+                              key={category.id}
+                              href={`/products?category=${encodeURIComponent(category.apiCategory)}`}
+                              className="group/item flex min-w-0 items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm text-ink-muted transition-colors hover:bg-accent-wash hover:text-ink"
+                            >
+                              <span className="truncate font-medium">{category.short}</span>
+                              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-ink-dim opacity-0 transition-all group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 group-hover/item:opacity-100" />
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))}
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           <div className="flex items-center gap-2">
@@ -172,13 +215,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
               <div className="relative p-3">
                 <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
                   <span className="label text-ink-dim">{dict.header.navLabel}</span>
-                  <div className="flex items-center gap-3">
-                    <LanguageSwitcher />
-                    <span className="label flex items-center gap-1.5 text-ink-dim">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-signal" />
-                      24/7
-                    </span>
-                  </div>
+                  <LanguageSwitcher />
                 </div>
 
                 <ul className="flex flex-col">
@@ -231,6 +268,10 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                 <div className="my-3 h-px bg-line" />
 
                 <div className="px-1 flex flex-col gap-2">
+                  <ButtonLink href="/contacts" size="lg" variant="secondary" className="w-full">
+                    <ArrowUpRight className="h-4 w-4" />
+                    {dict.header.contact}
+                  </ButtonLink>
                   <ButtonLink href={`tel:${site.phoneHref}`} size="lg" className="w-full">
                     <Phone className="h-4 w-4" />
                     {site.phone}

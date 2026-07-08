@@ -80,7 +80,7 @@ export default async function AboutPage({
       <section className="relative overflow-hidden py-12 md:py-16">
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-[46rem] -translate-x-1/2 -translate-y-1/2 spotlight" />
         <Container className="relative z-10">
-          <RevealGroup className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          <RevealGroup className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
             {dict.stats.map((s, i) => (
               <RevealItem key={s.label}>
                 <StatCard value={statValues[i]} suffix={s.suffix} label={s.label} />

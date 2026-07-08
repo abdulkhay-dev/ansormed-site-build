@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin, Send, Camera } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
+import { InstagramIcon, TelegramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/ui/SocialIcons";
 import { site } from "@/lib/data/site";
 import { getCategories } from "@/lib/data/categories";
 import { Logo } from "@/components/ui/Logo";
@@ -30,10 +31,16 @@ export async function Footer({ lang }: { lang: Locale }) {
           </p>
           <div className="flex gap-2.5">
             <SocialLink href={site.socials.telegram} label="Telegram">
-              <Send className="h-5 w-5" />
+              <TelegramIcon className="h-5 w-5" />
             </SocialLink>
             <SocialLink href={site.socials.instagram} label="Instagram">
-              <Camera className="h-5 w-5" />
+              <InstagramIcon className="h-5 w-5" />
+            </SocialLink>
+            <SocialLink href={site.socials.youtube} label="YouTube">
+              <YouTubeIcon className="h-5 w-5" />
+            </SocialLink>
+            <SocialLink href={site.socials.whatsapp} label="WhatsApp">
+              <WhatsAppIcon className="h-5 w-5" />
             </SocialLink>
           </div>
         </div>

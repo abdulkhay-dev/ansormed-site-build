@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { TelegramIcon, WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { PageHeader } from "@/components/sections/PageHeader";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
@@ -78,7 +79,6 @@ export default async function ContactsPage({
                 icon={<Clock className="h-5 w-5" />}
                 title={c.hoursLabel}
                 value={dict.site.hours}
-                note={dict.site.hoursNote}
               />
 
               <div className="mt-2 flex flex-col gap-3 rounded-3xl glass p-6">
@@ -92,8 +92,17 @@ export default async function ContactsPage({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-[#229ED9]/15 px-4 py-2.5 text-sm font-medium text-[#7cc9ef] ring-1 ring-[#229ED9]/30 transition-colors hover:bg-[#229ED9]/25"
                   >
-                    <Send className="h-4 w-4" />
+                    <TelegramIcon className="h-4 w-4" />
                     Telegram
+                  </a>
+                  <a
+                    href={site.socials.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/15 px-4 py-2.5 text-sm font-medium text-[#5fe08c] ring-1 ring-[#25D366]/30 transition-colors hover:bg-[#25D366]/25"
+                  >
+                    <WhatsAppIcon className="h-4 w-4" />
+                    WhatsApp
                   </a>
                 </div>
               </div>

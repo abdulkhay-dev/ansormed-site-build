@@ -13,14 +13,16 @@ export const site = {
   socials: {
     telegram: "https://t.me/Ansormed1",
     instagram: "https://www.instagram.com/ansormed.uz?igsh=MW0xcTEwc3Q2M2JzbQ==",
+    youtube: "https://www.youtube.com/@ansormed",
+    whatsapp: "https://wa.me/998946181991",
   },
 };
 
 /**
  * Числовые значения счётчиков (зипуются по индексу с подписями dict.stats).
- * Порядок: поставки, лет на рынке, клиник, режим поддержки.
+ * Порядок: поставки, лет на рынке, клиник.
  */
-export const statValues: number[] = [500, 5, 1000, 24];
+export const statValues: number[] = [500, 5, 1000];
 
 /** Бренды-партнёры — названия не переводятся. */
 export const partners: string[] = [

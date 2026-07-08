@@ -16,8 +16,7 @@ const ru = {
 
   site: {
     addressDisplay: "г. Ташкент, Алмазарский район, массив Каракамыш, 1/2, 20А",
-    hours: "9:00 — 20:00",
-    hoursNote: "Ежедневно, без выходных",
+    hours: "9:00 — 18:00",
   },
 
   nav: {
@@ -36,7 +35,7 @@ const ru = {
   skipToContent: "Перейти к содержимому",
 
   header: {
-    contact: "Связаться",
+    contact: "Контакты",
     openMenu: "Открыть меню",
     closeMenu: "Закрыть меню",
     navLabel: "Навигация",
@@ -108,7 +107,6 @@ const ru = {
     { suffix: "+", label: "единиц оборудования поставлено" },
     { suffix: " лет", label: "на рынке медтехники" },
     { suffix: "+", label: "клиник и партнёров" },
-    { suffix: "/7", label: "сервисная поддержка" },
   ],
 
   values: [

@@ -319,7 +319,7 @@ function HudDecor({ reduce, tables }: { reduce: boolean; tables: HudTables }) {
 
       {/* таблица сканирования органов: строки подсвечиваются по очереди */}
       <div
-        className="glass absolute bottom-[9%] right-[5%] w-48 rounded-xl p-3.5 ring-1 ring-white/10"
+        className="glass absolute bottom-[3%] right-[5%] w-48 rounded-xl p-3.5 ring-1 ring-white/10"
         style={float(1.4)}
       >
         <div className="mb-2 flex items-center justify-between">
