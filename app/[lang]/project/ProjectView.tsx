@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, BriefcaseMedical, ChevronRight, Loader2 } from "lucide-react";
-import { getProject, type ApiProject } from "@/lib/api";
+import { ExternalLink } from "lucide-react";
+import { getProjectBySlug, type ApiProject } from "@/lib/api";
 import { localizeProject } from "@/lib/projects";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
@@ -15,19 +16,19 @@ type State =
   | { status: "ok"; project: ApiProject }
   | { status: "missing" };
 
-export default function ProjectView() {
+export default function ProjectView({ slug }: { slug: string }) {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const slug = new URLSearchParams(window.location.search).get("slug");
     if (!slug) {
       setState({ status: "missing" });
       return;
     }
+    setState({ status: "loading" });
     let cancelled = false;
-    getProject(slug)
+    getProjectBySlug(slug)
       .then((project) => {
         if (!cancelled) setState(project ? { status: "ok", project } : { status: "missing" });
       })
@@ -37,7 +38,7 @@ export default function ProjectView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [slug]);
 
   if (state.status === "loading") {
     return (
@@ -113,6 +114,31 @@ export default function ProjectView() {
                 </div>
               ))}
             </div>
+          )}
+
+          {project.tags.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-2">
+              {project.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-line bg-surface-2 px-3 py-1 text-xs text-ink-muted"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {project.sourceUrl && (
+            <a
+              href={project.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+            >
+              <ExternalLink className="h-4 w-4" />
+              {project.sourceUrl.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+            </a>
           )}
         </article>
 

@@ -11,8 +11,22 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import { getCatalog, listCategories, type CategoryOut, type ProductOut } from "@/lib/api";
-import { localizeProduct, localizeCategory, isProductVisible, type LocalProduct } from "@/lib/catalog";
+import {
+  getCatalog,
+  listCategories,
+  listSubcategories,
+  type CategoryOut,
+  type ProductOut,
+  type SubCategory,
+} from "@/lib/api";
+import {
+  localizeProduct,
+  localizeCategory,
+  localizeSubcategory,
+  isProductVisible,
+  buildCategoryContext,
+  type LocalProduct,
+} from "@/lib/catalog";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
@@ -46,27 +60,35 @@ export function ProductsExplorer({
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [active, setActive] = useState(initialCategory);
+  const [expandedCat, setExpandedCat] = useState<number | null>(null);
   const [catOpen, setCatOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const [rawItems, setRawItems] = useState<ProductOut[]>([]);
   const [rawCats, setRawCats] = useState<CategoryOut[]>([]);
+  const [rawSubs, setRawSubs] = useState<SubCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Каталог + категории — один раз при загрузке (новые эндпоинты).
+  // Каталог + категории + подкатегории — один раз при загрузке.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    Promise.all([getCatalog(), listCategories().catch(() => [])])
-      .then(([products, cats]) => {
+    Promise.all([
+      getCatalog(),
+      listCategories().catch(() => []),
+      listSubcategories().catch(() => []),
+    ])
+      .then(([products, cats, subs]) => {
         if (cancelled) return;
         setRawItems(products);
         setRawCats(cats ?? []);
+        setRawSubs(subs ?? []);
       })
       .catch(() => {
         if (!cancelled) {
           setRawItems([]);
           setRawCats([]);
+          setRawSubs([]);
         }
       })
       .finally(() => {
@@ -94,13 +116,19 @@ export function ProductsExplorer({
     setPage(1);
   }, [debounced, active]);
 
+  // Контекст «подкатегория → категория» для резолва категории товара.
+  const catCtx = useMemo(
+    () => buildCategoryContext(rawCats, rawSubs),
+    [rawCats, rawSubs],
+  );
+
   // Локализованные видимые товары.
   const products = useMemo(
     () =>
       rawItems
-        .filter((p) => isProductVisible(p, lang))
-        .map((p) => localizeProduct(p, lang)),
-    [rawItems, lang],
+        .filter((p) => isProductVisible(p))
+        .map((p) => localizeProduct(p, lang, catCtx)),
+    [rawItems, lang, catCtx],
   );
 
   // Категории из /api/v1/categories/ (активные, локализованные) + счётчики.
@@ -115,13 +143,57 @@ export function ProductsExplorer({
       .sort((a, b) => categorySortRank(a) - categorySortRank(b));
   }, [rawCats, products, lang]);
 
+  // Подкатегории, сгруппированные по id категории (активные, со счётчиками).
+  const subsByCat = useMemo(() => {
+    const counts = new Map<number, number>();
+    for (const p of products) {
+      if (p.subcategoryId != null)
+        counts.set(p.subcategoryId, (counts.get(p.subcategoryId) ?? 0) + 1);
+    }
+    const map = new Map<number, Array<{ id: number; name: string; count: number }>>();
+    for (const s of rawSubs) {
+      if (s.is_active === false) continue;
+      const arr = map.get(s.category) ?? [];
+      arr.push({ ...localizeSubcategory(s, lang), count: counts.get(s.id) ?? 0 });
+      map.set(s.category, arr);
+    }
+    for (const arr of map.values()) arr.sort((a, b) => a.name.localeCompare(b.name));
+    return map;
+  }, [rawSubs, products, lang]);
+
+  // Активная подкатегория (active === "sub:<id>") и её родительская категория.
+  const activeSubId = active.startsWith("sub:") ? Number(active.slice(4)) : null;
+  const activeParentId =
+    activeSubId != null
+      ? catCtx.subToCat[activeSubId] ?? null
+      : active === "all"
+        ? null
+        : Number(active);
+
+  // Держим раскрытой категорию активной подкатегории (в т.ч. по deep-link).
+  useEffect(() => {
+    if (activeSubId != null && activeParentId != null) setExpandedCat(activeParentId);
+  }, [activeSubId, activeParentId]);
+
+  // Клик по категории: если есть подкатегории — только раскрываем/сворачиваем,
+  // иначе фильтруем по самой категории.
+  const onCatClick = (id: number, hasSubs: boolean, onFiltered?: () => void) => {
+    if (hasSubs) {
+      setExpandedCat((prev) => (prev === id ? null : id));
+    } else {
+      setActive(String(id));
+      setExpandedCat(null);
+      onFiltered?.();
+    }
+  };
+
   // Резолвим ?category= после загрузки: id → точное имя → вхождение → всё.
   const resolvedRef = useRef(false);
   useEffect(() => {
     if (resolvedRef.current || categories.length === 0) return;
     resolvedRef.current = true;
     setActive((cur) => {
-      if (cur === "all") return cur;
+      if (cur === "all" || cur.startsWith("sub:")) return cur;
       if (categories.some((c) => String(c.id) === cur)) return cur;
       const low = cur.toLowerCase();
       const byName =
@@ -137,14 +209,18 @@ export function ProductsExplorer({
   const filtered = useMemo(() => {
     const q = debounced.toLowerCase();
     return products.filter((p) => {
-      if (active !== "all" && String(p.categoryId) !== active) return false;
+      if (active !== "all") {
+        if (activeSubId != null) {
+          if (p.subcategoryId !== activeSubId) return false;
+        } else if (String(p.categoryId) !== active) return false;
+      }
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q)
       );
     });
-  }, [products, active, debounced]);
+  }, [products, active, activeSubId, debounced]);
 
   const total = filtered.length;
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -157,8 +233,13 @@ export function ProductsExplorer({
     if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const activeCat = categories.find((c) => String(c.id) === active);
-  const currentLabel = active === "all" ? t.allCategories : activeCat?.name ?? t.allCategories;
+  const activeCat = categories.find((c) => c.id === activeParentId);
+  const activeSub =
+    activeSubId != null
+      ? (subsByCat.get(activeParentId ?? -1) ?? []).find((s) => s.id === activeSubId)
+      : null;
+  const currentLabel =
+    active === "all" ? t.allCategories : activeSub?.name ?? activeCat?.name ?? t.allCategories;
   const currentIcon =
     active === "all" ? "LayoutGrid" : iconForCategory(activeCat?.name ?? "");
 
@@ -176,17 +257,29 @@ export function ProductsExplorer({
               active={active === "all"}
               onClick={() => setActive("all")}
             />
-            {categories.map((c) => (
-              <CatItem
-                key={c.id}
-                icon={iconForCategory(c.name)}
-                label={c.name}
-                count={c.count}
-                active={active === String(c.id)}
-                featured={String(c.id) === "1"}
-                onClick={() => setActive(String(c.id))}
-              />
-            ))}
+            {categories.map((c) => {
+              const subs = subsByCat.get(c.id) ?? [];
+              return (
+                <div key={c.id} className="flex flex-col gap-1">
+                  <CatItem
+                    icon={iconForCategory(c.name)}
+                    label={c.name}
+                    count={c.count}
+                    active={active === String(c.id)}
+                    featured={/rehab|реабил|reabil/i.test(`${c.name} ${c.slug}`)}
+                    hasSubs={subs.length > 0}
+                    expanded={expandedCat === c.id}
+                    onClick={() => onCatClick(c.id, subs.length > 0)}
+                  />
+                  <SubList
+                    subs={subs}
+                    open={expandedCat === c.id}
+                    activeId={activeSubId}
+                    onSelect={(id) => setActive(`sub:${id}`)}
+                  />
+                </div>
+              );
+            })}
           </nav>
         </div>
 
@@ -241,20 +334,34 @@ export function ProductsExplorer({
                           setCatOpen(false);
                         }}
                       />
-                      {categories.map((c) => (
-                        <CatItem
-                          key={c.id}
-                          icon={iconForCategory(c.name)}
-                          label={c.name}
-                          count={c.count}
-                          active={active === String(c.id)}
-                          featured={String(c.id) === "1"}
-                          onClick={() => {
-                            setActive(String(c.id));
-                            setCatOpen(false);
-                          }}
-                        />
-                      ))}
+                      {categories.map((c) => {
+                        const subs = subsByCat.get(c.id) ?? [];
+                        return (
+                          <div key={c.id} className="flex flex-col gap-1">
+                            <CatItem
+                              icon={iconForCategory(c.name)}
+                              label={c.name}
+                              count={c.count}
+                              active={active === String(c.id)}
+                              featured={/rehab|реабил|reabil/i.test(`${c.name} ${c.slug}`)}
+                              hasSubs={subs.length > 0}
+                              expanded={expandedCat === c.id}
+                              onClick={() =>
+                                onCatClick(c.id, subs.length > 0, () => setCatOpen(false))
+                              }
+                            />
+                            <SubList
+                              subs={subs}
+                              open={expandedCat === c.id}
+                              activeId={activeSubId}
+                              onSelect={(id) => {
+                                setActive(`sub:${id}`);
+                                setCatOpen(false);
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
                     </nav>
                   </div>
                 </motion.div>
@@ -332,7 +439,7 @@ function CatalogCard({ product }: { product: LocalProduct }) {
   const oldPrice = formatPrice(product.oldPrice, null, dict.currencyUnit);
   return (
     <Link
-      href={`/product?id=${encodeURIComponent(product.id)}`}
+      href={`/product/${encodeURIComponent(product.slug)}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-line-strong hover:shadow-float"
     >
       <div className="relative aspect-[4/3] w-full">
@@ -467,6 +574,8 @@ function CatItem({
   count,
   active,
   featured = false,
+  hasSubs = false,
+  expanded = false,
   onClick,
 }: {
   icon: string;
@@ -474,6 +583,8 @@ function CatItem({
   count?: number;
   active: boolean;
   featured?: boolean;
+  hasSubs?: boolean;
+  expanded?: boolean;
   onClick: () => void;
 }) {
   return (
@@ -481,6 +592,7 @@ function CatItem({
       type="button"
       onClick={onClick}
       aria-pressed={active}
+      aria-expanded={hasSubs ? expanded : undefined}
       className={cn(
         "group flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium transition-all duration-200",
         active
@@ -507,7 +619,81 @@ function CatItem({
           {count}
         </span>
       )}
+      {hasSubs && (
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 shrink-0 transition-transform duration-200",
+            active ? "text-accent" : "text-ink-dim",
+            expanded && "rotate-180",
+          )}
+        />
+      )}
     </button>
+  );
+}
+
+/** Раскрывающийся список подкатегорий под категорией. */
+function SubList({
+  subs,
+  open,
+  activeId,
+  onSelect,
+}: {
+  subs: Array<{ id: number; name: string; count: number }>;
+  open: boolean;
+  activeId: number | null;
+  onSelect: (id: number) => void;
+}) {
+  return (
+    <AnimatePresence initial={false}>
+      {open && subs.length > 0 && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: "auto", opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2, ease: EASE }}
+          className="overflow-hidden"
+        >
+          <div className="ml-4 flex flex-col gap-0.5 border-l border-line pl-3 pt-0.5">
+            {subs.map((s) => {
+              const active = activeId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => onSelect(s.id)}
+                  aria-pressed={active}
+                  className={cn(
+                    "group flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition-colors",
+                    active
+                      ? "font-semibold text-accent"
+                      : "text-ink-muted hover:bg-surface hover:text-ink",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "h-1.5 w-1.5 shrink-0 rounded-full transition-colors",
+                      active ? "bg-accent" : "bg-line-strong group-hover:bg-ink-dim",
+                    )}
+                  />
+                  <span className="flex-1 truncate">{s.name}</span>
+                  {s.count > 0 && (
+                    <span
+                      className={cn(
+                        "shrink-0 text-xs tabular-nums",
+                        active ? "text-accent" : "text-ink-dim",
+                      )}
+                    >
+                      {s.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

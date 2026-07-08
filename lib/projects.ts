@@ -11,6 +11,11 @@ export interface LocalProject {
   content: string;
   coverImage: string | null;
   images: string[];
+  tags: string[];
+  /** Ссылка на первоисточник, либо null. */
+  sourceUrl: string | null;
+  sortOrder: number;
+  seo: { title: string; description: string; keywords: string };
 }
 
 /** Тексты проектов показываем строго на текущем языке, без подмены en в ru/uz. */
@@ -21,7 +26,10 @@ function byLang(lang: Locale, ru: string | null, uz: string | null, en: string |
 }
 
 export function localizeProject(project: ApiProject, lang: Locale): LocalProject {
-  const raw = [project.cover_image, ...(project.images ?? [])].filter(Boolean) as string[];
+  const raw = [
+    project.cover_image,
+    ...(project.gallery ?? []).map((g) => g.image),
+  ].filter(Boolean) as string[];
   const images = [...new Set(raw.map((src) => mediaUrl(src)).filter(Boolean) as string[])];
 
   return {
@@ -31,6 +39,14 @@ export function localizeProject(project: ApiProject, lang: Locale): LocalProject
     content: byLang(lang, project.content_ru, project.content_uz, project.content_en),
     coverImage: images[0] ?? null,
     images,
+    tags: project.tags ?? [],
+    sourceUrl: project.source_url ?? null,
+    sortOrder: project.sort_order ?? 0,
+    seo: {
+      title: project.seo_title ?? "",
+      description: project.seo_description ?? "",
+      keywords: project.seo_keywords ?? "",
+    },
   };
 }
 

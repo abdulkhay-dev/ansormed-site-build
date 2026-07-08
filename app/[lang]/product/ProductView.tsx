@@ -10,8 +10,18 @@ import {
   Loader2,
   PackageX,
 } from "lucide-react";
-import { getProductById, type ProductOut } from "@/lib/api";
-import { localizeProduct, type LocalProduct } from "@/lib/catalog";
+import {
+  getProductBySlug,
+  listCategories,
+  listSubcategories,
+  type ProductOut,
+} from "@/lib/api";
+import {
+  localizeProduct,
+  buildCategoryContext,
+  type CategoryContext,
+  type LocalProduct,
+} from "@/lib/catalog";
 import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
@@ -22,25 +32,33 @@ import { cn, formatPrice, iconForCategory } from "@/lib/utils";
 
 type State =
   | { status: "loading" }
-  | { status: "ok"; product: ProductOut }
+  | { status: "ok"; product: ProductOut; ctx: CategoryContext }
   | { status: "missing" };
 
-export default function ProductView() {
+export default function ProductView({ slug }: { slug: string }) {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (!id) {
+    if (!slug) {
       setState({ status: "missing" });
       return;
     }
+    setState({ status: "loading" });
     let cancelled = false;
-    getProductById(id)
-      .then((product) => {
+    Promise.all([
+      getProductBySlug(slug),
+      listCategories().catch(() => []),
+      listSubcategories().catch(() => []),
+    ])
+      .then(([product, cats, subs]) => {
         if (cancelled) return;
-        setState(product ? { status: "ok", product } : { status: "missing" });
+        setState(
+          product
+            ? { status: "ok", product, ctx: buildCategoryContext(cats, subs) }
+            : { status: "missing" },
+        );
       })
       .catch(() => {
         if (!cancelled) setState({ status: "missing" });
@@ -48,7 +66,22 @@ export default function ProductView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [slug]);
+
+  // SEO из API: заголовок вкладки и meta-description.
+  useEffect(() => {
+    if (state.status !== "ok") return;
+    const lp = localizeProduct(state.product, lang, state.ctx);
+    document.title = lp.seo.title || `${lp.name} — Ansor Med`;
+    const desc = lp.seo.description || lp.description.slice(0, 160);
+    let tag = document.querySelector('meta[name="description"]');
+    if (!tag) {
+      tag = document.createElement("meta");
+      tag.setAttribute("name", "description");
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute("content", desc);
+  }, [state, lang]);
 
   if (state.status === "loading") {
     return (
@@ -79,7 +112,7 @@ export default function ProductView() {
     );
   }
 
-  const p = localizeProduct(state.product, lang);
+  const p = localizeProduct(state.product, lang, state.ctx);
   const price = formatPrice(p.price, null, dict.currencyUnit);
   const oldPrice = formatPrice(p.oldPrice, null, dict.currencyUnit);
   const specs: { label: string; value: string }[] = [
@@ -131,6 +164,19 @@ export default function ProductView() {
               <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-muted">
                 {p.description}
               </p>
+            )}
+
+            {p.tags.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-2">
+                {p.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full border border-line bg-surface-2 px-3 py-1 text-xs text-ink-muted"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             )}
 
             {/* Specs */}
@@ -282,20 +328,43 @@ function ProductMedia({ product }: { product: LocalProduct }) {
       )}
 
       {embed && (
-        <div className="mt-1 overflow-hidden rounded-3xl border border-line bg-black shadow-soft">
-          {embed.type === "iframe" ? (
-            <iframe
-              src={embed.src}
-              title={`${product.name} — ${dict.blog.videoBadge}`}
-              className="aspect-video w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              loading="lazy"
-            />
-          ) : (
-            <video src={embed.src} controls className="aspect-video w-full" />
-          )}
-        </div>
+        <ProductVideo embed={embed} poster={product.image} title={product.name} />
+      )}
+    </div>
+  );
+}
+
+/** Видео: у YouTube/Vimeo — их собственный плеер (обложка, play, контролы). */
+function ProductVideo({
+  embed,
+  poster,
+  title,
+}: {
+  embed: { type: "iframe" | "video"; src: string };
+  poster: string | null;
+  title: string;
+}) {
+  const dict = useDict();
+
+  return (
+    <div className="mt-1 overflow-hidden rounded-3xl border border-line bg-black shadow-soft">
+      {embed.type === "iframe" ? (
+        <iframe
+          src={`${embed.src}${embed.src.includes("?") ? "&" : "?"}controls=1&rel=0&playsinline=1`}
+          title={`${title} — ${dict.blog.videoBadge}`}
+          className="aspect-video w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
+        <video
+          src={embed.src}
+          poster={poster ?? undefined}
+          controls
+          playsInline
+          preload="metadata"
+          className="aspect-video w-full"
+        />
       )}
     </div>
   );

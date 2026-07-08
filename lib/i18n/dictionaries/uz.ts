@@ -44,6 +44,22 @@ const uz: Dictionary = {
     mainNavAria: "Asosiy navigatsiya",
   },
 
+  search: {
+    open: "Qidiruv",
+    aria: "Sayt bo'ylab qidiruv",
+    placeholder: "Uskuna, loyiha, maqola qidirish…",
+    close: "Qidiruvni yopish",
+    hint: "So'rovni kiriting — mahsulotlar, loyihalar va maqolalar bo'yicha.",
+    loading: "Qidirilmoqda…",
+    emptyTitle: "Hech narsa topilmadi",
+    emptyText: "So'rovni o'zgartirib ko'ring.",
+    groups: {
+      products: "Mahsulotlar",
+      projects: "Loyihalar",
+      blogs: "Maqolalar",
+    },
+  },
+
   preloader: {
     loading: "tizim tayyorlanmoqda",
   },

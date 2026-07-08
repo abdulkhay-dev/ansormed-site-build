@@ -22,8 +22,24 @@ export function mediaUrl(path?: string | null): string | null {
   return `${MEDIA_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-/* ---------- Типы ответов API (catalog/categories) ---------- */
+/* ---------- Типы ответов API (openapi schema) ---------- */
 
+/** DRF-пагинация: обёртка над списками (?page=N). */
+export interface Paginated<T> {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+}
+
+/** Элемент галереи (товар/пост/проект). */
+export interface GalleryImage {
+  id: number;
+  image: string;
+  sort_order?: number;
+}
+
+/** Категория — /api/categories/. */
 export interface CategoryOut {
   id: number;
   name_ru: string;
@@ -31,28 +47,47 @@ export interface CategoryOut {
   name_en: string;
   slug: string;
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
+/** Подкатегория — /api/subcategories/ (принадлежит категории). */
+export interface SubCategory {
+  id: number;
+  category: number;
+  name_ru: string;
+  name_uz: string;
+  name_en: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Товар — /api/products/. Цены приходят строками-decimal ("0.00"). */
 export interface ProductOut {
   id: number;
+  subcategory: number | null;
   name_ru: string;
   name_uz: string;
   name_en: string;
   description_ru: string;
   description_uz: string;
   description_en: string;
-  price: number | null;
-  discount: number | null;
-  final_price: number | null;
-  images: string[] | null;
-  image: string | null;
+  slug: string;
+  price: string;
+  discount: string;
+  final_price: string;
+  cover_image: string | null;
+  gallery: GalleryImage[];
   video_url: string | null;
+  tags: string[];
   is_active: boolean;
-  display_ru: boolean;
-  display_uz: boolean;
-  display_en: boolean;
-  category_id: number | null;
-  category: CategoryOut | null;
+  created_at: string;
+  updated_at: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
 }
 
 export interface ApiBlogPost {
@@ -63,15 +98,17 @@ export interface ApiBlogPost {
   content_ru: string;
   content_uz: string;
   content_en: string;
-  video_url: string | null;
+  slug: string;
   image: string | null;
+  gallery: GalleryImage[];
+  video_url: string | null;
+  tags: string[];
   is_published: boolean;
-  display_ru: boolean;
-  display_uz: boolean;
-  display_en: boolean;
   created_at: string;
   updated_at: string;
-  author_id: number;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
 }
 
 export interface ApiProject {
@@ -84,7 +121,17 @@ export interface ApiProject {
   content_uz: string | null;
   content_en: string | null;
   cover_image: string | null;
-  images: string[];
+  gallery: GalleryImage[];
+  tags: string[];
+  source_url: string | null;
+  is_manually_edited: boolean;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  seo_title: string;
+  seo_description: string;
+  seo_keywords: string;
 }
 
 export interface ApiContent {
@@ -144,35 +191,55 @@ async function req<T>(
   }
 }
 
-/* ---------- Catalog ---------- */
-
-/** Один товар по id — /api/v1/catalog/{product_id}. */
-export const getCatalogProduct = (id: string | number) =>
-  req<ProductOut>(`/api/v1/catalog/${encodeURIComponent(String(id))}`);
-
 /**
- * Товар по id с фолбэком: прямой эндпоинт, иначе ищем в полном каталоге
- * (кешированном). Имя сохранено для обратной совместимости с импортами.
+ * Забирает все страницы пагинированного списка (DRF `?page=N`).
+ * Идёт по `next`, пока он не станет null; на ошибке пробрасывает исключение.
  */
-export async function getProductById(id: string | number): Promise<ProductOut | null> {
-  const wanted = String(id);
-  try {
-    const direct = await getCatalogProduct(wanted);
-    if (direct) return direct;
-  } catch {
-    /* падаем в фолбэк по каталогу */
+async function fetchAllPages<T>(path: string): Promise<T[]> {
+  const out: T[] = [];
+  const sep = path.includes("?") ? "&" : "?";
+  for (let page = 1; page <= 200; page++) {
+    const data = await req<Paginated<T>>(`${path}${sep}page=${page}`);
+    if (!data) break;
+    out.push(...(data.results ?? []));
+    if (!data.next) break;
   }
+  return out;
+}
+
+/* ---------- Catalog / Categories ---------- */
+
+/** Весь каталог товаров — /api/products/ (все страницы). */
+export const getCatalog = () => fetchAllPages<ProductOut>(`/api/products/`);
+
+/** Товар по slug — резолвится из полного каталога. */
+export async function getProductBySlug(slug: string): Promise<ProductOut | null> {
+  const wanted = String(slug);
   const all = await getCatalog();
-  return all.find((p) => String(p.id) === wanted) ?? null;
+  return all.find((p) => p.slug === wanted) ?? null;
 }
 
-/** Весь каталог — /api/v1/catalog/ (без кеша, всегда свежие данные). */
-export async function getCatalog(): Promise<ProductOut[]> {
-  return (await req<ProductOut[]>(`/api/v1/catalog/`)) ?? [];
+/** Результат глобального поиска — /api/search/?q=… (товары + статьи + проекты). */
+export interface SearchResults {
+  products: ProductOut[];
+  blogs: ApiBlogPost[];
+  projects: ApiProject[];
 }
 
-/** Категории — /api/v1/categories/. */
-export const listCategories = () => req<CategoryOut[]>(`/api/v1/categories/`);
+/** Глобальный поиск по сайту. Пустой запрос → пустой результат (без запроса к API). */
+export async function globalSearch(q: string): Promise<SearchResults> {
+  const empty: SearchResults = { products: [], blogs: [], projects: [] };
+  const term = q.trim();
+  if (!term) return empty;
+  const data = await req<SearchResults>(`/api/search/?q=${encodeURIComponent(term)}`);
+  return data ?? empty;
+}
+
+/** Категории — /api/categories/. */
+export const listCategories = () => fetchAllPages<CategoryOut>(`/api/categories/`);
+
+/** Подкатегории — /api/subcategories/. */
+export const listSubcategories = () => fetchAllPages<SubCategory>(`/api/subcategories/`);
 
 /* ---------- Site content (тексты из админки) ---------- */
 
@@ -210,18 +277,22 @@ export const createLead = (data: LeadInput) =>
 
 /* ---------- Blog ---------- */
 
-/** Список постов блога — /api/v1/blog/. */
-export const listPosts = () => req<ApiBlogPost[]>(`/api/v1/blog/`);
+/** Список постов блога — /api/blog/ (все страницы). */
+export const listPosts = () => fetchAllPages<ApiBlogPost>(`/api/blog/`);
 
-/** Один пост — /api/v1/blog/{post_id}. */
-export const getPost = (id: string | number) =>
-  req<ApiBlogPost>(`/api/v1/blog/${encodeURIComponent(String(id))}`);
+/** Пост по slug — резолвится из списка. */
+export async function getPostBySlug(slug: string): Promise<ApiBlogPost | null> {
+  const posts = await listPosts();
+  return posts.find((p) => p.slug === slug) ?? null;
+}
 
 /* ---------- Projects ---------- */
 
-/** Список проектов — /api/v1/projects. */
-export const listProjects = () => req<ApiProject[]>(`/api/v1/projects`);
+/** Список проектов — /api/projects/ (все страницы). */
+export const listProjects = () => fetchAllPages<ApiProject>(`/api/projects/`);
 
-/** Один проект — /api/v1/projects/{slug}. */
-export const getProject = (slug: string) =>
-  req<ApiProject>(`/api/v1/projects/${encodeURIComponent(slug)}`);
+/** Проект по slug — резолвится из списка. */
+export async function getProjectBySlug(slug: string): Promise<ApiProject | null> {
+  const projects = await listProjects();
+  return projects.find((p) => p.slug === slug) ?? null;
+}

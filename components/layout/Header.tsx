@@ -9,6 +9,7 @@ import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
+import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { localizeHref } from "@/lib/i18n";
 import { cn, EASE } from "@/lib/utils";
@@ -170,6 +171,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
           </ul>
 
           <div className="flex items-center gap-2">
+            <GlobalSearch />
             <LanguageSwitcher className="hidden sm:inline-flex" />
             <span className="hidden sm:inline-flex">
               <ButtonLink href="/contacts" size="md">

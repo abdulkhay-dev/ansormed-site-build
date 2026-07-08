@@ -44,6 +44,22 @@ const en: Dictionary = {
     mainNavAria: "Main navigation",
   },
 
+  search: {
+    open: "Search",
+    aria: "Site search",
+    placeholder: "Search equipment, projects, articles…",
+    close: "Close search",
+    hint: "Start typing to search products, projects and articles.",
+    loading: "Searching…",
+    emptyTitle: "Nothing found",
+    emptyText: "Try a different query.",
+    groups: {
+      products: "Products",
+      projects: "Projects",
+      blogs: "Articles",
+    },
+  },
+
   preloader: {
     loading: "preparing the system",
   },

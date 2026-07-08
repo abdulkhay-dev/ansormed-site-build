@@ -15,7 +15,7 @@ export function ProjectCard({ project }: { project: ApiProject }) {
 
   return (
     <Link
-      href={`/project?slug=${encodeURIComponent(project.slug)}`}
+      href={`/project/${encodeURIComponent(project.slug)}`}
       className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-line-strong hover:shadow-float"
     >
       <div className="relative aspect-[16/9] w-full">

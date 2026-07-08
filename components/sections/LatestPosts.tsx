@@ -19,7 +19,7 @@ export function LatestPosts() {
     listPosts()
       .then((res) => {
         if (cancelled) return;
-        setPosts((res ?? []).filter((p) => isPostVisible(p, lang)).slice(0, 3));
+        setPosts((res ?? []).filter((p) => isPostVisible(p)).slice(0, 3));
       })
       .catch(() => {})
       .finally(() => {

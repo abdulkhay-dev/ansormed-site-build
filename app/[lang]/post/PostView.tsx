@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, ChevronRight, Loader2, Newspaper } from "lucide-react";
-import { getPost, type ApiBlogPost } from "@/lib/api";
-import { localizePost } from "@/lib/blog";
+import { getPostBySlug, type ApiBlogPost } from "@/lib/api";
+import { localizePost, plainText } from "@/lib/blog";
 import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
@@ -15,19 +15,19 @@ type State =
   | { status: "ok"; post: ApiBlogPost }
   | { status: "missing" };
 
-export default function PostView() {
+export default function PostView({ slug }: { slug: string }) {
   const dict = useDict();
   const lang = useLang();
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("id");
-    if (!id) {
+    if (!slug) {
       setState({ status: "missing" });
       return;
     }
+    setState({ status: "loading" });
     let cancelled = false;
-    getPost(id)
+    getPostBySlug(slug)
       .then((post) => {
         if (cancelled) return;
         setState(post ? { status: "ok", post } : { status: "missing" });
@@ -38,7 +38,22 @@ export default function PostView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [slug]);
+
+  // SEO из API: заголовок вкладки и meta-description (клиентский рендер).
+  useEffect(() => {
+    if (state.status !== "ok") return;
+    const p = localizePost(state.post, lang);
+    document.title = p.seo.title || `${p.title} — Ansor Med`;
+    const desc = p.seo.description || plainText(p.content).slice(0, 160);
+    let tag = document.querySelector('meta[name="description"]');
+    if (!tag) {
+      tag = document.createElement("meta");
+      tag.setAttribute("name", "description");
+      document.head.appendChild(tag);
+    }
+    tag.setAttribute("content", desc);
+  }, [state, lang]);
 
   if (state.status === "loading") {
     return (
@@ -107,6 +122,34 @@ export default function PostView() {
             className="mt-8 leading-relaxed text-ink-muted [&_a]:text-accent [&_a]:underline [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:mt-6 [&_h3]:font-display [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink [&_img]:my-6 [&_img]:rounded-2xl [&_li]:mb-1.5 [&_li]:ml-5 [&_li]:list-disc [&_p]:mb-4 [&_ul]:mb-4"
             dangerouslySetInnerHTML={{ __html: content ?? "" }}
           />
+
+          {p.images.length > 0 && (
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {p.images.map((src) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={src}
+                  src={src}
+                  alt={title}
+                  loading="lazy"
+                  className="aspect-[4/3] w-full rounded-2xl border border-line object-cover"
+                />
+              ))}
+            </div>
+          )}
+
+          {p.tags.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-2">
+              {p.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-line bg-surface-2 px-3 py-1 text-xs text-ink-muted"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </article>
 
         <div className="mt-16 mb-20">

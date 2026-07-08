@@ -21,7 +21,7 @@ export function BlogExplorer() {
     listPosts()
       .then((res) => {
         if (cancelled) return;
-        setPosts((res ?? []).filter((p) => isPostVisible(p, lang)));
+        setPosts((res ?? []).filter((p) => isPostVisible(p)));
       })
       .catch(() => {})
       .finally(() => {
