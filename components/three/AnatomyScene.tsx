@@ -15,6 +15,10 @@ const CNS_COLOR = "#bfe0ff"; // ЦНС — мозг + спинной мозг (�
 const PNS_COLOR = "#3f7fe0"; // ПНС — нервы (рентгеновский синий, как тело)
 const XRAY_RIM = "#cfe6ff"; // краевое свечение (как у тела)
 const MODEL_X = -0.5;
+// Горизонтальное панорамирование камеры вправо → модель смещается влево в кадре,
+// освобождая правую часть под текстовые панели. Доля от dist, чтобы смещение
+// в кадре было одинаковым на всех стадиях зума.
+const VIEW_SHIFT = 0.07;
 const TURN_Y = 0;
 const SHOW_BODY = false; // силуэт тела (другая поза, чем у нервной модели) — выключен
 const NERVE_TURN_Y = -Math.PI / 2; // T-поза модели смотрит вдоль X — развернуть лицом к камере
@@ -466,9 +470,10 @@ function Anatomy({
     const c0 = focus[i0], c1 = focus[i1];
     camTgt.lerpVectors(c0.center, c1.center, f);
     const dist = c0.dist + (c1.dist - c0.dist) * f;
-    camPos.set(camTgt.x, camTgt.y + 0.05, camTgt.z + dist);
+    const viewX = VIEW_SHIFT * dist;
+    camPos.set(camTgt.x + viewX, camTgt.y + 0.05, camTgt.z + dist);
     camera.position.lerp(camPos, 0.12);
-    camera.lookAt(camTgt);
+    camera.lookAt(camTgt.x + viewX, camTgt.y, camTgt.z);
 
     if (groupRef.current) {
       groupRef.current.rotation.y =

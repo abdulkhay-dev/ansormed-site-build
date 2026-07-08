@@ -121,8 +121,13 @@ function CellGlyph({ color, glow }: { color: string; glow: string }) {
   );
 }
 
+const ECG_WAVE = "M2 18h12l4-7 5 14 6-22 5 18 4-7h14 8";
+
+/** Высоты столбиков «эквалайзера» (%) — статичный паттерн, анимируется по-CSS. */
+const EQ_BARS = [42, 68, 52, 80, 58, 74, 46, 62, 86, 50, 70, 44];
+
 function EcgGlyph({ color, glow, reduce }: { color: string; glow: string; reduce: boolean }) {
-  const wave = "M2 18h12l4-7 5 14 6-22 5 18 4-7h14 8";
+  const wave = ECG_WAVE;
   return (
     <svg
       viewBox="0 0 62 32"
@@ -215,20 +220,6 @@ const MESH_DOTS: [number, number][] = [
   [37, 66], [29, 70], [23, 66],
 ];
 
-function Silhouette({ className, color }: { className?: string; color: string }) {
-  return (
-    <svg viewBox="0 0 40 72" fill="none" className={className}>
-      <circle cx={20} cy={9} r={6} stroke={color} strokeWidth={1.3} strokeDasharray="1.5 2.5" />
-      <path
-        d="M12 24c0-4 4-6 8-6s8 2 8 6l3 12-4 1-3-9v12l4 22h-5l-3-16-3 16h-5l4-22V28l-3 9-4-1 3-12z"
-        stroke={color}
-        strokeWidth={1.3}
-        strokeDasharray="1.5 2.5"
-      />
-    </svg>
-  );
-}
-
 function DataRow({
   color,
   w,
@@ -263,6 +254,7 @@ interface HudTables {
   vitals: { title: string; rows: { label: string; value: string }[] };
   scan: { title: string; ok: string };
   organs: Record<AnnoDef["key"], string>;
+  hud: { ecg: string; genome: string; activity: string; activityPeriod: string };
 }
 
 function HudDecor({ reduce, tables }: { reduce: boolean; tables: HudTables }) {
@@ -352,15 +344,96 @@ function HudDecor({ reduce, tables }: { reduce: boolean; tables: HudTables }) {
         </ul>
       </div>
 
-      {/* пунктирные силуэты-«пациенты» */}
-      <Silhouette
-        className="absolute left-[15%] top-[24%] h-24 w-14 opacity-60"
-        color="#6fe5dc"
-      />
-      <Silhouette
-        className="absolute bottom-[12%] right-[26%] h-20 w-12 opacity-50"
-        color="#9ec5ff"
-      />
+      {/* Левая колонка HUD-панелей: геном · ЭКГ · активность.
+          Единый стек с фиксированным зазором — панели не наезжают друг на друга
+          ни при какой высоте экрана. */}
+      <div className="absolute left-[10%] top-[30%] flex w-44 flex-col gap-7">
+        {/* Геномный секвенсор: спираль ДНК + дата-матрица */}
+        <div className="glass rounded-xl p-3.5 ring-1 ring-white/10" style={float(1.2)}>
+          <div className="mb-2.5 flex items-center justify-between">
+            <span className="label !text-[9px] text-white/40">{tables.hud.genome}</span>
+            <span className="label !text-[8px] text-[#9ec5ff]">● REC</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <svg
+              viewBox="0 0 22 44"
+              fill="none"
+              className="h-11 w-[22px] shrink-0"
+              style={{ filter: "drop-shadow(0 0 4px rgba(126,227,255,0.4))" }}
+            >
+              <path d="M5 2Q17 8 5 15 17 22 5 29 17 36 5 43" stroke="#7ee3ff" strokeWidth={1.3} strokeOpacity={0.85} />
+              <path d="M17 2Q5 8 17 15 5 22 17 29 5 36 17 43" stroke="#9ec5ff" strokeWidth={1.3} strokeOpacity={0.65} />
+              {[6, 12, 18, 25, 31, 37].map((y) => (
+                <line key={y} x1={7} y1={y} x2={15} y2={y} stroke="#7ee3ff" strokeWidth={1} strokeOpacity={0.4} />
+              ))}
+            </svg>
+            <div className="grid flex-1 grid-cols-5 gap-1">
+              {Array.from({ length: 15 }).map((_, i) => (
+                <i
+                  key={i}
+                  className="h-2 rounded-[1px]"
+                  style={{ background: `rgba(126,227,255,${(0.14 + ((i * 41) % 100) / 100 * 0.5).toFixed(2)})` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ЭКГ-осциллограф */}
+        <div className="glass rounded-xl p-3.5 ring-1 ring-white/10" style={float(0.9)}>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="label !text-[9px] text-white/40">{tables.hud.ecg}</span>
+            <span className="label !text-[9px] text-[#ff7d8c]" style={{ textTransform: "none" }}>
+              ♥ 72
+            </span>
+          </div>
+          <svg
+            viewBox="0 0 62 32"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            preserveAspectRatio="none"
+            className="h-9 w-full"
+            style={{ filter: "drop-shadow(0 0 5px rgba(126,227,255,0.5))" }}
+          >
+            <path d={ECG_WAVE} stroke="#7ee3ff" strokeOpacity={0.22} strokeWidth={1.4} />
+            <path
+              d={ECG_WAVE}
+              stroke="#7ee3ff"
+              strokeWidth={1.8}
+              strokeDasharray="40 90"
+              style={reduce ? undefined : { animation: "hud-ecg 2.2s linear infinite" }}
+            />
+          </svg>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="label !text-[8px] text-white/35">SYNC</span>
+            <span className="label !text-[8px] text-[#6fe5dc]">● STABLE</span>
+          </div>
+        </div>
+
+        {/* Спектр активности: анимированный «эквалайзер» */}
+        <div className="glass rounded-xl p-3.5 ring-1 ring-white/10" style={float(0.6)}>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="label !text-[9px] text-white/40">{tables.hud.activity}</span>
+            <span className="label !text-[8px] text-[#6fe5dc]">{tables.hud.activityPeriod}</span>
+          </div>
+          <div className="flex h-10 items-end gap-[3px]">
+            {EQ_BARS.map((h, i) => (
+              <i
+                key={i}
+                className="flex-1 rounded-sm bg-[#7ee3ff]/45"
+                style={{
+                  height: `${h}%`,
+                  transformOrigin: "bottom",
+                  animation: reduce
+                    ? undefined
+                    : `hud-eq ${(1.4 + (i % 5) * 0.2).toFixed(1)}s ease-in-out ${(i * 0.11).toFixed(2)}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -480,7 +553,7 @@ export function AnatomyAnnotations({
     >
       <HudDecor
         reduce={reduce}
-        tables={{ vitals: anat.vitals, scan: anat.scan, organs: anat.organs }}
+        tables={{ vitals: anat.vitals, scan: anat.scan, organs: anat.organs, hud: anat.hud }}
       />
 
       {/* линии-выноски, узлы и импульсы — один SVG на весь экран */}

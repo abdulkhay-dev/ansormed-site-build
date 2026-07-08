@@ -101,6 +101,12 @@ h1, h2, h3, h4, h5, .font-display {
   16%, 100% { background: transparent; }
 }
 
+/* HUD анатомии: «эквалайзер» — пульсация столбиков активности. */
+@keyframes hud-eq {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1); }
+}
+
 @keyframes brand-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

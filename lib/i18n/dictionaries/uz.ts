@@ -216,6 +216,12 @@ const uz: Dictionary = {
       ],
     },
     scan: { title: "Skanerlash", ok: "OK" },
+    hud: {
+      ecg: "EKG · II tarmoq",
+      genome: "Genom · seq",
+      activity: "Faollik",
+      activityPeriod: "24 soat",
+    },
     stages: [
       {
         label: "Ansor Med",

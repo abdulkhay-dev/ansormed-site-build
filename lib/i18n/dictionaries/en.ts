@@ -216,6 +216,12 @@ const en: Dictionary = {
       ],
     },
     scan: { title: "Scanning", ok: "OK" },
+    hud: {
+      ecg: "ECG · lead II",
+      genome: "Genome · seq",
+      activity: "Activity",
+      activityPeriod: "24h",
+    },
     stages: [
       {
         label: "Ansor Med",

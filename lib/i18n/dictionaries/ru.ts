@@ -213,6 +213,12 @@ const ru = {
       ],
     },
     scan: { title: "Сканирование", ok: "OK" },
+    hud: {
+      ecg: "ЭКГ · отвед. II",
+      genome: "Геном · seq",
+      activity: "Активность",
+      activityPeriod: "24 ч",
+    },
     stages: [
       {
         label: "Ansor Med",
