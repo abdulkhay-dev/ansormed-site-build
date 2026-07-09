@@ -47,7 +47,7 @@ export function Hero() {
             className="mt-6 text-[2rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-4xl md:text-5xl"
           >
             {h.titlePre}
-            <span className="text-accent-gradient">{h.titleAccent}</span>
+            <span className="text-accent-gradient"> {h.titleAccent}</span>
           </motion.h1>
 
           <motion.p
