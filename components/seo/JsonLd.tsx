@@ -16,15 +16,15 @@ export function SiteJsonLd({ lang, dict }: { lang: Locale; dict: Dictionary }) {
     logo: `${SITE_URL}/favicon.ico`,
     image: `${SITE_URL}/og.png`,
     description: dict.meta.description,
-    telephone: site.phone2 ? [site.phone, site.phone2] : site.phone,
-    email: site.email,
+    telephone: dict.site.phone2 ? [dict.site.phone, dict.site.phone2] : dict.site.phone,
+    email: dict.site.email,
     address: {
       "@type": "PostalAddress",
       streetAddress: dict.site.addressDisplay,
       addressLocality: "Tashkent",
       addressCountry: "UZ",
     },
-    sameAs: [site.socials.telegram, site.socials.instagram],
+    sameAs: [dict.site.social.telegram, dict.site.social.instagram],
   };
 
   const website = {

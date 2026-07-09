@@ -9,7 +9,6 @@ import { StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { LatestPosts } from "@/components/sections/LatestPosts";
 import { ButtonLink } from "@/components/ui/Button";
-import { statValues } from "@/lib/data/site";
 import { getCategories } from "@/lib/data/categories";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
@@ -76,9 +75,9 @@ export default async function HomePage({
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-80 w-[50rem] -translate-x-1/2 -translate-y-1/2 spotlight" />
         <Container className="relative z-10">
           <RevealGroup className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
-            {dict.stats.map((s, i) => (
+            {dict.stats.map((s) => (
               <RevealItem key={s.label}>
-                <StatCard value={statValues[i]} suffix={s.suffix} label={s.label} />
+                <StatCard value={Number(s.value)} suffix={s.suffix} label={s.label} />
               </RevealItem>
             ))}
           </RevealGroup>

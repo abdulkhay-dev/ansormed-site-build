@@ -4,7 +4,7 @@ import { site } from "@/lib/data/site";
 import { getCategories } from "@/lib/data/categories";
 import { Logo } from "@/components/ui/Logo";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
-import { getDictionary, interpolate, type Locale } from "@/lib/i18n";
+import { getDictionary, interpolate, telHref, type Locale } from "@/lib/i18n";
 
 export async function Footer({ lang }: { lang: Locale }) {
   const dict = getDictionary(lang);
@@ -30,16 +30,16 @@ export async function Footer({ lang }: { lang: Locale }) {
             {dict.meta.description}
           </p>
           <div className="flex gap-2.5">
-            <SocialLink href={site.socials.telegram} label="Telegram">
+            <SocialLink href={dict.site.social.telegram} label="Telegram">
               <TelegramIcon className="h-5 w-5" />
             </SocialLink>
-            <SocialLink href={site.socials.instagram} label="Instagram">
+            <SocialLink href={dict.site.social.instagram} label="Instagram">
               <InstagramIcon className="h-5 w-5" />
             </SocialLink>
-            <SocialLink href={site.socials.youtube} label="YouTube">
+            <SocialLink href={dict.site.social.youtube} label="YouTube">
               <YouTubeIcon className="h-5 w-5" />
             </SocialLink>
-            <SocialLink href={site.socials.whatsapp} label="WhatsApp">
+            <SocialLink href={dict.site.social.whatsapp} label="WhatsApp">
               <WhatsAppIcon className="h-5 w-5" />
             </SocialLink>
           </div>
@@ -65,16 +65,16 @@ export async function Footer({ lang }: { lang: Locale }) {
 
         {/* Contacts */}
         <FooterCol title={dict.footer.contactsTitle}>
-          <FooterContact icon={<Phone className="h-4 w-4" />} href={`tel:${site.phoneHref}`}>
-            {site.phone}
+          <FooterContact icon={<Phone className="h-4 w-4" />} href={`tel:${telHref(dict.site.phone)}`}>
+            {dict.site.phone}
           </FooterContact>
-          {site.phone2 && (
-            <FooterContact href={`tel:${site.phone2Href}`}>
-              {site.phone2}
+          {dict.site.phone2 && (
+            <FooterContact href={`tel:${telHref(dict.site.phone2)}`}>
+              {dict.site.phone2}
             </FooterContact>
           )}
-          <FooterContact icon={<Mail className="h-4 w-4" />} href={`mailto:${site.email}`}>
-            {site.email}
+          <FooterContact icon={<Mail className="h-4 w-4" />} href={`mailto:${dict.site.email}`}>
+            {dict.site.email}
           </FooterContact>
           <li className="flex items-start gap-2.5 text-sm text-ink-muted">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />

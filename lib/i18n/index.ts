@@ -26,6 +26,11 @@ export function localizeHref(locale: Locale, href: string): string {
   return `/${locale}${href === "/" ? "" : href}`;
 }
 
+/** Телефон для href: оставляет только цифры и ведущий «+» ("+998 94 …" → "+99894…"). */
+export function telHref(phone: string): string {
+  return phone.replace(/[^\d+]/g, "");
+}
+
 /** Простая подстановка {ключей} в строке шаблона. */
 export function interpolate(
   template: string,

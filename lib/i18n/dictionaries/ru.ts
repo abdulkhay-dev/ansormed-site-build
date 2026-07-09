@@ -15,8 +15,17 @@ const ru = {
   },
 
   site: {
+    phone: "+998 94 618 19 91",
+    phone2: "+998 95 222 32 32",
+    email: "info@ansormed.uz",
     addressDisplay: "г. Ташкент, Алмазарский район, массив Каракамыш, 1/2, 20А",
     hours: "9:00 — 18:00",
+    social: {
+      telegram: "https://t.me/Ansormed1",
+      instagram: "https://www.instagram.com/ansormed.uz?igsh=MW0xcTEwc3Q2M2JzbQ==",
+      youtube: "https://www.youtube.com/@ansormed",
+      whatsapp: "https://wa.me/998946181991",
+    },
   },
 
   nav: {
@@ -120,9 +129,9 @@ const ru = {
   ],
 
   stats: [
-    { suffix: "+", label: "единиц оборудования поставлено" },
-    { suffix: " лет", label: "на рынке медтехники" },
-    { suffix: "+", label: "клиник и партнёров" },
+    { value: "500", suffix: "+", label: "единиц оборудования поставлено" },
+    { value: "5", suffix: " лет", label: "на рынке медтехники" },
+    { value: "1000", suffix: "+", label: "клиник и партнёров" },
   ],
 
   values: [

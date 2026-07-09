@@ -17,8 +17,17 @@ const uz: Dictionary = {
   },
 
   site: {
+    phone: "+998 94 618 19 91",
+    phone2: "+998 95 222 32 32",
+    email: "info@ansormed.uz",
     addressDisplay: "Toshkent sh., Olmazor tumani, Qoraqamish massivi, 1/2, 20A",
     hours: "9:00 — 18:00",
+    social: {
+      telegram: "https://t.me/Ansormed1",
+      instagram: "https://www.instagram.com/ansormed.uz?igsh=MW0xcTEwc3Q2M2JzbQ==",
+      youtube: "https://www.youtube.com/@ansormed",
+      whatsapp: "https://wa.me/998946181991",
+    },
   },
 
   nav: {
@@ -123,9 +132,9 @@ const uz: Dictionary = {
   ],
 
   stats: [
-    { suffix: "+", label: "dona uskuna yetkazildi" },
-    { suffix: " yil", label: "tibbiy texnika bozorida" },
-    { suffix: "+", label: "klinika va hamkor" },
+    { value: "500", suffix: "+", label: "dona uskuna yetkazildi" },
+    { value: "5", suffix: " yil", label: "tibbiy texnika bozorida" },
+    { value: "1000", suffix: "+", label: "klinika va hamkor" },
   ],
 
   values: [

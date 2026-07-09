@@ -250,8 +250,9 @@ let contentInflight: Promise<ApiContent[]> | null = null;
 const CONTENT_TTL = 60_000; // 1 минута
 
 /**
- * Все редактируемые тексты сайта — /api/v1/content/. Кешируется на короткий
- * TTL в памяти; параллельные вызовы дедуплицируются. При ошибке возвращает [].
+ * Все редактируемые тексты сайта — /api/site-content/ (пагинированный DRF-список).
+ * Кешируется на короткий TTL в памяти; параллельные вызовы дедуплицируются.
+ * При ошибке возвращает [].
  */
 export async function getContent(force = false): Promise<ApiContent[]> {
   const now = Date.now();
@@ -259,7 +260,7 @@ export async function getContent(force = false): Promise<ApiContent[]> {
     if (contentCache && now - contentCache.at < CONTENT_TTL) return contentCache.data;
     if (contentInflight) return contentInflight;
   }
-  contentInflight = req<ApiContent[]>(`/api/v1/content/`)
+  contentInflight = fetchAllPages<ApiContent>(`/api/site-content/`)
     .then((rows) => {
       const data = rows ?? [];
       if (data.length) contentCache = { at: Date.now(), data };

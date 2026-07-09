@@ -5,6 +5,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { site } from "@/lib/data/site";
+import { telHref } from "@/lib/i18n";
 import { useDict } from "@/components/i18n/I18nProvider";
 
 export function CTASection() {
@@ -32,18 +33,18 @@ export function CTASection() {
               <ul className="mt-2 flex flex-col gap-4">
                 <ContactRow icon={<Phone className="h-5 w-5" />} label={c.phoneLabel}>
                   <span className="flex flex-col gap-0.5">
-                    <a href={`tel:${site.phoneHref}`} className="transition-colors hover:text-accent">
-                      {site.phone}
+                    <a href={`tel:${telHref(dict.site.phone)}`} className="transition-colors hover:text-accent">
+                      {dict.site.phone}
                     </a>
-                    {site.phone2 && (
-                      <a href={`tel:${site.phone2Href}`} className="transition-colors hover:text-accent">
-                        {site.phone2}
+                    {dict.site.phone2 && (
+                      <a href={`tel:${telHref(dict.site.phone2)}`} className="transition-colors hover:text-accent">
+                        {dict.site.phone2}
                       </a>
                     )}
                   </span>
                 </ContactRow>
-                <ContactRow icon={<Mail className="h-5 w-5" />} href={`mailto:${site.email}`} label={c.emailLabel}>
-                  {site.email}
+                <ContactRow icon={<Mail className="h-5 w-5" />} href={`mailto:${dict.site.email}`} label={c.emailLabel}>
+                  {dict.site.email}
                 </ContactRow>
                 <ContactRow icon={<MapPin className="h-5 w-5" />} label={c.addressLabel}>
                   {dict.site.addressDisplay}

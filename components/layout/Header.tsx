@@ -4,14 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, Phone, ArrowUpRight, Mail, Clock } from "lucide-react";
-import { site } from "@/lib/data/site";
 import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
-import { localizeHref } from "@/lib/i18n";
+import { localizeHref, telHref } from "@/lib/i18n";
 import { cn, EASE } from "@/lib/utils";
 import type { Category } from "@/lib/data/categories";
 
@@ -274,23 +273,23 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                     <ArrowUpRight className="h-4 w-4" />
                     {dict.header.contact}
                   </ButtonLink>
-                  <ButtonLink href={`tel:${site.phoneHref}`} size="lg" className="w-full">
+                  <ButtonLink href={`tel:${telHref(dict.site.phone)}`} size="lg" className="w-full">
                     <Phone className="h-4 w-4" />
-                    {site.phone}
+                    {dict.site.phone}
                   </ButtonLink>
-                  {site.phone2 && (
-                    <ButtonLink href={`tel:${site.phone2Href}`} size="lg" className="w-full">
-                      {site.phone2}
+                  {dict.site.phone2 && (
+                    <ButtonLink href={`tel:${telHref(dict.site.phone2)}`} size="lg" className="w-full">
+                      {dict.site.phone2}
                     </ButtonLink>
                   )}
 
                   <div className="mt-3 flex items-center justify-between gap-3 px-1">
                     <a
-                      href={`mailto:${site.email}`}
+                      href={`mailto:${dict.site.email}`}
                       className="flex min-w-0 items-center gap-2 text-sm text-ink-muted transition-colors hover:text-ink"
                     >
                       <Mail className="h-4 w-4 shrink-0 text-ink-dim" />
-                      <span className="truncate">{site.email}</span>
+                      <span className="truncate">{dict.site.email}</span>
                     </a>
                     <span className="flex shrink-0 items-center gap-1.5 text-xs text-ink-dim">
                       <Clock className="h-3.5 w-3.5" />

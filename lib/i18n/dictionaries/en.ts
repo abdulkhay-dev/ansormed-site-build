@@ -17,8 +17,17 @@ const en: Dictionary = {
   },
 
   site: {
+    phone: "+998 94 618 19 91",
+    phone2: "+998 95 222 32 32",
+    email: "info@ansormed.uz",
     addressDisplay: "Tashkent, Almazar district, Qoraqamish massif, 1/2, 20A",
     hours: "9:00 — 18:00",
+    social: {
+      telegram: "https://t.me/Ansormed1",
+      instagram: "https://www.instagram.com/ansormed.uz?igsh=MW0xcTEwc3Q2M2JzbQ==",
+      youtube: "https://www.youtube.com/@ansormed",
+      whatsapp: "https://wa.me/998946181991",
+    },
   },
 
   nav: {
@@ -123,9 +132,9 @@ const en: Dictionary = {
   ],
 
   stats: [
-    { suffix: "+", label: "units of equipment delivered" },
-    { suffix: " years", label: "in the medical-equipment market" },
-    { suffix: "+", label: "clinics and partners" },
+    { value: "500", suffix: "+", label: "units of equipment delivered" },
+    { value: "5", suffix: " years", label: "in the medical-equipment market" },
+    { value: "1000", suffix: "+", label: "clinics and partners" },
   ],
 
   values: [

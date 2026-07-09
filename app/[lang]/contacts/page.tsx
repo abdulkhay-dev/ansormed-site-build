@@ -7,7 +7,7 @@ import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/data/site";
-import { getDictionary, isLocale } from "@/lib/i18n";
+import { getDictionary, isLocale, telHref } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -53,12 +53,12 @@ export default async function ContactsPage({
                 title={c.phoneLabel}
                 value={
                   <span className="flex flex-col gap-0.5">
-                    <a href={`tel:${site.phoneHref}`} className="transition-colors hover:text-accent">
-                      {site.phone}
+                    <a href={`tel:${telHref(dict.site.phone)}`} className="transition-colors hover:text-accent">
+                      {dict.site.phone}
                     </a>
-                    {site.phone2 && (
-                      <a href={`tel:${site.phone2Href}`} className="transition-colors hover:text-accent">
-                        {site.phone2}
+                    {dict.site.phone2 && (
+                      <a href={`tel:${telHref(dict.site.phone2)}`} className="transition-colors hover:text-accent">
+                        {dict.site.phone2}
                       </a>
                     )}
                   </span>
@@ -67,8 +67,8 @@ export default async function ContactsPage({
               <InfoCard
                 icon={<Mail className="h-5 w-5" />}
                 title={c.emailLabel}
-                href={`mailto:${site.email}`}
-                value={site.email}
+                href={`mailto:${dict.site.email}`}
+                value={dict.site.email}
               />
               <InfoCard
                 icon={<MapPin className="h-5 w-5" />}
@@ -87,7 +87,7 @@ export default async function ContactsPage({
                 </h3>
                 <div className="flex flex-wrap gap-3">
                   <a
-                    href={site.socials.telegram}
+                    href={dict.site.social.telegram}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-[#229ED9]/15 px-4 py-2.5 text-sm font-medium text-[#7cc9ef] ring-1 ring-[#229ED9]/30 transition-colors hover:bg-[#229ED9]/25"
@@ -96,7 +96,7 @@ export default async function ContactsPage({
                     Telegram
                   </a>
                   <a
-                    href={site.socials.whatsapp}
+                    href={dict.site.social.whatsapp}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full bg-[#25D366]/15 px-4 py-2.5 text-sm font-medium text-[#5fe08c] ring-1 ring-[#25D366]/30 transition-colors hover:bg-[#25D366]/25"

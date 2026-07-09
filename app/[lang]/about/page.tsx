@@ -6,7 +6,7 @@ import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
 import { MediaVisual } from "@/components/ui/MediaVisual";
-import { partners, statValues } from "@/lib/data/site";
+import { partners } from "@/lib/data/site";
 import { getDictionary, isLocale } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
 import {LogoMarquee} from "@/components/sections/LogoMarquee";
@@ -81,9 +81,9 @@ export default async function AboutPage({
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-72 w-[46rem] -translate-x-1/2 -translate-y-1/2 spotlight" />
         <Container className="relative z-10">
           <RevealGroup className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
-            {dict.stats.map((s, i) => (
+            {dict.stats.map((s) => (
               <RevealItem key={s.label}>
-                <StatCard value={statValues[i]} suffix={s.suffix} label={s.label} />
+                <StatCard value={Number(s.value)} suffix={s.suffix} label={s.label} />
               </RevealItem>
             ))}
           </RevealGroup>
