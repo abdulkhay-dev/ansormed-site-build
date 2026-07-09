@@ -276,7 +276,7 @@ export async function getContent(force = false): Promise<ApiContent[]> {
 /* ---------- Leads ---------- */
 
 export const createLead = (data: LeadInput) =>
-  req<null>(`/api/v1/leads/`, { method: "POST", body: JSON.stringify(data) });
+  req<null>(`/api/leads/`, { method: "POST", body: JSON.stringify(data) });
 
 /* ---------- Blog ---------- */
 

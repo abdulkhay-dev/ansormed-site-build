@@ -129,12 +129,6 @@ function getFallbackCategories(lang: Locale): Category[] {
 
 const ACCENTS: Accent[] = ["cyan", "mint", "violet", "amber"];
 
-function apiCategoryDescription(lang: Locale): string {
-  if (lang === "uz") return "Ushbu bo'limdagi mahsulotlarni ko'rish.";
-  if (lang === "en") return "View products in this category.";
-  return "Смотреть товары в этой категории.";
-}
-
 /** Возвращает категории из API, локализованные под переданный язык. */
 export async function getCategories(lang: Locale): Promise<Category[]> {
   try {
@@ -148,7 +142,7 @@ export async function getCategories(lang: Locale): Promise<Category[]> {
           id: String(localized.id),
           name: localized.name,
           short: localized.name,
-          description: apiCategoryDescription(lang),
+          description: "",
           icon: iconForCategory(localized.name || c.slug),
           accent: ACCENTS[index % ACCENTS.length],
           apiCategory: String(localized.id),

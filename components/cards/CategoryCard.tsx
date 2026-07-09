@@ -37,9 +37,11 @@ export function CategoryCard({
         <h3 className="font-display text-lg font-semibold text-ink">
           {category.name}
         </h3>
-        <p className="text-sm leading-relaxed text-ink-muted">
-          {category.description}
-        </p>
+        {category.description && (
+          <p className="text-sm leading-relaxed text-ink-muted">
+            {category.description}
+          </p>
+        )}
       </div>
 
       <span className="mt-auto inline-flex items-center gap-1.5 text-sm font-medium text-accent">

@@ -44,12 +44,80 @@ function isHomepageKey(p: string): boolean {
   );
 }
 
+/**
+ * Ключи страницы About. stats/cta/site НЕ включаются — они уже засеяны с
+ * homepage и переиспользуются.
+ */
+function isAboutKey(p: string): boolean {
+  return p.startsWith("about.") || p.startsWith("values.") || p.startsWith("timeline.");
+}
+
+/**
+ * Ключи страницы Products. Только редактируемый контент: шапка, SEO-мета и
+ * 3 буллета-преимущества карточки товара. Функциональные подписи витрины
+ * (фильтры/поиск/бейджи/пагинация) остаются в словаре.
+ */
+function isProductsKey(p: string): boolean {
+  return (
+    p.startsWith("products.header.") ||
+    p.startsWith("products.meta.") ||
+    p.startsWith("product.features.")
+  );
+}
+
+/** Блог: шапка + SEO-мета. Поиск/пустые состояния/бейдж видео — подписи, остаются. */
+function isBlogKey(p: string): boolean {
+  return p.startsWith("blog.header.") || p.startsWith("blog.meta.");
+}
+
+/** Проекты: шапка + SEO-мета. */
+function isProjectsKey(p: string): boolean {
+  return p.startsWith("projects.header.") || p.startsWith("projects.meta.");
+}
+
+/**
+ * Контакты: шапка + SEO-мета + видимые заголовки (мессенджеры, форма).
+ * Подписи полей и плейсхолдеры формы (phoneLabel, *Placeholder, contactForm.*)
+ * остаются в словаре.
+ */
+function isContactsKey(p: string): boolean {
+  return (
+    p.startsWith("contacts.header.") ||
+    p.startsWith("contacts.meta.") ||
+    p === "contacts.messengerTitle" ||
+    p === "contacts.formTitle" ||
+    p === "contacts.formSubtitle"
+  );
+}
+
+/** Выбор набора ключей через SCOPE (по умолчанию home). */
+const SCOPES: Record<string, (p: string) => boolean> = {
+  home: isHomepageKey,
+  about: isAboutKey,
+  products: isProductsKey,
+  blog: isBlogKey,
+  projects: isProjectsKey,
+  contacts: isContactsKey,
+};
+const inScope = SCOPES[process.env.SCOPE ?? "home"] ?? isHomepageKey;
+
 // Раскладка по 5 разрешённым «корзинам» API (как в content-fields.ts).
 const SECTION: Record<string, string> = {
   hero: "hero",
   home: "hero",
   anatomy: "hero",
   stats: "about",
+  about: "about",
+  values: "about",
+  timeline: "about",
+  products: "services",
+  product: "services",
+  blog: "services",
+  post: "services",
+  projects: "services",
+  project: "services",
+  contacts: "footer",
+  contactForm: "footer",
   meta: "footer",
   footer: "footer",
   site: "footer",
@@ -58,7 +126,7 @@ const SECTION: Record<string, string> = {
 
 const all: string[] = [];
 leaves(ru, "", all);
-const keys = all.filter(isHomepageKey);
+const keys = all.filter(inScope);
 
 const records = keys.map((key) => ({
   section: SECTION[key.split(".")[0]] ?? "footer",
