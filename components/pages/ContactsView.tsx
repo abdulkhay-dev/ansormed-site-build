@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+"use client";
+
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { TelegramIcon, WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { PageHeader } from "@/components/sections/PageHeader";
@@ -7,32 +7,11 @@ import { Container } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { site } from "@/lib/data/site";
-import { getDictionary, isLocale, telHref } from "@/lib/i18n";
-import { pageMetadata } from "@/lib/seo";
+import { telHref } from "@/lib/i18n";
+import { useDict } from "@/components/i18n/I18nProvider";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}): Promise<Metadata> {
-  const { lang } = await params;
-  const locale = isLocale(lang) ? lang : "ru";
-  const dict = getDictionary(locale);
-  return pageMetadata(locale, "contacts", {
-    title: dict.contacts.meta.title,
-    description: dict.contacts.meta.description,
-    ogLocale: dict.meta.ogLocale,
-  });
-}
-
-export default async function ContactsPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
-  if (!isLocale(lang)) notFound();
-  const dict = getDictionary(lang);
+export default function ContactsView() {
+  const dict = useDict();
   const c = dict.contacts;
 
   return (
@@ -111,12 +90,8 @@ export default async function ContactsPage({
             {/* Form */}
             <Reveal delay={0.1}>
               <div className="rounded-[2rem] glass-strong p-6 md:p-9">
-                <h2 className="font-display text-2xl font-semibold text-ink">
-                  {c.formTitle}
-                </h2>
-                <p className="mt-2 text-ink-muted">
-                  {c.formSubtitle}
-                </p>
+                <h2 className="font-display text-2xl font-semibold text-ink">{c.formTitle}</h2>
+                <p className="mt-2 text-ink-muted">{c.formSubtitle}</p>
                 <div className="mt-7">
                   <ContactForm />
                 </div>

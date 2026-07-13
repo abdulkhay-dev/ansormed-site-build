@@ -1,7 +1,7 @@
 import ru, { type Dictionary } from "./dictionaries/ru";
 import uz from "./dictionaries/uz";
 import en from "./dictionaries/en";
-import { isLocale, type Locale } from "./config";
+import { isLocale, defaultLocale, type Locale } from "./config";
 
 export { locales, defaultLocale, isLocale, localeLabels } from "./config";
 export type { Locale } from "./config";
@@ -12,6 +12,18 @@ const dictionaries: Record<Locale, Dictionary> = { ru, uz, en };
 /** Синхронно возвращает словарь для локали. */
 export function getDictionary(locale: Locale): Dictionary {
   return dictionaries[locale];
+}
+
+/** Язык из пути `/{lang}/...` (клиентский SPA-роутинг); фолбэк — дефолтная локаль. */
+export function langFromPath(pathname: string | null | undefined): Locale {
+  const seg = (pathname ?? "").split("/").filter(Boolean)[0];
+  return isLocale(seg) ? seg : defaultLocale;
+}
+
+/** Сегменты пути после локали: `/ru/product/x` → ["product","x"], `/ru` → []. */
+export function routeSegments(pathname: string | null | undefined): string[] {
+  const parts = (pathname ?? "").split("/").filter(Boolean);
+  return parts.length && isLocale(parts[0]) ? parts.slice(1) : parts;
 }
 
 /**

@@ -6,10 +6,11 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
-  // Полностью статическая сборка (out/) — деплоится на любой статик-хостинг (Netlify).
-  // CORS к API решается прокси: на проде — redirect /api/* в netlify.toml,
-  // в dev — локальный CORS-прокси из scripts/dev.mjs (NEXT_PUBLIC_API_BASE).
-  output: "export",
+  // Статический экспорт — единый SPA: собирается один index.html, роутинг на
+  // клиенте. Экспорт включаем только в проде: иначе `next dev` с одним
+  // catch-all и generateStaticParams=[] ругается на «missing param» для
+  // реальных путей. В dev — обычный dev-рендер любого пути.
+  ...(isDev ? {} : { output: "export" as const }),
   // Папка статического экспорта: out -> dist (используется CI-деплоем).
   distDir: "dist",
   // Каждый маршрут — это папка с index.html (contacts/index.html), чтобы nginx

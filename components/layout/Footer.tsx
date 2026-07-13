@@ -1,14 +1,16 @@
+"use client";
+
 import { Phone, Mail, MapPin } from "lucide-react";
 import { InstagramIcon, TelegramIcon, WhatsAppIcon, YouTubeIcon } from "@/components/ui/SocialIcons";
 import { site } from "@/lib/data/site";
-import { getCategories } from "@/lib/data/categories";
+import type { Category } from "@/lib/data/categories";
 import { Logo } from "@/components/ui/Logo";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
-import { getDictionary, interpolate, telHref, type Locale } from "@/lib/i18n";
+import { interpolate, telHref } from "@/lib/i18n";
+import { useDict } from "@/components/i18n/I18nProvider";
 
-export async function Footer({ lang }: { lang: Locale }) {
-  const dict = getDictionary(lang);
-  const categories = await getCategories(lang);
+export function Footer({ categories = [] }: { categories?: Category[] }) {
+  const dict = useDict();
   const year = 2026;
 
   const nav = [

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Hero } from "@/components/sections/Hero";
 import { AnatomyScroll } from "@/components/sections/AnatomyScroll";
@@ -9,19 +12,25 @@ import { StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { LatestPosts } from "@/components/sections/LatestPosts";
 import { ButtonLink } from "@/components/ui/Button";
-import { getCategories } from "@/lib/data/categories";
-import { getDictionary, isLocale } from "@/lib/i18n";
-import { notFound } from "next/navigation";
+import { getCategories, type Category } from "@/lib/data/categories";
+import { useDict, useLang } from "@/components/i18n/I18nProvider";
 
-export default async function HomePage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
-  if (!isLocale(lang)) notFound();
-  const dict = getDictionary(lang);
-  const categories = (await getCategories(lang)).slice(0, 6);
+export default function HomeView() {
+  const dict = useDict();
+  const lang = useLang();
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCategories(lang)
+      .then((cats) => {
+        if (!cancelled) setCategories(cats.slice(0, 6));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [lang]);
 
   return (
     <>

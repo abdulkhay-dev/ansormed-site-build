@@ -1,41 +1,18 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+"use client";
+
 import { PageHeader } from "@/components/sections/PageHeader";
 import { CTASection } from "@/components/sections/CTASection";
 import { Container, SectionHeading } from "@/components/ui/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { FeatureCard, StatCard } from "@/components/cards/FeatureCard";
 import { MediaVisual } from "@/components/ui/MediaVisual";
-import { partners } from "@/lib/data/site";
-import { getDictionary, isLocale } from "@/lib/i18n";
-import { pageMetadata } from "@/lib/seo";
-import {LogoMarquee} from "@/components/sections/LogoMarquee";
+import { LogoMarquee } from "@/components/sections/LogoMarquee";
+import { useDict } from "@/components/i18n/I18nProvider";
 
 const VALUE_ICONS = ["Target", "HeartHandshake", "Sparkles", "LifeBuoy"];
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}): Promise<Metadata> {
-  const { lang } = await params;
-  const locale = isLocale(lang) ? lang : "ru";
-  const dict = getDictionary(locale);
-  return pageMetadata(locale, "about", {
-    title: dict.about.meta.title,
-    description: dict.about.meta.description,
-    ogLocale: dict.meta.ogLocale,
-  });
-}
-
-export default async function AboutPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}) {
-  const { lang } = await params;
-  if (!isLocale(lang)) notFound();
-  const dict = getDictionary(lang);
+export default function AboutView() {
+  const dict = useDict();
 
   return (
     <>
@@ -65,12 +42,8 @@ export default async function AboutPage({
                 eyebrow={dict.about.mission.eyebrow}
                 title={<>{dict.about.mission.title}</>}
               />
-              <p className="leading-relaxed text-ink-muted">
-                {dict.about.mission.p1}
-              </p>
-              <p className="leading-relaxed text-ink-muted">
-                {dict.about.mission.p2}
-              </p>
+              <p className="leading-relaxed text-ink-muted">{dict.about.mission.p1}</p>
+              <p className="leading-relaxed text-ink-muted">{dict.about.mission.p2}</p>
             </Reveal>
           </div>
         </Container>
@@ -123,9 +96,7 @@ export default async function AboutPage({
                   <span className="font-display text-3xl font-bold text-accent-gradient">
                     {t.year}
                   </span>
-                  <h3 className="font-display text-lg font-semibold text-ink">
-                    {t.title}
-                  </h3>
+                  <h3 className="font-display text-lg font-semibold text-ink">{t.title}</h3>
                   <p className="text-sm leading-relaxed text-ink-muted">{t.text}</p>
                 </div>
               </Reveal>
@@ -143,15 +114,6 @@ export default async function AboutPage({
             subtitle={dict.about.partners.subtitle}
           />
           <LogoMarquee />
-          {/*<RevealGroup className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">*/}
-          {/*  {partners.map((p) => (*/}
-          {/*    <RevealItem key={p}>*/}
-          {/*      <div className="flex h-20 items-center justify-center rounded-2xl glass px-4 text-center font-display text-base font-semibold text-ink-muted transition-colors duration-200 hover:text-accent">*/}
-          {/*        {p}*/}
-          {/*      </div>*/}
-          {/*    </RevealItem>*/}
-          {/*  ))}*/}
-          {/*</RevealGroup>*/}
         </Container>
       </section>
 

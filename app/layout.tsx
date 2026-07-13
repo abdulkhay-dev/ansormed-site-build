@@ -1,18 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { notFound } from "next/navigation";
 import Script from "next/script";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
-import "../globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { ContactFab } from "@/components/layout/ContactFab";
-import { Preloader } from "@/components/layout/Preloader";
-import { I18nProvider } from "@/components/i18n/I18nProvider";
+import "./globals.css";
+import AppShell from "@/components/app/AppShell";
 import { site } from "@/lib/data/site";
-import { getCategories } from "@/lib/data/categories";
-import { getDictionary, isLocale, locales, type Locale } from "@/lib/i18n";
-import { pageAlternates, localeUrl } from "@/lib/seo";
-import { SiteJsonLd } from "@/components/seo/JsonLd";
+import { getDictionary } from "@/lib/i18n";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -28,19 +20,10 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ lang: string }>;
-}): Promise<Metadata> {
-  const { lang } = await params;
-  const locale: Locale = isLocale(lang) ? lang : "ru";
-  const dict = getDictionary(locale);
-
+// Базовые (языконезависимые) метаданные. Сайт — клиентский SPA, поэтому
+// per-page тайтлы/описания проставляются на клиенте во вьюхах.
+export function generateMetadata(): Metadata {
+  const dict = getDictionary("ru");
   return {
     metadataBase: new URL("https://ansormed.uz"),
     title: {
@@ -49,17 +32,12 @@ export async function generateMetadata({
     },
     description: dict.meta.description,
     keywords: dict.meta.keywords,
-    alternates: pageAlternates(locale),
     openGraph: {
       type: "website",
       siteName: site.name,
       title: `${site.name} — ${dict.meta.tagline}`,
       description: dict.meta.description,
-      url: localeUrl(locale),
-      locale: dict.meta.ogLocale,
-      images: [
-        { url: "/og.png", width: 1200, height: 630, alt: site.name },
-      ],
+      images: [{ url: "/og.png", width: 1200, height: 630, alt: site.name }],
     },
     twitter: {
       card: "summary_large_image",
@@ -81,25 +59,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
-  params,
-}: Readonly<{
-  children: React.ReactNode;
-  params: Promise<{ lang: string }>;
-}>) {
-  const { lang } = await params;
-  if (!isLocale(lang)) notFound();
-  const dict = getDictionary(lang);
-  const categories = await getCategories(lang);
-
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang={lang}
-      className={`${plexSans.variable} ${plexMono.variable}`}
-    >
+    <html lang="ru" className={`${plexSans.variable} ${plexMono.variable}`}>
       <body className="flex min-h-screen flex-col bg-base">
-        <SiteJsonLd lang={lang} dict={dict} />
         {/* Yandex.Metrika counter */}
         <Script id="yandex-metrika" strategy="afterInteractive">
           {`(function(m,e,t,r,i,k,a){
@@ -120,22 +85,7 @@ export default async function RootLayout({
           </div>
         </noscript>
         {/* /Yandex.Metrika counter */}
-        <I18nProvider lang={lang} dict={dict}>
-          <Preloader />
-          {/* Skip link for keyboard users */}
-          <a
-            href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-          >
-            {dict.skipToContent}
-          </a>
-          <Header categories={categories} />
-          <main id="main" className="flex-1">
-            {children}
-          </main>
-          <Footer lang={lang} />
-          <ContactFab />
-        </I18nProvider>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { ArrowLeft, Home } from "lucide-react";
 import { useDict } from "@/components/i18n/I18nProvider";
 
-export default function NotFound() {
+export default function NotFoundView() {
   const dict = useDict();
   return (
     <section className="relative flex min-h-[80vh] items-center overflow-hidden">
