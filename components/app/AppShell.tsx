@@ -27,6 +27,44 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
+  // Клиентская навигация без перезагрузки. В статическом экспорте (один
+  // index.html) next/link по клику пытается подгрузить данные несуществующего
+  // маршрута и делает полную перезагрузку. Перехватываем клики по внутренним
+  // ссылкам и переходим через history.pushState — Next синхронизирует
+  // usePathname, и приложение перерисовывается на месте.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const anchor = (e.target as HTMLElement | null)?.closest?.("a");
+      if (!anchor) return;
+      const target = anchor.getAttribute("target");
+      if ((target && target !== "_self") || anchor.hasAttribute("download")) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      let url: URL;
+      try {
+        url = new URL(anchor.href, window.location.origin);
+      } catch {
+        return;
+      }
+      // Внешние ссылки, tel:, mailto: — не трогаем.
+      if (url.origin !== window.location.origin) return;
+      // Внутренний переход → SPA через pushState (перебивает обработчик next/link).
+      e.preventDefault();
+      e.stopPropagation();
+      const dest = url.pathname + url.search + url.hash;
+      const current = window.location.pathname + window.location.search + window.location.hash;
+      if (dest !== current) {
+        window.history.pushState(null, "", dest);
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
   // Категории для навигации (шапка/подвал).
   useEffect(() => {
     let cancelled = false;

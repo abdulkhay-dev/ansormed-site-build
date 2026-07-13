@@ -12,10 +12,13 @@ import { useLang } from "@/components/i18n/I18nProvider";
  */
 export function LocaleLink({
   href,
+  prefetch = false,
   ...props
 }: ComponentProps<typeof Link>) {
   const lang = useLang();
   const localized =
     typeof href === "string" ? localizeHref(lang, href) : href;
-  return <Link href={localized} {...props} />;
+  // prefetch выключен: в статическом экспорте нет данных под-маршрутов, а
+  // переход выполняет клиентский перехватчик в AppShell.
+  return <Link href={localized} prefetch={prefetch} {...props} />;
 }
