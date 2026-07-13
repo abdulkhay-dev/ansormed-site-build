@@ -133,12 +133,14 @@ export default function ProductView({ slug }: { slug: string }) {
           <span className="text-ink-muted">{p.name}</span>
         </nav>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-14">
-          {/* Media */}
-          <ProductMedia product={p} />
+        <div className="mt-8 lg:[&::after]:clear-both lg:[&::after]:table lg:[&::after]:content-['']">
+          {/* Media — floats left on desktop so the description wraps beneath it */}
+          <div className="mb-8 lg:float-left lg:mb-4 lg:mr-12 lg:w-[46%]">
+            <ProductMedia product={p} />
+          </div>
 
-          {/* Info */}
-          <div className="flex flex-col">
+          {/* Info — flows around the media, filling the space under the image */}
+          <div className="min-w-0">
             {p.categoryName && (
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-line-strong bg-surface-2 px-3.5 py-1.5 text-xs font-medium uppercase tracking-wider text-accent">
                 <Icon name={iconForCategory(p.categoryName)} className="h-3.5 w-3.5" />

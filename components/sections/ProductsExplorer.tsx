@@ -175,13 +175,14 @@ export function ProductsExplorer({
     if (activeSubId != null && activeParentId != null) setExpandedCat(activeParentId);
   }, [activeSubId, activeParentId]);
 
-  // Клик по категории: если есть подкатегории — только раскрываем/сворачиваем,
-  // иначе фильтруем по самой категории.
+  // Клик по категории: всегда фильтруем по ней (показываем все товары категории,
+  // включая привязанные напрямую и через подкатегории). Если есть подкатегории —
+  // ещё и раскрываем список, чтобы можно было сузить выбор.
   const onCatClick = (id: number, hasSubs: boolean, onFiltered?: () => void) => {
+    setActive(String(id));
     if (hasSubs) {
       setExpandedCat((prev) => (prev === id ? null : id));
     } else {
-      setActive(String(id));
       setExpandedCat(null);
       onFiltered?.();
     }

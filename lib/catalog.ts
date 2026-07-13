@@ -88,8 +88,11 @@ export function localizeProduct(
   const final = toPrice(p.final_price) ?? base;
   const hasDiscount = base != null && final != null && final < base;
 
+  // Категория товара: через подкатегорию, иначе — прямая привязка `category`.
   const categoryId =
-    p.subcategory != null ? ctx?.subToCat[p.subcategory] ?? null : null;
+    (p.subcategory != null ? ctx?.subToCat[p.subcategory] ?? null : null) ??
+    p.category ??
+    null;
   const cat = categoryId != null ? ctx?.catById[categoryId] : undefined;
 
   return {

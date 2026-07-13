@@ -69,6 +69,8 @@ export interface SubCategory {
 /** Товар — /api/products/. Цены приходят строками-decimal ("0.00"). */
 export interface ProductOut {
   id: number;
+  /** Прямая привязка к категории (товар может не иметь подкатегории). */
+  category: number | null;
   subcategory: number | null;
   name_ru: string;
   name_uz: string;

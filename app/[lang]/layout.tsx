@@ -5,6 +5,7 @@ import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "../globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { ContactFab } from "@/components/layout/ContactFab";
 import { Preloader } from "@/components/layout/Preloader";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { site } from "@/lib/data/site";
@@ -133,6 +134,7 @@ export default async function RootLayout({
             {children}
           </main>
           <Footer lang={lang} />
+          <ContactFab />
         </I18nProvider>
       </body>
     </html>
