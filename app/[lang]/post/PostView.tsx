@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { ArrowLeft, ChevronRight, Loader2, Newspaper } from "lucide-react";
 import { getPostBySlug, type ApiBlogPost } from "@/lib/api";
 import { localizePost, plainText } from "@/lib/blog";
@@ -9,17 +8,16 @@ import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
-import { formatDate, slugFromPathname } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 type State =
   | { status: "loading" }
   | { status: "ok"; post: ApiBlogPost }
   | { status: "missing" };
 
-export default function PostView() {
+export default function PostView({ slug }: { slug: string }) {
   const dict = useDict();
   const lang = useLang();
-  const slug = slugFromPathname(usePathname());
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
