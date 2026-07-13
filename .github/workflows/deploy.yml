@@ -44,6 +44,59 @@ jobs:
           source: "dist"
           target: "/var/www/ansormed_frontend"
 
+      # SPA-фолбэк для детальных маршрутов: любой несуществующий путь под
+      # /:lang/ отдаётся единой оболочкой /:lang/_/index.html (клиент читает
+      # slug из URL). Шаг идемпотентный: бэкап → вставка → `nginx -t` → reload,
+      # при ошибке — откат. Требует passwordless sudo у деплой-пользователя.
+      - name: Ensure nginx SPA-fallback rule
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            if ! sudo -n true 2>/dev/null; then
+              echo "::error::Нет passwordless sudo — не могу править nginx. Добавьте правило вручную."
+              exit 1
+            fi
+            CONF=$(sudo grep -rl "ansormed_frontend" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null | head -1 || true)
+            if [ -z "$CONF" ]; then
+              echo "::error::Не нашёл nginx-конфиг с root .../ansormed_frontend. Добавьте правило вручную."
+              exit 1
+            fi
+            echo "nginx config: $CONF"
+            if sudo grep -q "ansormed spa-fallback" "$CONF"; then
+              echo "SPA-fallback уже настроен — пропускаю."
+              exit 0
+            fi
+            BAK="$CONF.bak.$(date +%Y%m%d%H%M%S)"
+            sudo cp "$CONF" "$BAK"
+            # Вставляем location после каждой строки `root .../ansormed_frontend...`.
+            sudo awk '
+              { print }
+              /root[^;]*ansormed_frontend/ {
+                print "    # >>> ansormed spa-fallback (managed by deploy.yml)"
+                print "    location ~ ^/(ru|uz|en)(/|$) {"
+                print "        try_files $uri $uri/ /$1/_/index.html;"
+                print "    }"
+                print "    # <<< ansormed spa-fallback"
+              }
+            ' "$BAK" | sudo tee "$CONF" >/dev/null
+            if ! sudo grep -q "ansormed spa-fallback" "$CONF"; then
+              echo "::error::Строка root .../ansormed_frontend не найдена для вставки — откат."
+              sudo cp "$BAK" "$CONF"
+              exit 1
+            fi
+            if sudo nginx -t; then
+              sudo systemctl reload nginx
+              echo "SPA-fallback добавлен, nginx перезагружен."
+            else
+              echo "::error::nginx -t не прошёл — откатываю."
+              sudo cp "$BAK" "$CONF"
+              exit 1
+            fi
+
       - name: Verify deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
