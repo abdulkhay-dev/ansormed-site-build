@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ArrowLeft, BriefcaseMedical, ChevronRight, Loader2 } from "lucide-react";
 import { ExternalLink } from "lucide-react";
 import { getProjectBySlug, type ApiProject } from "@/lib/api";
@@ -10,15 +11,17 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Container } from "@/components/ui/Section";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { slugFromPathname } from "@/lib/utils";
 
 type State =
   | { status: "loading" }
   | { status: "ok"; project: ApiProject }
   | { status: "missing" };
 
-export default function ProjectView({ slug }: { slug: string }) {
+export default function ProjectView() {
   const dict = useDict();
   const lang = useLang();
+  const slug = slugFromPathname(usePathname());
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import {
   ArrowLeft,
   ChevronRight,
@@ -28,16 +29,17 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
-import { cn, formatPrice, iconForCategory } from "@/lib/utils";
+import { cn, formatPrice, iconForCategory, slugFromPathname } from "@/lib/utils";
 
 type State =
   | { status: "loading" }
   | { status: "ok"; product: ProductOut; ctx: CategoryContext }
   | { status: "missing" };
 
-export default function ProductView({ slug }: { slug: string }) {
+export default function ProductView() {
   const dict = useDict();
   const lang = useLang();
+  const slug = slugFromPathname(usePathname());
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {

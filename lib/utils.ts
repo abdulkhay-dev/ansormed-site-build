@@ -9,6 +9,20 @@ export function cn(...classes: ClassValue[]): string {
 }
 
 /**
+ * Slug детальной страницы из URL вида `/{lang}/{type}/{slug}/` — третий сегмент.
+ * Детальные маршруты (product/post/project) собираются одной статической
+ * оболочкой на язык, поэтому реальный slug берём из адреса на клиенте.
+ */
+export function slugFromPathname(pathname: string | null | undefined): string {
+  const seg = (pathname ?? "").split("/").filter(Boolean)[2] ?? "";
+  try {
+    return decodeURIComponent(seg);
+  } catch {
+    return seg;
+  }
+}
+
+/**
  * Format an ISO date string to a localized long form, e.g. "12 мая 2026"
  * or "12 may 2026". Названия месяцев берутся из словаря (dict.months).
  */
