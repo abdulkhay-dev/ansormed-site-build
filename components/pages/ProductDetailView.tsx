@@ -259,7 +259,7 @@ function ZoomImage({ src, alt }: { src: string; alt: string }) {
       className="h-full w-full cursor-zoom-in bg-surface bg-no-repeat transition-[background-size] duration-200 ease-out"
       style={{
         backgroundImage: `url("${src}")`,
-        backgroundSize: pos ? "220%" : "cover",
+        backgroundSize: pos ? "220%" : "contain",
         backgroundPosition: pos ? `${pos.x}% ${pos.y}%` : "center",
       }}
     />

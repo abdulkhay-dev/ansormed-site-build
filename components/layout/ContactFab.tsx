@@ -6,6 +6,12 @@ import { Phone, Mail, MessageCircle, X } from "lucide-react";
 import { useDict } from "@/components/i18n/I18nProvider";
 import { telHref } from "@/lib/i18n";
 import { EASE } from "@/lib/utils";
+import {
+  InstagramIcon,
+  TelegramIcon,
+  WhatsAppIcon,
+  YouTubeIcon,
+} from "@/components/ui/SocialIcons";
 
 /**
  * Плавающая кнопка связи в правом нижнем углу. По клику раскрывает контакты
@@ -31,12 +37,42 @@ export function ContactFab() {
       icon: Phone,
       label: dict.site.phone,
       href: `tel:${telHref(dict.site.phone)}`,
+      external: false,
     },
     {
       key: "email",
       icon: Mail,
       label: dict.site.email,
       href: `mailto:${dict.site.email}`,
+      external: false,
+    },
+    {
+      key: "telegram",
+      icon: TelegramIcon,
+      label: "Telegram",
+      href: dict.site.social.telegram,
+      external: true,
+    },
+    {
+      key: "whatsapp",
+      icon: WhatsAppIcon,
+      label: "WhatsApp",
+      href: dict.site.social.whatsapp,
+      external: true,
+    },
+    {
+      key: "instagram",
+      icon: InstagramIcon,
+      label: "Instagram",
+      href: dict.site.social.instagram,
+      external: true,
+    },
+    {
+      key: "youtube",
+      icon: YouTubeIcon,
+      label: "YouTube",
+      href: dict.site.social.youtube,
+      external: true,
     },
   ];
 
@@ -48,6 +84,8 @@ export function ContactFab() {
             <motion.a
               key={a.key}
               href={a.href}
+              target={a.external ? "_blank" : undefined}
+              rel={a.external ? "noopener noreferrer" : undefined}
               initial={{ opacity: 0, y: 14, scale: 0.85 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 14, scale: 0.85 }}
