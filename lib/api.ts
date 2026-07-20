@@ -239,11 +239,24 @@ export async function globalSearch(q: string): Promise<SearchResults> {
   return data ?? empty;
 }
 
-/** Категории — /api/categories/. */
-export const listCategories = () => fetchAllPages<CategoryOut>(`/api/categories/`);
+/**
+ * Категории, временно скрытые из интерфейса (дубли/незаполненные разделы).
+ * Фильтруем на уровне API, чтобы раздел исчез сразу везде: шапка, подвал,
+ * главная, сайдбар каталога и карточка товара.
+ */
+const HIDDEN_CATEGORY_IDS = new Set<number>([6]);
 
-/** Подкатегории — /api/subcategories/. */
-export const listSubcategories = () => fetchAllPages<SubCategory>(`/api/subcategories/`);
+/** Категории — /api/categories/ (без скрытых). */
+export const listCategories = async () =>
+  (await fetchAllPages<CategoryOut>(`/api/categories/`)).filter(
+    (c) => !HIDDEN_CATEGORY_IDS.has(c.id),
+  );
+
+/** Подкатегории — /api/subcategories/ (без принадлежащих скрытым категориям). */
+export const listSubcategories = async () =>
+  (await fetchAllPages<SubCategory>(`/api/subcategories/`)).filter(
+    (s) => !HIDDEN_CATEGORY_IDS.has(s.category),
+  );
 
 /* ---------- Site content (тексты из админки) ---------- */
 
