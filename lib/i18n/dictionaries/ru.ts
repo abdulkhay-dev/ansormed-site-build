@@ -469,7 +469,7 @@ const ru = {
     notFoundText:
       "Возможно, он больше не доступен. Вернитесь в каталог или свяжитесь с нами.",
     backToCatalog: "В каталог",
-    allCatalog: "Весь каталог",
+    allCatalog: "Назад",
     categoryLabel: "Категория",
     brandLabel: "Бренд",
     availabilityLabel: "Наличие",

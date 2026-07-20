@@ -472,7 +472,7 @@ const uz: Dictionary = {
     notFoundText:
       "Ehtimol, u endi mavjud emas. Katalogga qayting yoki biz bilan bog'laning.",
     backToCatalog: "Katalogga",
-    allCatalog: "Butun katalog",
+    allCatalog: "Orqaga",
     categoryLabel: "Toifa",
     brandLabel: "Brend",
     availabilityLabel: "Mavjudligi",

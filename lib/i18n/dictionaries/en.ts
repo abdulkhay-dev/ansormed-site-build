@@ -472,7 +472,7 @@ const en: Dictionary = {
     notFoundText:
       "It may no longer be available. Return to the catalog or get in touch with us.",
     backToCatalog: "To the catalog",
-    allCatalog: "Full catalog",
+    allCatalog: "Back",
     categoryLabel: "Category",
     brandLabel: "Brand",
     availabilityLabel: "Availability",
