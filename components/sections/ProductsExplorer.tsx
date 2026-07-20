@@ -32,6 +32,11 @@ import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
+import {
+  armCatalogRestore,
+  consumeCatalogState,
+  saveCatalogState,
+} from "@/lib/catalog-state";
 import { categorySortRank, cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
@@ -99,10 +104,31 @@ export function ProductsExplorer({
     };
   }, []);
 
-  // Deep-link по категории (?category=...).
+  // Последние применённые фильтры — чтобы отличать реальную смену фильтра
+  // пользователем от восстановления состояния при возврате из карточки.
+  const lastFilterRef = useRef({ active: initialCategory, debounced: "" });
+  // Значения, которых ждём после восстановления: пока они не применились,
+  // страницу не сбрасываем.
+  const pendingRestoreRef = useRef<{ active: string; debounced: string } | null>(null);
+  const restoredRef = useRef(false);
+
+  // Deep-link по категории (?category=...) либо возврат из карточки товара.
   useEffect(() => {
     const c = new URLSearchParams(window.location.search).get("category");
-    if (c) setActive(c);
+    if (c) {
+      setActive(c);
+      pendingRestoreRef.current = { active: c, debounced: "" };
+    } else {
+      const saved = consumeCatalogState();
+      if (saved) {
+        setActive(saved.active);
+        setQuery(saved.query);
+        setDebounced(saved.query);
+        setPage(saved.page);
+        pendingRestoreRef.current = { active: saved.active, debounced: saved.query };
+      }
+    }
+    restoredRef.current = true;
   }, []);
 
   // Дебаунс поискового запроса.
@@ -111,10 +137,43 @@ export function ProductsExplorer({
     return () => clearTimeout(id);
   }, [query]);
 
-  // Сброс на 1-ю страницу при смене поиска/категории.
+  // Сброс на 1-ю страницу при смене поиска/категории (но не при восстановлении).
   useEffect(() => {
+    const pending = pendingRestoreRef.current;
+    if (pending) {
+      // Ждём, пока восстановленные фильтры реально применятся, и только тогда
+      // снова разрешаем сброс страницы.
+      if (pending.active === active && pending.debounced === debounced) {
+        pendingRestoreRef.current = null;
+        lastFilterRef.current = { active, debounced };
+      }
+      return;
+    }
+    const last = lastFilterRef.current;
+    if (last.active === active && last.debounced === debounced) return;
+    lastFilterRef.current = { active, debounced };
     setPage(1);
   }, [debounced, active]);
+
+  // Запоминаем состояние каталога для возврата из карточки товара.
+  useEffect(() => {
+    if (!restoredRef.current) return;
+    saveCatalogState({ active, page, query });
+  }, [active, page, query]);
+
+  // Уход в карточку товара разрешает одно восстановление. Клики по ссылкам
+  // перехватывает AppShell (capture + stopPropagation), поэтому onClick на
+  // карточке не долетает до React — слушаем document в той же фазе.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const href = (e.target as HTMLElement | null)
+        ?.closest?.("a")
+        ?.getAttribute("href");
+      if (href?.includes("/product/")) armCatalogRestore();
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   // Контекст «подкатегория → категория» для резолва категории товара.
   const catCtx = useMemo(
