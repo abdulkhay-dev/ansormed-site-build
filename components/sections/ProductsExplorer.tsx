@@ -113,20 +113,23 @@ export function ProductsExplorer({
   const pendingRestoreRef = useRef<{ active: string; debounced: string } | null>(null);
   const restoredRef = useRef(false);
 
-  // Deep-link по категории (?category=...) либо возврат из карточки товара.
+  // Возврат из карточки товара либо deep-link по категории (?category=...).
+  // Возврат приоритетнее: в URL может остаться ?category= от того, как человек
+  // попал в каталог изначально (ссылка из меню), и по «назад» в браузере он
+  // возвращается на тот же адрес — deep-link не должен сбрасывать страницу.
   useEffect(() => {
-    const c = new URLSearchParams(window.location.search).get("category");
-    if (c) {
-      setActive(c);
-      pendingRestoreRef.current = { active: c, debounced: "" };
+    const saved = consumeCatalogState();
+    if (saved) {
+      setActive(saved.active);
+      setQuery(saved.query);
+      setDebounced(saved.query);
+      setPage(saved.page);
+      pendingRestoreRef.current = { active: saved.active, debounced: saved.query };
     } else {
-      const saved = consumeCatalogState();
-      if (saved) {
-        setActive(saved.active);
-        setQuery(saved.query);
-        setDebounced(saved.query);
-        setPage(saved.page);
-        pendingRestoreRef.current = { active: saved.active, debounced: saved.query };
+      const c = new URLSearchParams(window.location.search).get("category");
+      if (c) {
+        setActive(c);
+        pendingRestoreRef.current = { active: c, debounced: "" };
       }
     }
     restoredRef.current = true;
