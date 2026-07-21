@@ -28,6 +28,7 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Icon } from "@/components/ui/Icon";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { armCatalogRestore } from "@/lib/catalog-state";
 import { cn, formatPrice, iconForCategory } from "@/lib/utils";
 
 type State =
@@ -67,6 +68,21 @@ export default function ProductView({ slug }: { slug: string }) {
       cancelled = true;
     };
   }, [slug]);
+
+  // «Назад» всегда возвращает в каталог туда, где человек его оставил, даже
+  // если в карточку он попал не из каталога (главная, поиск, прямая ссылка).
+  // Клики по ссылкам перехватывает AppShell (capture + stopPropagation),
+  // поэтому onClick до React не долетает — слушаем document в той же фазе.
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const href = (e.target as HTMLElement | null)
+        ?.closest?.("a")
+        ?.getAttribute("href");
+      if (href && /\/products\/?$/.test(href.split("?")[0])) armCatalogRestore();
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   // SEO из API: заголовок вкладки и meta-description.
   useEffect(() => {
