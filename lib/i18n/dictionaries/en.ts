@@ -103,6 +103,12 @@ const en: Dictionary = {
       viewAll: "Full catalog",
       cardCta: "View",
     },
+    newProducts: {
+      eyebrow: "New arrivals",
+      title: "Recently added equipment",
+      subtitle: "Products we have added to the catalog just recently.",
+      viewAll: "Full catalog",
+    },
     blog: {
       eyebrow: "Blog",
       title: "Medical-tech expertise and trends",

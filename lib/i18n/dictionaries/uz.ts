@@ -103,6 +103,12 @@ const uz: Dictionary = {
       viewAll: "Butun katalog",
       cardCta: "Ko'rish",
     },
+    newProducts: {
+      eyebrow: "Yangiliklar",
+      title: "Yangi kelgan mahsulotlar",
+      subtitle: "Katalogga yaqinda qo'shilgan uskunalar.",
+      viewAll: "Butun katalog",
+    },
     blog: {
       eyebrow: "Blog",
       title: "Tibbiy texnika ekspertizasi va trendlari",

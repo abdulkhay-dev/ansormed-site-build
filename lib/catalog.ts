@@ -27,6 +27,10 @@ export interface LocalProduct {
   /** SEO-мета (общая, не по языкам). */
   seo: { title: string; description: string; keywords: string };
   available: boolean;
+  /** Дата добавления товара (ISO), либо null. */
+  createdAt: string | null;
+  /** Товар добавлен недавно — показываем бейдж «NEW». */
+  isNew: boolean;
 }
 
 /** Категория, локализованная под язык. */
@@ -73,6 +77,17 @@ export function isProductVisible(p: ProductOut): boolean {
   return p.is_active !== false;
 }
 
+/** Сколько дней товар считается новинкой (бейдж «NEW» + блок на главной). */
+export const NEW_PRODUCT_DAYS = 7;
+
+/** Товар добавлен не раньше, чем NEW_PRODUCT_DAYS назад. */
+export function isNewProduct(createdAt: string | null | undefined): boolean {
+  if (!createdAt) return false;
+  const t = Date.parse(createdAt);
+  if (Number.isNaN(t)) return false;
+  return Date.now() - t <= NEW_PRODUCT_DAYS * 24 * 60 * 60 * 1000;
+}
+
 export function localizeProduct(
   p: ProductOut,
   lang: Locale,
@@ -116,6 +131,8 @@ export function localizeProduct(
       keywords: p.seo_keywords ?? "",
     },
     available: p.is_active !== false,
+    createdAt: p.created_at ?? null,
+    isNew: isNewProduct(p.created_at),
   };
 }
 

@@ -28,6 +28,7 @@ import {
   type LocalProduct,
 } from "@/lib/catalog";
 import { MediaVisual } from "@/components/ui/MediaVisual";
+import { NewBadge } from "@/components/ui/NewBadge";
 import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
@@ -519,6 +520,7 @@ function CatalogCard({ product }: { product: LocalProduct }) {
             className="h-full w-full"
           />
         )}
+        {product.isNew && <NewBadge className="absolute left-4 top-4" />}
         <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full glass-strong text-ink-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent">
           <ArrowUpRight className="h-4 w-4" />
         </span>

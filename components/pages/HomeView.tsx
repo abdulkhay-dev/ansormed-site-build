@@ -11,6 +11,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { StatCard } from "@/components/cards/FeatureCard";
 import { CategoryCard } from "@/components/cards/CategoryCard";
 import { LatestPosts } from "@/components/sections/LatestPosts";
+import { LatestProducts } from "@/components/sections/LatestProducts";
 import { ButtonLink } from "@/components/ui/Button";
 import { getCategories, type Category } from "@/lib/data/categories";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
@@ -45,6 +46,27 @@ export default function HomeView() {
             subtitle={dict.home.advantages.subtitle}
           />
           <LogoMarquee />
+        </Container>
+      </section>
+
+      {/* Новинки каталога — товары, добавленные за последнюю неделю */}
+      <section className="relative py-20 md:py-28">
+        <Container>
+          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+            <SectionHeading
+              align="left"
+              eyebrow={dict.home.newProducts.eyebrow}
+              title={<>{dict.home.newProducts.title}</>}
+              subtitle={dict.home.newProducts.subtitle}
+            />
+            <Reveal>
+              <ButtonLink href="/products" variant="secondary">
+                {dict.home.newProducts.viewAll}
+                <ArrowRight className="h-4 w-4" />
+              </ButtonLink>
+            </Reveal>
+          </div>
+          <LatestProducts />
         </Container>
       </section>
 
