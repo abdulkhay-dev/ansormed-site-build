@@ -23,14 +23,14 @@ import { RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { formatPrice, iconForCategory } from "@/lib/utils";
 
-/** Сколько новинок показываем максимум и сколько добираем, если новых мало. */
-const MAX_ITEMS = 8;
-const MIN_ITEMS = 4;
+/** Сколько товаров показываем в блоке новинок на главной. */
+const ITEMS = 5;
 
 /**
- * Блок новинок на главной. Показываем товары, добавленные за последнюю неделю
- * (см. NEW_PRODUCT_DAYS) — так новинка гарантированно висит на главной минимум
- * неделю. Если свежих мало, добираем самыми последними, чтобы блок не пустовал.
+ * Блок новинок на главной — самые последние добавленные товары. Свежие (моложе
+ * NEW_PRODUCT_DAYS) идут первыми и помечены бейджем «NEW», так что новинка
+ * гарантированно висит на главной минимум неделю; если свежих меньше пяти,
+ * блок добирается предыдущими товарами и не пустует.
  */
 export function LatestProducts() {
   const lang = useLang();
@@ -50,12 +50,7 @@ export function LatestProducts() {
           .filter((p) => isProductVisible(p))
           .map((p) => localizeProduct(p, lang, ctx))
           .sort((a, b) => Date.parse(b.createdAt ?? "") - Date.parse(a.createdAt ?? ""));
-        const fresh = sorted.filter((p) => p.isNew);
-        setItems(
-          fresh.length >= MIN_ITEMS
-            ? fresh.slice(0, MAX_ITEMS)
-            : sorted.slice(0, MIN_ITEMS),
-        );
+        setItems(sorted.slice(0, ITEMS));
       })
       .catch(() => {});
     return () => {
@@ -66,7 +61,7 @@ export function LatestProducts() {
   if (items.length === 0) return null;
 
   return (
-    <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {items.map((p) => (
         <RevealItem key={p.id}>
           <NewProductCard product={p} />
