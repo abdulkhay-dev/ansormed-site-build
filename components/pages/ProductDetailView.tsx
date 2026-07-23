@@ -26,6 +26,7 @@ import { Container } from "@/components/ui/Section";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
+import { Prose, looksLikeHtml } from "@/components/ui/Prose";
 import { Icon } from "@/components/ui/Icon";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { armCatalogRestore } from "@/lib/catalog-state";
@@ -178,11 +179,14 @@ export default function ProductView({ slug }: { slug: string }) {
               )}
             </div>
 
-            {p.description && (
-              <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-muted">
-                {p.description}
-              </p>
-            )}
+            {p.description &&
+              (looksLikeHtml(p.description) ? (
+                <Prose html={p.description} className="mt-5" />
+              ) : (
+                <p className="mt-5 whitespace-pre-line leading-relaxed text-ink-muted">
+                  {p.description}
+                </p>
+              ))}
 
             {p.tags.length > 0 && (
               <div className="mt-5 flex flex-wrap gap-2">

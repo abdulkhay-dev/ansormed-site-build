@@ -27,6 +27,7 @@ import {
   buildCategoryContext,
   type LocalProduct,
 } from "@/lib/catalog";
+import { plainText } from "@/lib/blog";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { NewBadge } from "@/components/ui/NewBadge";
 import { Icon } from "@/components/ui/Icon";
@@ -281,7 +282,7 @@ export function ProductsExplorer({
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
+        plainText(p.description).toLowerCase().includes(q)
       );
     });
   }, [products, active, activeSubId, debounced]);

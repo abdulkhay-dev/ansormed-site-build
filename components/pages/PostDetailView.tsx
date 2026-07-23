@@ -5,6 +5,7 @@ import { ArrowLeft, ChevronRight, Loader2, Newspaper } from "lucide-react";
 import { getPostBySlug, type ApiBlogPost } from "@/lib/api";
 import { localizePost, plainText } from "@/lib/blog";
 import { Container } from "@/components/ui/Section";
+import { Prose } from "@/components/ui/Prose";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
@@ -118,10 +119,7 @@ export default function PostView({ slug }: { slug: string }) {
             </div>
           )}
 
-          <div
-            className="mt-8 leading-relaxed text-ink-muted [&_a]:text-accent [&_a]:underline [&_h2]:mt-8 [&_h2]:font-display [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-ink [&_h3]:mt-6 [&_h3]:font-display [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-ink [&_img]:my-6 [&_img]:rounded-2xl [&_li]:mb-1.5 [&_li]:ml-5 [&_li]:list-disc [&_p]:mb-4 [&_ul]:mb-4"
-            dangerouslySetInnerHTML={{ __html: content ?? "" }}
-          />
+          <Prose html={content ?? ""} className="mt-8" />
 
           {p.images.length > 0 && (
             <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
