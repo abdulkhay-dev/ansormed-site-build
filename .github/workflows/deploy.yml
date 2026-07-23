@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+# Только один деплой одновременно: новый пуш отменяет предыдущий,
+# иначе параллельные прогоны гонятся за rm -rf dist + upload и старая
+# сборка может перезатереть свежую.
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
