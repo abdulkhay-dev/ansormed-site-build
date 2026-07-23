@@ -77,13 +77,16 @@ export function isProductVisible(p: ProductOut): boolean {
   return p.is_active !== false;
 }
 
-/** Сколько дней товар считается новинкой (бейдж «NEW» + блок на главной). */
+/** Сколько дней товар считается новинкой, если бэкенд не прислал is_new. */
 export const NEW_PRODUCT_DAYS = 7;
 
-/** Товар добавлен не раньше, чем NEW_PRODUCT_DAYS назад. */
-export function isNewProduct(createdAt: string | null | undefined): boolean {
-  if (!createdAt) return false;
-  const t = Date.parse(createdAt);
+/**
+ * Новинка ли товар. Приоритет — флаг is_new из админки; если поля нет
+ * (старые ответы), падаем на расчёт по дате created_at.
+ */
+export function isNewProduct(p: ProductOut): boolean {
+  if (typeof p.is_new === "boolean") return p.is_new;
+  const t = Date.parse(p.created_at ?? "");
   if (Number.isNaN(t)) return false;
   return Date.now() - t <= NEW_PRODUCT_DAYS * 24 * 60 * 60 * 1000;
 }
@@ -132,7 +135,7 @@ export function localizeProduct(
     },
     available: p.is_active !== false,
     createdAt: p.created_at ?? null,
-    isNew: isNewProduct(p.created_at),
+    isNew: isNewProduct(p),
   };
 }
 

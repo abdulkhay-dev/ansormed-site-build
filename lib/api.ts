@@ -96,6 +96,8 @@ export interface ProductOut {
   video_url: string | null;
   tags: string[];
   is_active: boolean;
+  /** Признак новинки из админки. У старых ответов может отсутствовать. */
+  is_new?: boolean;
   created_at: string;
   updated_at: string;
   seo_title: string;
