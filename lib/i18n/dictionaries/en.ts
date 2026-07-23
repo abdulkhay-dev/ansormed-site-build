@@ -488,6 +488,7 @@ const en: Dictionary = {
     priceOnRequest: "Price on request",
     requestPrice: "Request a price",
     contact: "Contact",
+    downloadPdf: "Download PDF",
     features: [
       "Delivery, installation and commissioning",
       "Staff training",

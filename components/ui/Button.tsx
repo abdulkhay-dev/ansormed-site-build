@@ -22,6 +22,16 @@ const sizes: Record<Size, string> = {
   lg: "h-13 px-7 text-base",
 };
 
+/** Классы кнопки — для случаев, когда нужен не button/LocaleLink, а свой тег
+ * (например, обычная <a> для кросс-доменного скачивания файла). */
+export function buttonClasses(
+  variant: Variant = "primary",
+  size: Size = "md",
+  className?: string,
+): string {
+  return cn(base, variants[variant], sizes[size], className);
+}
+
 interface CommonProps {
   variant?: Variant;
   size?: Size;

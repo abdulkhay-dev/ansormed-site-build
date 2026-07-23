@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   ChevronRight,
+  Download,
   FileText,
   Phone,
   Check,
@@ -14,6 +15,7 @@ import {
   getProductBySlug,
   listCategories,
   listSubcategories,
+  productPdfUrl,
   type ProductOut,
 } from "@/lib/api";
 import {
@@ -23,7 +25,7 @@ import {
   type LocalProduct,
 } from "@/lib/catalog";
 import { Container } from "@/components/ui/Section";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Prose, looksLikeHtml } from "@/components/ui/Prose";
@@ -228,6 +230,16 @@ export default function ProductView({ slug }: { slug: string }) {
                 {dict.product.contact}
               </ButtonLink>
             </div>
+
+            <a
+              href={productPdfUrl(p.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClasses("ghost", "md", "mt-4 self-start px-0")}
+            >
+              <Download className="h-4 w-4" />
+              {dict.product.downloadPdf}
+            </a>
 
             <ul className="mt-7 flex flex-col gap-2.5 text-sm text-ink-muted">
               {dict.product.features.map((f) => (

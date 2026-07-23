@@ -24,6 +24,15 @@ export function mediaUrl(path?: string | null): string | null {
   return `${MEDIA_BASE}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
+/**
+ * Прямой URL для скачивания PDF-карточки товара — /api/products/{id}/pdf/.
+ * Ведёт на реальный бэкенд (не dev-прокси): это обычная <a>-навигация к файлу,
+ * а не fetch, поэтому CORS не мешает, и ссылка работает в статическом экспорте.
+ */
+export function productPdfUrl(id: number): string {
+  return `${MEDIA_BASE}/api/products/${id}/pdf/`;
+}
+
 /* ---------- Типы ответов API (openapi schema) ---------- */
 
 /** DRF-пагинация: обёртка над списками (?page=N). */

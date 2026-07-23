@@ -488,6 +488,7 @@ const uz: Dictionary = {
     priceOnRequest: "Narxi so'rov asosida",
     requestPrice: "Narx so'rash",
     contact: "Bog'lanish",
+    downloadPdf: "PDF yuklab olish",
     features: [
       "Yetkazib berish, o'rnatish va ishga tushirish",
       "Xodimlarni o'qitish",

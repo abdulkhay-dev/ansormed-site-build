@@ -485,6 +485,7 @@ const ru = {
     priceOnRequest: "Цена по запросу",
     requestPrice: "Запросить цену",
     contact: "Связаться",
+    downloadPdf: "Скачать PDF",
     features: [
       "Доставка, монтаж и ввод в эксплуатацию",
       "Обучение персонала",
