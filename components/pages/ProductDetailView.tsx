@@ -31,6 +31,7 @@ import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Prose, looksLikeHtml } from "@/components/ui/Prose";
 import { Icon } from "@/components/ui/Icon";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { armCatalogRestore } from "@/lib/catalog-state";
 import { cn, formatPrice, iconForCategory } from "@/lib/utils";
 
@@ -221,10 +222,18 @@ export default function ProductView({ slug }: { slug: string }) {
             </div>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href="/contacts" size="lg">
-                <FileText className="h-4 w-4" />
-                {dict.product.requestPrice}
-              </ButtonLink>
+              {/* «Запросить цену» заменено корзиной: заявка теперь оформляется
+                  заказом (POST /api/orders/), а не переходом в контакты. */}
+              <AddToCartButton
+                line={{
+                  kind: "product",
+                  id: p.id,
+                  name: p.name,
+                  slug: p.slug,
+                  image: p.image,
+                  price: p.price,
+                }}
+              />
               <ButtonLink href="/contacts" variant="secondary" size="lg">
                 <Phone className="h-4 w-4" />
                 {dict.product.contact}

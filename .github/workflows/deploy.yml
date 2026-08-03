@@ -31,6 +31,11 @@ jobs:
 
       - name: Build project
         run: npm run build
+        env:
+          # Необязательное переопределение client ID для «Войти через Google».
+          # Рабочий ID зашит в код, секрет нужен только под отдельный проект
+          # Google (стенд/тест). Пустое значение секрета ничего не меняет.
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
 
       - name: Clean old build on server
         uses: appleboy/ssh-action@v1.0.3

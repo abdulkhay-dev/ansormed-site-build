@@ -32,6 +32,7 @@ const en: Dictionary = {
 
   nav: {
     home: "Home",
+    kits: "Kits",
     products: "Products",
     projects: "Projects",
     blog: "Blog",
@@ -51,6 +52,9 @@ const en: Dictionary = {
     closeMenu: "Close menu",
     navLabel: "Navigation",
     mainNavAria: "Main navigation",
+    account: "Account",
+    login: "Sign in",
+    accountAria: "Your account",
   },
 
   search: {
@@ -143,45 +147,30 @@ const en: Dictionary = {
     { value: "1000", suffix: "+", label: "clinics and partners" },
   ],
 
-  values: [
+  principles: [
     {
-      title: "Precision",
-      text: "We match equipment to real clinical needs, not just “by the catalog”.",
+      title: "Discipline",
+      text: "Strong results start with consistent work and order.",
     },
     {
-      title: "Trust",
-      text: "Transparent terms, honest timelines and long-term relationships with clinics.",
+      title: "Honesty and openness",
+      text: "We hold to transparency and reliability in every decision.",
     },
     {
-      title: "Technology",
-      text: "We bring in solutions that set the standard for modern medicine.",
+      title: "Mutual respect",
+      text: "Strong results come from a strong team and partnership built on respect.",
     },
     {
-      title: "Support",
-      text: "We support equipment across its entire lifecycle — from delivery to upgrade.",
-    },
-  ],
-
-  timeline: [
-    {
-      year: "2016",
-      title: "Company founded",
-      text: "Ansor Med begins supplying diagnostic equipment to clinics in Tashkent.",
+      title: "Responsibility",
+      text: "We feel accountable for every project and every device.",
     },
     {
-      year: "2019",
-      title: "In-house service",
-      text: "Launch of an engineering team and spare-parts stock for fast response.",
+      title: "Growth and development",
+      text: "Learning new knowledge and technology is part of how we grow.",
     },
     {
-      year: "2022",
-      title: "Nationwide expansion",
-      text: "Supply and installation of equipment across all regions of Uzbekistan.",
-    },
-    {
-      year: "2026",
-      title: "Focus on neurotechnology",
-      text: "We are developing neurosurgery, neuroimaging and robotic rehabilitation.",
+      title: "The client comes first",
+      text: "A client's trust is the greatest value we have.",
     },
   ],
 
@@ -189,28 +178,136 @@ const en: Dictionary = {
     meta: {
       title: "About",
       description:
-        "Ansor Med — a supplier of modern medical equipment in Uzbekistan. The company's history, mission, values and partners.",
+        "Ansor Med — a trusted partner in rehabilitation technology in Uzbekistan. Our purpose, rehabilitation directions, turnkey solutions and values.",
     },
-    header: {
-      eyebrow: "About the company",
-      title: "Technology in the service of health",
+    hero: {
+      eyebrow: "About us · Rehabilitation",
+      title: "A trusted partner in rehabilitation technology",
       subtitle:
-        "Ansor Med is a team of engineers and medical specialists who have equipped Uzbekistan's clinics with world-class equipment for over 5 years.",
+        "Restoring movement, returning to independent living and improving quality of life are the central tasks of modern rehabilitation. This is exactly where ANSOR MED works.",
     },
-    mission: {
-      eyebrow: "Our mission",
-      title: "Making advanced medicine accessible",
-      mediaLabel: "Ansor Med neurotechnology",
-      p1: "We believe the quality of care begins with the equipment. That is why we bring in solutions that set the standard for modern diagnostics, surgery and rehabilitation — and support them across their entire lifecycle.",
-      p2: "From the first consultation to staff training and servicing, we stay alongside the clinic as a technology partner, not just a supplier.",
+    intro: {
+      eyebrow: "Who we are",
+      title: "Advancing rehabilitation in Uzbekistan",
+      mediaLabel: "Ansor Med rehabilitation technology",
+      p1: "We see our core purpose as advancing modern rehabilitation technology in Uzbekistan, bringing international practice into local care and equipping medical institutions with innovative rehabilitation systems.",
+      p2: "That is why every technology we deliver has to serve one thing — improving a person's quality of life.",
+    },
+    manifesto: {
+      eyebrow: "Why we do this",
+      title: "For us, rehabilitation is not just equipment",
+      lines: [
+        "It is the first step after a stroke.",
+        "It is a child's chance to move on their own.",
+        "It is recovery after a severe injury.",
+        "It is a person returning to their everyday life.",
+      ],
+      note: "Behind every project, every device and every partnership stands a person's health.",
+    },
+    goal: {
+      eyebrow: "Our highest goal",
+      title: "Helping people recover and building a healthy future together",
+      text: "Helping people recover through modern medical technology — that is the meaning of what we do.",
+    },
+    rehab: {
+      eyebrow: "Our core direction",
+      title: "Rehabilitation",
+      subtitle:
+        "We deliver turnkey solutions across the following rehabilitation directions.",
+      note: "Our goal is not simply to deliver equipment. We build an effective working environment for clinicians and modern recovery opportunities for patients.",
+      items: [
+        {
+          title: "Neurorehabilitation",
+          text: "Recovery after stroke and central nervous system injury.",
+        },
+        {
+          title: "Orthopedic rehabilitation",
+          text: "Restoring the musculoskeletal system after trauma and surgery.",
+        },
+        {
+          title: "Pediatric rehabilitation",
+          text: "Programs and equipment for children with movement disorders.",
+        },
+        {
+          title: "Sports rehabilitation",
+          text: "Returning athletes to full load after injury.",
+        },
+        {
+          title: "Gait and Balance systems",
+          text: "Analysis and training of gait, balance and stability.",
+        },
+        {
+          title: "Robotic rehabilitation",
+          text: "Robotic systems for intensive, precisely dosed therapy.",
+        },
+        {
+          title: "VR rehabilitation",
+          text: "Virtual reality technology for patient motivation and engagement.",
+        },
+        {
+          title: "Upper and lower limb recovery",
+          text: "Technology for restoring fine motor skills and limb function.",
+        },
+        {
+          title: "Physiotherapy",
+          text: "The full range of physiotherapy equipment.",
+        },
+        {
+          title: "Occupational therapy",
+          text: "Rebuilding everyday living skills and independence.",
+        },
+        {
+          title: "Center design and fit-out",
+          text: "Turnkey rehabilitation centers — from concept to launch.",
+        },
+      ],
+    },
+    solutions: {
+      eyebrow: "Turnkey solutions",
+      title: "Every rehabilitation center is different",
+      text: "So we do not sell ready-made bundles — we design individual solutions around the institution's focus, its patient profile and its development strategy.",
+      steps: [
+        { title: "Needs analysis", text: "We study the institution's tasks and patient profile." },
+        { title: "Project concept", text: "We develop the concept for the future center." },
+        { title: "Equipment selection", text: "We shape the solution around the tasks and the budget." },
+        { title: "Delivery", text: "Logistics and delivery anywhere in the country." },
+        { title: "Installation and commissioning", text: "Installation and handover into daily use." },
+        { title: "Staff training", text: "We prepare the team to work with the technology." },
+        { title: "Warranty and service", text: "We support the equipment across its service life." },
+      ],
+    },
+    other: {
+      eyebrow: "Other directions",
+      title: "Equipping the whole clinic",
+      subtitle:
+        "Rehabilitation remains our core direction, but we take our clients' broader needs into account and deliver solutions in other areas too.",
+      note: "These directions support the rehabilitation ecosystem and let us serve medical institutions end to end.",
+      items: [
+        "Diagnostic equipment",
+        "Operating room fit-out",
+        "Radiology systems",
+        "Intensive care equipment",
+        "Laboratory equipment",
+        "Gynecological equipment",
+        "Medical furniture",
+        "Medical consumables",
+      ],
+    },
+    vision: {
+      eyebrow: "Our vision",
+      title: "A leader in rehabilitation technology in Central Asia",
+      p1: "We aim to make ANSOR MED one of the leading and most trusted companies in rehabilitation technology in Uzbekistan and Central Asia.",
+      p2: "To get there we grow partnerships with the world's advanced manufacturers, bring modern technology into everyday practice and keep raising the knowledge and experience of local specialists.",
+      quote:
+        "Modern rehabilitation should be closer, better and more effective for every single patient.",
     },
     valuesHeading: {
-      eyebrow: "Values",
+      eyebrow: "Our values",
       title: "The principles we build our work on",
     },
-    timelineHeading: {
-      eyebrow: "History",
-      title: "The company's journey",
+    slogan: {
+      label: "Our motto",
+      text: "With ANSOR MED — toward a healthy future",
     },
     partners: {
       eyebrow: "Partners",
@@ -494,6 +591,173 @@ const en: Dictionary = {
       "Staff training",
       "Service support and warranty",
     ],
+  },
+
+  kits: {
+    meta: {
+      title: "Kits",
+      description:
+        "Ready-made Ansor Med equipment kits: turnkey rooms and departments.",
+    },
+    header: {
+      eyebrow: "Kits",
+      title: "Turnkey ready-made sets",
+      subtitle:
+        "Curated equipment sets for a room or a whole department — cheaper than buying the items separately.",
+    },
+    itemsCount: "Items in the kit: {count}",
+    quantity: "× {count}",
+    contents: "What's inside",
+    allKits: "All kits",
+    notFound: "Kit not found",
+    emptyTitle: "Kits are coming soon",
+    emptyText:
+      "We're preparing turnkey sets for rooms and departments. Meanwhile you can build an order from the catalogue.",
+    toCatalog: "Browse catalogue",
+  },
+
+  cart: {
+    meta: { title: "Cart" },
+    header: {
+      eyebrow: "Cart",
+      title: "Your order",
+      subtitle: "Add equipment from the catalogue and submit a request in a couple of clicks.",
+      count: "Items in the order: {count}",
+    },
+    empty: "Your cart is empty. Pick equipment in the catalogue.",
+    toCatalog: "Browse catalogue",
+    add: "Add to cart",
+    addMore: "Add one more",
+    added: "Added",
+    inCart: "Already in the cart",
+    removeAria: "Remove item",
+    decreaseAria: "Decrease quantity",
+    increaseAria: "Increase quantity",
+    clear: "Clear the cart",
+    checkoutTitle: "Checkout",
+    totalLabel: "Total",
+    pricelessNote: "Some items are priced on request — we'll confirm them in the offer.",
+    commentLabel: "Comment",
+    commentPlaceholder: "Timeline, configuration, delivery address…",
+    submit: "Place the order",
+    submitting: "Placing the order…",
+    submitError: "Could not place the order. Please try again.",
+    authRequired: "Sign in to place an order.",
+    loginNote: "Orders are placed from your account — sign in or create one.",
+    loginToOrder: "Sign in and order",
+    note: "Once placed, a specialist will contact you and prepare a commercial offer.",
+    success: {
+      title: "Order placed",
+      text: "We've received your request — a specialist will contact you during business hours.",
+      number: "Order number: #{id}",
+      toAccount: "My orders",
+      toCatalog: "Back to catalogue",
+    },
+  },
+
+  auth: {
+    common: {
+      emailLabel: "Email",
+      emailPlaceholder: "you@clinic.uz",
+      passwordLabel: "Password",
+      passwordPlaceholder: "At least 8 characters",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
+      submitting: "Please wait…",
+      checking: "Checking your session…",
+      genericError: "The request failed. Please try again.",
+      or: "or",
+    },
+    google: {
+      signIn: "Sign in with Google",
+      signUp: "Sign up with Google",
+      loading: "Loading Google sign-in…",
+      failed: "Google sign-in failed. Please try again.",
+      unavailable: "Google sign-in is unavailable right now.",
+    },
+    errors: {
+      emailRequired: "Enter your email",
+      emailFormat: "Check the email format",
+      usernameRequired: "Choose a username",
+      usernameFormat: "Latin letters, digits and @ . + - _ only",
+      passwordRequired: "Enter a password",
+      passwordShort: "Password must be at least 8 characters",
+      passwordMismatch: "Passwords do not match",
+    },
+    login: {
+      meta: {
+        title: "Sign in",
+        description: "Sign in to your Ansor Med account to track your orders.",
+      },
+      header: {
+        eyebrow: "Account",
+        title: "Sign in",
+        subtitle: "Enter your email and password to continue to your account.",
+      },
+      submit: "Sign in",
+      failed: "Wrong email or password.",
+      noAccount: "No account yet?",
+      registerLink: "Create one",
+    },
+    register: {
+      meta: {
+        title: "Sign up",
+        description:
+          "Create an Ansor Med account to track orders and submit requests faster.",
+      },
+      header: {
+        eyebrow: "Account",
+        title: "Create an account",
+        subtitle: "It takes a minute — you'll land straight in your account.",
+      },
+      usernameLabel: "Username",
+      usernamePlaceholder: "ivanov",
+      usernameHint: "Latin letters, digits and @ . + - _",
+      firstNameLabel: "First name",
+      firstNamePlaceholder: "Ivan",
+      lastNameLabel: "Last name",
+      lastNamePlaceholder: "Ivanov",
+      optional: "(optional)",
+      passwordConfirmLabel: "Repeat password",
+      submit: "Create account",
+      haveAccount: "Already have an account?",
+      loginLink: "Sign in",
+    },
+    account: {
+      meta: {
+        title: "Account",
+        description: "Profile and orders in your Ansor Med account.",
+      },
+      header: {
+        eyebrow: "Account",
+        title: "Hello, {name}",
+        subtitle: "Your profile details and orders in one place.",
+      },
+      profileTitle: "Profile",
+      nameLabel: "Name",
+      emailLabel: "Email",
+      usernameLabel: "Username",
+      empty: "—",
+      logout: "Sign out",
+      ordersTitle: "My orders",
+      ordersLoading: "Loading orders…",
+      ordersEmpty: "No orders yet — start with the equipment catalogue.",
+      ordersEmptyCta: "Browse catalogue",
+      ordersError: "Could not load your orders.",
+      retry: "Try again",
+      orderNumber: "Order #{id}",
+      totalLabel: "Total",
+      itemsLabel: "Items",
+      commentLabel: "Comment",
+      offerFile: "Download the offer",
+      quantity: "× {count}",
+      statuses: {
+        pending: "Processing",
+        confirmed: "Confirmed",
+        rejected: "Rejected",
+        completed: "Completed",
+      },
+    },
   },
 
   footer: {

@@ -16,7 +16,7 @@ const PROXY_PORT = Number(process.env.DEV_PROXY_PORT || 8787);
 const proxy = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Accept");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Accept,Authorization");
   if (req.method === "OPTIONS") {
     res.writeHead(204);
     res.end();
@@ -29,7 +29,15 @@ const proxy = http.createServer((req, res) => {
       const body = chunks.length ? Buffer.concat(chunks) : undefined;
       const upstream = await fetch(API_TARGET + req.url, {
         method: req.method,
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          // Bearer-токен личного кабинета: без проброса /api/auth/me/ и
+          // /api/orders/ отвечают 401 (на проде запросы идут напрямую).
+          ...(req.headers.authorization
+            ? { Authorization: req.headers.authorization }
+            : {}),
+        },
         body: req.method === "GET" || req.method === "HEAD" ? undefined : body,
       });
       const text = await upstream.text();

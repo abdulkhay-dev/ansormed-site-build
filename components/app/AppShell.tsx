@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
-import { Preloader } from "@/components/layout/Preloader";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CartProvider } from "@/components/cart/CartProvider";
+// Прелоадер временно отключён — см. место использования ниже.
+// import { Preloader } from "@/components/layout/Preloader";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ContactFab } from "@/components/layout/ContactFab";
@@ -34,13 +37,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // usePathname, и приложение перерисовывается на месте.
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+      if (
+        e.defaultPrevented ||
+        e.button !== 0 ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.shiftKey ||
+        e.altKey
+      ) {
         return;
       }
-      const anchor = (e.target as HTMLElement | null)?.closest?.("a");
+      const el = e.target as HTMLElement | null;
+      // Интерактивные элементы внутри ссылки-карточки (кнопка «в корзину»)
+      // сами гасят переход в своём onClick — не перехватываем их клик.
+      if (el?.closest?.("[data-no-nav]")) return;
+      const anchor = el?.closest?.("a");
       if (!anchor) return;
       const target = anchor.getAttribute("target");
-      if ((target && target !== "_self") || anchor.hasAttribute("download")) return;
+      if ((target && target !== "_self") || anchor.hasAttribute("download"))
+        return;
       const href = anchor.getAttribute("href");
       if (!href || href.startsWith("#")) return;
       let url: URL;
@@ -55,7 +70,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       e.preventDefault();
       e.stopPropagation();
       const dest = url.pathname + url.search + url.hash;
-      const current = window.location.pathname + window.location.search + window.location.hash;
+      const current =
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
       if (dest !== current) {
         window.history.pushState(null, "", dest);
         window.scrollTo({ top: 0, behavior: "instant" });
@@ -80,20 +98,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <I18nProvider lang={lang} dict={dict}>
-      <SiteJsonLd lang={lang} dict={dict} />
-      <Preloader />
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
-      >
-        {dict.skipToContent}
-      </a>
-      <Header categories={categories} />
-      <main id="main" className="flex-1">
-        {children}
-      </main>
-      <Footer categories={categories} />
-      <ContactFab />
+      <AuthProvider>
+        <CartProvider>
+          <SiteJsonLd lang={lang} dict={dict} />
+          {/* Прелоадер временно отключён (мешает отладке входа) — вернуть строку:
+            <Preloader /> */}
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-white"
+          >
+            {dict.skipToContent}
+          </a>
+          <Header categories={categories} />
+          <main id="main" className="flex-1">
+            {children}
+          </main>
+          <Footer categories={categories} />
+          <ContactFab />
+        </CartProvider>
+      </AuthProvider>
     </I18nProvider>
   );
 }

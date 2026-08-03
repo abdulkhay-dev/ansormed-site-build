@@ -1,5 +1,11 @@
 import type { Locale } from "@/lib/i18n";
-import { mediaUrl, type CategoryOut, type ProductOut, type SubCategory } from "@/lib/api";
+import {
+  mediaUrl,
+  type CategoryOut,
+  type KitOut,
+  type ProductOut,
+  type SubCategory,
+} from "@/lib/api";
 
 /** Товар, локализованный под язык и готовый к отрисовке. */
 export interface LocalProduct {
@@ -136,6 +142,57 @@ export function localizeProduct(
     available: p.is_active !== false,
     createdAt: p.created_at ?? null,
     isNew: isNewProduct(p),
+  };
+}
+
+/** Комплект, локализованный под язык и готовый к отрисовке. */
+export interface LocalKit {
+  id: number;
+  slug: string;
+  name: string;
+  description: string;
+  /** Итоговая цена комплекта, либо null — «по запросу». */
+  price: number | null;
+  /** Скидка в процентах, либо null. */
+  discountPercent: number | null;
+  image: string | null;
+  tags: string[];
+  items: { product: LocalProduct; quantity: number }[];
+  /** Сумма позиций по отдельности — показываем как «выгоду», если она больше цены. */
+  itemsTotal: number | null;
+}
+
+export function localizeKit(k: KitOut, lang: Locale, ctx?: CategoryContext): LocalKit {
+  const items = (k.items ?? []).map((i) => ({
+    product: localizeProduct(i.product, lang, ctx),
+    quantity: i.quantity && i.quantity > 0 ? i.quantity : 1,
+  }));
+  // Сумма позиций считается только если цена известна у всех товаров.
+  const everyPriced = items.length > 0 && items.every((i) => i.product.price != null);
+  const itemsTotal = everyPriced
+    ? items.reduce((sum, i) => sum + (i.product.price ?? 0) * i.quantity, 0)
+    : null;
+
+  return {
+    id: k.id,
+    slug: k.slug,
+    name: byLang(lang, k.name_ru, k.name_uz, k.name_en),
+    description: byLang(
+      lang,
+      k.description_ru ?? "",
+      k.description_uz ?? "",
+      k.description_en ?? "",
+    ),
+    price: toPrice(k.final_price),
+    discountPercent: toPrice(k.discount),
+    image: mediaUrl(k.cover_image),
+    // tags у комплекта — одна строка через запятую (в отличие от товара).
+    tags: (k.tags ?? "")
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean),
+    items,
+    itemsTotal,
   };
 }
 

@@ -32,6 +32,7 @@ const uz: Dictionary = {
 
   nav: {
     home: "Bosh sahifa",
+    kits: "Komplektlar",
     products: "Mahsulotlar",
     projects: "Loyihalar",
     blog: "Blog",
@@ -51,6 +52,9 @@ const uz: Dictionary = {
     closeMenu: "Menyuni yopish",
     navLabel: "Navigatsiya",
     mainNavAria: "Asosiy navigatsiya",
+    account: "Kabinet",
+    login: "Kirish",
+    accountAria: "Shaxsiy kabinet",
   },
 
   search: {
@@ -143,45 +147,30 @@ const uz: Dictionary = {
     { value: "1000", suffix: "+", label: "klinika va hamkor" },
   ],
 
-  values: [
+  principles: [
     {
-      title: "Aniqlik",
-      text: "Uskunalarni «katalog bo'yicha» emas, real klinik vazifalarga moslab tanlaymiz.",
+      title: "Intizom",
+      text: "Yuqori natija izchil mehnat va tartib-intizomdan boshlanadi.",
     },
     {
-      title: "Ishonch",
-      text: "Shaffof shartlar, halol muddatlar va klinikalar bilan uzoq muddatli munosabatlar.",
+      title: "Rostgo'ylik va halollik",
+      text: "Har bir qarorimizda ochiqlik va ishonchlilikka amal qilamiz.",
     },
     {
-      title: "Texnologiklik",
-      text: "Zamonaviy tibbiyot standartini belgilaydigan yechimlarni olib kelamiz.",
+      title: "O'zaro hurmat",
+      text: "Kuchli natijalar kuchli jamoa va hurmatga asoslangan hamkorlik orqali yaratiladi.",
     },
     {
-      title: "Qo'llab-quvvatlash",
-      text: "Uskunalarni butun hayot tsikli davomida — yetkazib berishdan yangilanishgacha — kuzatib boramiz.",
-    },
-  ],
-
-  timeline: [
-    {
-      year: "2016",
-      title: "Kompaniyaning tashkil etilishi",
-      text: "Ansor Med Toshkent klinikalariga diagnostika uskunalarini yetkazib berishni boshlaydi.",
+      title: "Mas'uliyat",
+      text: "Har bir loyiha va har bir uskuna uchun javobgarlikni his qilamiz.",
     },
     {
-      year: "2019",
-      title: "O'z servis xizmati",
-      text: "Tez javob berish uchun muhandislik xizmati va ehtiyot qismlar omborining ishga tushirilishi.",
+      title: "O'sish va rivojlanish",
+      text: "Yangi bilim va texnologiyalarni o'rganish — rivojlanishimizning ajralmas qismi.",
     },
     {
-      year: "2022",
-      title: "Mamlakat bo'ylab kengayish",
-      text: "O'zbekistonning barcha hududlarida uskunalarni yetkazib berish va o'rnatish.",
-    },
-    {
-      year: "2026",
-      title: "Neyrotexnologiyalarga e'tibor",
-      text: "Neyroxirurgiya, neyrovizualizatsiya va robotlashtirilgan reabilitatsiya yo'nalishini rivojlantiramiz.",
+      title: "Mijoz — birinchi o'rinda",
+      text: "Mijozning ishonchi biz uchun eng katta qadriyatdir.",
     },
   ],
 
@@ -189,28 +178,136 @@ const uz: Dictionary = {
     meta: {
       title: "Kompaniya haqida",
       description:
-        "Ansor Med — O'zbekistonda zamonaviy tibbiy uskunalar yetkazib beruvchi. Kompaniyaning tarixi, missiyasi, qadriyatlari va hamkorlari.",
+        "Ansor Med — O'zbekistonda reabilitatsiya texnologiyalari bo'yicha ishonchli hamkor. Kompaniyaning maqsadi, yo'nalishlari, kompleks yechimlari va qadriyatlari.",
     },
-    header: {
-      eyebrow: "Kompaniya haqida",
-      title: "Sog'liq xizmatidagi texnologiyalar",
+    hero: {
+      eyebrow: "Kompaniya haqida · Reabilitatsiya",
+      title: "Reabilitatsiya texnologiyalari bo'yicha ishonchli hamkor",
       subtitle:
-        "Ansor Med — 5 yildan ortiq vaqt davomida O'zbekiston klinikalarini jahon darajasidagi uskunalar bilan jihozlab kelayotgan muhandislar va tibbiyot mutaxassislari jamoasi.",
+        "Harakatni qayta tiklash, mustaqil hayotga qaytish va insonning hayot sifatini yaxshilash — zamonaviy reabilitatsiyaning eng muhim vazifalaridir. ANSOR MED aynan shu yo'nalishda faoliyat yuritadi.",
     },
-    mission: {
-      eyebrow: "Bizning missiyamiz",
-      title: "Ilg'or tibbiyotni hammabop qilish",
-      mediaLabel: "Ansor Med neyrotexnologiyalari",
-      p1: "Biz tibbiy yordam sifati uskunalardan boshlanishiga ishonamiz. Shuning uchun zamonaviy diagnostika, jarrohlik va reabilitatsiya standartini belgilaydigan yechimlarni olib kelamiz va ularni butun hayot tsikli davomida kuzatib boramiz.",
-      p2: "Birinchi maslahatdan tortib xodimlarni o'qitish va servis xizmatigacha — biz klinika yonida shunchaki yetkazib beruvchi emas, balki texnologik hamkor sifatida qolamiz.",
+    intro: {
+      eyebrow: "Biz kimmiz",
+      title: "O'zbekistonda reabilitatsiyani rivojlantiramiz",
+      mediaLabel: "Ansor Med reabilitatsiya texnologiyalari",
+      p1: "Biz O'zbekistonda zamonaviy reabilitatsiya texnologiyalarini rivojlantirish, xalqaro tajribalarni amaliyotga olib kirish hamda tibbiyot muassasalarini innovatsion reabilitatsiya uskunalari bilan ta'minlashni o'z faoliyatimizning asosiy yo'nalishi deb bilamiz.",
+      p2: "Shu sababli biz yetkazib berayotgan har bir texnologiya insonning hayot sifatini yaxshilashga xizmat qilishi kerak, deb hisoblaymiz.",
+    },
+    manifesto: {
+      eyebrow: "Ishimiz mazmuni",
+      title: "Biz uchun reabilitatsiya — bu faqat uskunalar emas",
+      lines: [
+        "Bu insultdan keyingi ilk qadam.",
+        "Bu bolalarning mustaqil harakat qilish imkoniyati.",
+        "Bu og'ir jarohatdan keyingi tiklanish.",
+        "Bu insonning yana odatiy hayotiga qaytishi.",
+      ],
+      note: "Har bir loyiha, har bir uskuna va har bir hamkorlik ortida inson salomatligi turishini unutmaymiz.",
+    },
+    goal: {
+      eyebrow: "Oliy maqsadimiz",
+      title: "Insonlarning sog'ayishiga yordam berish va sog'lom kelajakni birgalikda bunyod etish",
+      text: "Zamonaviy tibbiy texnologiyalar orqali insonlarning sog'ayishiga yordam berish — bu bizning faoliyatimizning mazmunidir.",
+    },
+    rehab: {
+      eyebrow: "Asosiy yo'nalishimiz",
+      title: "Reabilitatsiya",
+      subtitle:
+        "Biz quyidagi reabilitatsiya yo'nalishlari bo'yicha kompleks yechimlarni taklif qilamiz.",
+      note: "Bizning maqsadimiz faqat uskunani yetkazib berish emas. Biz shifokorlar uchun samarali ishlash muhitini, bemorlar uchun esa zamonaviy tiklanish imkoniyatlarini yaratishga intilamiz.",
+      items: [
+        {
+          title: "Neyroreabilitatsiya",
+          text: "Insult va markaziy asab tizimi shikastlanishidan keyingi tiklanish.",
+        },
+        {
+          title: "Ortopedik reabilitatsiya",
+          text: "Jarohat va operatsiyalardan keyin tayanch-harakat tizimini tiklash.",
+        },
+        {
+          title: "Pediatrik reabilitatsiya",
+          text: "Harakat buzilishlari bo'lgan bolalar uchun dasturlar va uskunalar.",
+        },
+        {
+          title: "Sport reabilitatsiyasi",
+          text: "Sportchilarni jarohatdan so'ng yuklamalarga qaytarish.",
+        },
+        {
+          title: "Gait va Balance tizimlari",
+          text: "Yurish, muvozanat va barqarorlikni tahlil qilish va mashq qildirish.",
+        },
+        {
+          title: "Robotlashtirilgan reabilitatsiya",
+          text: "Intensiv va aniq terapiya uchun robotlashtirilgan komplekslar.",
+        },
+        {
+          title: "VR reabilitatsiyasi",
+          text: "Bemorning motivatsiyasi uchun virtual reallik texnologiyalari.",
+        },
+        {
+          title: "Qo'l va oyoq funksiyalarini tiklash",
+          text: "Mayda motorika va oyoq-qo'l funksiyalarini tiklash texnologiyalari.",
+        },
+        {
+          title: "Fizioterapiya",
+          text: "Fizioterapiya uskunalarining to'liq spektri.",
+        },
+        {
+          title: "Ergoterapiya",
+          text: "Kundalik hayot ko'nikmalari va mustaqillikni qaytarish.",
+        },
+        {
+          title: "Markazlarni loyihalash va jihozlash",
+          text: "Kalit topshirish asosida reabilitatsiya markazlari — konsepsiyadan ishga tushirishgacha.",
+        },
+      ],
+    },
+    solutions: {
+      eyebrow: "Kompleks yechimlar",
+      title: "Har bir reabilitatsiya markazi o'ziga xos",
+      text: "Shuning uchun biz tayyor to'plamlarni emas, balki muassasaning yo'nalishi, bemorlar profili va rivojlanish strategiyasiga mos individual yechimlarni ishlab chiqamiz.",
+      steps: [
+        { title: "Ehtiyojni tahlil qilish", text: "Muassasa vazifalari va bemorlar profilini o'rganamiz." },
+        { title: "Loyiha konsepsiyasi", text: "Bo'lajak markaz konsepsiyasini ishlab chiqamiz." },
+        { title: "Uskunalarni tanlash", text: "Vazifa va byudjetga mos yechim tarkibini shakllantiramiz." },
+        { title: "Yetkazib berish", text: "Mamlakatning istalgan nuqtasiga logistika va yetkazib berish." },
+        { title: "Montaj va ishga tushirish", text: "Uskunalarni o'rnatish va ekspluatatsiyaga topshirish." },
+        { title: "Mutaxassislarni o'qitish", text: "Jamoani texnologiyalar bilan ishlashga tayyorlaymiz." },
+        { title: "Kafolat va servis", text: "Uskunani butun xizmat muddati davomida kuzatib boramiz." },
+      ],
+    },
+    other: {
+      eyebrow: "Boshqa yo'nalishlar",
+      title: "Klinikani kompleks jihozlash",
+      subtitle:
+        "Reabilitatsiya asosiy yo'nalishimiz bo'lib qolmoqda, ammo mijozlarimizning kompleks ehtiyojlarini hisobga olgan holda boshqa sohalarda ham yechimlar taqdim etamiz.",
+      note: "Bu yo'nalishlar reabilitatsiya ekotizimini to'liq qo'llab-quvvatlash va tibbiyot muassasalariga kompleks xizmat ko'rsatish maqsadida amalga oshiriladi.",
+      items: [
+        "Diagnostika uskunalari",
+        "Operatsion bloklarni jihozlash",
+        "Radiologiya tizimlari",
+        "Intensiv terapiya uskunalari",
+        "Laboratoriya jihozlari",
+        "Ginekologik uskunalar",
+        "Tibbiy mebellar",
+        "Tibbiy sarf materiallari",
+      ],
+    },
+    vision: {
+      eyebrow: "Bizning qarashimiz",
+      title: "Markaziy Osiyoda reabilitatsiya texnologiyalari yetakchisi",
+      p1: "Biz ANSOR MEDni O'zbekiston va Markaziy Osiyoda reabilitatsiya texnologiyalari bo'yicha yetakchi va ishonchli kompaniyalardan biriga aylantirishni maqsad qilganmiz.",
+      p2: "Buning uchun dunyoning ilg'or ishlab chiqaruvchilari bilan hamkorlikni rivojlantirish, zamonaviy texnologiyalarni amaliyotga joriy etish va mahalliy mutaxassislarning bilim hamda tajribasini oshirishga doimiy e'tibor qaratamiz.",
+      quote:
+        "Zamonaviy reabilitatsiya xizmatlari har bir bemor uchun yanada yaqin, sifatli va samarali bo'lishi kerak.",
     },
     valuesHeading: {
-      eyebrow: "Qadriyatlar",
+      eyebrow: "Qadriyatlarimiz",
       title: "Ishimizni quradigan tamoyillar",
     },
-    timelineHeading: {
-      eyebrow: "Tarix",
-      title: "Kompaniya yo'li",
+    slogan: {
+      label: "Shiorimiz",
+      text: "ANSOR MED bilan sog'lom kelajak sari",
     },
     partners: {
       eyebrow: "Hamkorlar",
@@ -494,6 +591,178 @@ const uz: Dictionary = {
       "Xodimlarni o'qitish",
       "Servis qo'llab-quvvatlash va kafolat",
     ],
+  },
+
+  kits: {
+    meta: {
+      title: "Komplektlar",
+      description:
+        "Ansor Med tayyor tibbiy uskuna komplektlari: kabinet va bo'limlar «kalit topshirish» shartida.",
+    },
+    header: {
+      eyebrow: "Komplektlar",
+      title: "Tayyor «kalit topshirish» yechimlari",
+      subtitle:
+        "Kabinet yoki bo'lim uchun tanlangan uskunalar to'plami — pozitsiyalarni alohida yig'ishdan arzonroq.",
+    },
+    itemsCount: "Komplektdagi pozitsiyalar: {count}",
+    quantity: "× {count}",
+    contents: "Komplekt tarkibi",
+    allKits: "Barcha komplektlar",
+    notFound: "Komplekt topilmadi",
+    emptyTitle: "Komplektlar tez orada paydo bo'ladi",
+    emptyText:
+      "Kabinet va bo'limlar uchun tayyor yechimlarni tayyorlayapmiz. Hozircha buyurtmani katalogdan yig'ish mumkin.",
+    toCatalog: "Katalogga",
+  },
+
+  cart: {
+    meta: { title: "Savat" },
+    header: {
+      eyebrow: "Savat",
+      title: "Sizning buyurtmangiz",
+      subtitle: "Katalogdan uskunalarni qo'shing va bir necha bosishda ariza qoldiring.",
+      count: "Buyurtmadagi pozitsiyalar: {count}",
+    },
+    empty: "Savat bo'sh. Katalogdan uskuna tanlang.",
+    toCatalog: "Katalogga",
+    add: "Savatga",
+    addMore: "Yana qo'shish",
+    added: "Qo'shildi",
+    inCart: "Savatda bor",
+    removeAria: "Pozitsiyani olib tashlash",
+    decreaseAria: "Sonini kamaytirish",
+    increaseAria: "Sonini oshirish",
+    clear: "Savatni tozalash",
+    checkoutTitle: "Rasmiylashtirish",
+    totalLabel: "Jami",
+    pricelessNote:
+      "Ba'zi pozitsiyalar narxi so'rov bo'yicha — uni tijorat taklifida aniqlaymiz.",
+    commentLabel: "Izoh",
+    commentPlaceholder: "Muddat, komplektatsiya, yetkazib berish manzili…",
+    submit: "Buyurtma berish",
+    submitting: "Rasmiylashtirilmoqda…",
+    submitError: "Buyurtmani rasmiylashtirib bo'lmadi. Yana urinib ko'ring.",
+    authRequired: "Buyurtma berish uchun hisobingizga kiring.",
+    loginNote:
+      "Buyurtma shaxsiy kabinetda rasmiylashtiriladi — kiring yoki hisob yarating.",
+    loginToOrder: "Kirish va buyurtma berish",
+    note: "Rasmiylashtirilgach, mutaxassis siz bilan bog'lanadi va tijorat taklifini tayyorlaydi.",
+    success: {
+      title: "Buyurtma rasmiylashtirildi",
+      text: "Arizani oldik — mutaxassis eng yaqin ish vaqtida bog'lanadi.",
+      number: "Buyurtma raqami: №{id}",
+      toAccount: "Buyurtmalarim",
+      toCatalog: "Katalogga qaytish",
+    },
+  },
+
+  auth: {
+    common: {
+      emailLabel: "Email",
+      emailPlaceholder: "you@clinic.uz",
+      passwordLabel: "Parol",
+      passwordPlaceholder: "Kamida 8 ta belgi",
+      showPassword: "Parolni ko'rsatish",
+      hidePassword: "Parolni yashirish",
+      submitting: "Kuting…",
+      checking: "Sessiya tekshirilmoqda…",
+      genericError: "So'rovni bajarib bo'lmadi. Yana urinib ko'ring.",
+      or: "yoki",
+    },
+    google: {
+      signIn: "Google orqali kirish",
+      signUp: "Google orqali ro'yxatdan o'tish",
+      loading: "Google orqali kirish yuklanmoqda…",
+      failed: "Google orqali kirib bo'lmadi. Yana urinib ko'ring.",
+      unavailable: "Google orqali kirish hozir mavjud emas.",
+    },
+    errors: {
+      emailRequired: "Email kiriting",
+      emailFormat: "Emailni tekshiring",
+      usernameRequired: "Login o'ylab toping",
+      usernameFormat: "Faqat lotin harflari, raqamlar va @ . + - _ belgilari",
+      passwordRequired: "Parolni kiriting",
+      passwordShort: "Parol kamida 8 ta belgidan iborat bo'lsin",
+      passwordMismatch: "Parollar mos kelmadi",
+    },
+    login: {
+      meta: {
+        title: "Kirish",
+        description:
+          "Buyurtmalaringizni ko'rish uchun Ansor Med shaxsiy kabinetiga kiring.",
+      },
+      header: {
+        eyebrow: "Shaxsiy kabinet",
+        title: "Hisobga kirish",
+        subtitle: "Davom etish uchun email va parolingizni kiriting.",
+      },
+      submit: "Kirish",
+      failed: "Email yoki parol noto'g'ri.",
+      noAccount: "Hisobingiz yo'qmi?",
+      registerLink: "Ro'yxatdan o'tish",
+    },
+    register: {
+      meta: {
+        title: "Ro'yxatdan o'tish",
+        description:
+          "Buyurtmalarni kuzatish va arizalarni tezroq rasmiylashtirish uchun Ansor Med hisobini yarating.",
+      },
+      header: {
+        eyebrow: "Shaxsiy kabinet",
+        title: "Hisob yaratish",
+        subtitle:
+          "Ro'yxatdan o'tish bir daqiqa vaqt oladi — so'ng darhol shaxsiy kabinetga tushasiz.",
+      },
+      usernameLabel: "Login",
+      usernamePlaceholder: "ivanov",
+      usernameHint: "Lotin harflari, raqamlar va @ . + - _ belgilari",
+      firstNameLabel: "Ism",
+      firstNamePlaceholder: "Ali",
+      lastNameLabel: "Familiya",
+      lastNamePlaceholder: "Valiyev",
+      optional: "(ixtiyoriy)",
+      passwordConfirmLabel: "Parolni takrorlang",
+      submit: "Ro'yxatdan o'tish",
+      haveAccount: "Hisobingiz bormi?",
+      loginLink: "Kirish",
+    },
+    account: {
+      meta: {
+        title: "Shaxsiy kabinet",
+        description: "Ansor Med shaxsiy kabinetidagi profil va buyurtmalar.",
+      },
+      header: {
+        eyebrow: "Shaxsiy kabinet",
+        title: "Assalomu alaykum, {name}",
+        subtitle: "Bu yerda profilingiz ma'lumotlari va buyurtmalaringiz jamlangan.",
+      },
+      profileTitle: "Profil",
+      nameLabel: "Ism",
+      emailLabel: "Email",
+      usernameLabel: "Login",
+      empty: "—",
+      logout: "Chiqish",
+      ordersTitle: "Buyurtmalarim",
+      ordersLoading: "Buyurtmalar yuklanmoqda…",
+      ordersEmpty:
+        "Hozircha buyurtmalar yo'q — birinchisini katalogdan rasmiylashtiring.",
+      ordersEmptyCta: "Katalogga",
+      ordersError: "Buyurtmalarni yuklab bo'lmadi.",
+      retry: "Qayta urinish",
+      orderNumber: "Buyurtma №{id}",
+      totalLabel: "Summa",
+      itemsLabel: "Pozitsiyalar",
+      commentLabel: "Izoh",
+      offerFile: "Tijorat taklifini yuklab olish",
+      quantity: "× {count}",
+      statuses: {
+        pending: "Ko'rib chiqilmoqda",
+        confirmed: "Tasdiqlangan",
+        rejected: "Rad etilgan",
+        completed: "Yakunlangan",
+      },
+    },
   },
 
   footer: {

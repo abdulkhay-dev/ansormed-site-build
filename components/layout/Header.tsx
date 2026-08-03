@@ -3,13 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, Phone, ArrowUpRight, Mail, Clock } from "lucide-react";
+import {
+  Menu,
+  X,
+  Phone,
+  ArrowUpRight,
+  Mail,
+  Clock,
+  UserRound,
+  ShoppingCart,
+} from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useCart } from "@/components/cart/CartProvider";
 import { localizeHref, telHref } from "@/lib/i18n";
 import { cn, EASE } from "@/lib/utils";
 import type { Category } from "@/lib/data/categories";
@@ -18,6 +29,12 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
   const dict = useDict();
   const lang = useLang();
   const pathname = usePathname();
+  const { status } = useAuth();
+  const { count: cartCount } = useCart();
+  // Гость идёт на вход, вошедший — сразу в кабинет.
+  const accountHref = status === "authenticated" ? "/account" : "/login";
+  const accountLabel =
+    status === "authenticated" ? dict.header.account : dict.header.login;
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
@@ -42,6 +59,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
     { label: dict.nav.home, href: "/" },
     { label: dict.nav.about, href: "/about" },
     { label: dict.nav.products, href: "/products" },
+    { label: dict.nav.kits, href: "/kits" },
     { label: dict.nav.projects, href: "/projects" },
     { label: dict.nav.blog, href: "/blog" },
   ];
@@ -70,6 +88,7 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
   // Detail routes that belong to a section's nav item (singular detail → plural section)
   const sectionAliases: Record<string, string[]> = {
     "/products": ["/product"],
+    "/kits": ["/kit"],
     "/projects": ["/project"],
     "/blog": ["/post"],
   };
@@ -171,6 +190,35 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
 
           <div className="flex items-center gap-2">
             <GlobalSearch />
+            <Link
+              href="/cart"
+              aria-label={dict.cart.header.title}
+              title={dict.cart.header.title}
+              className={cn(
+                "relative inline-flex h-11 w-11 items-center justify-center rounded-full glass shadow-soft transition-colors",
+                isActive("/cart") ? "text-accent" : "text-ink hover:text-accent",
+              )}
+            >
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 font-mono text-[0.625rem] font-semibold tabular-nums text-white">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              href={accountHref}
+              aria-label={dict.header.accountAria}
+              title={accountLabel}
+              className={cn(
+                "hidden h-11 w-11 items-center justify-center rounded-full glass shadow-soft transition-colors sm:inline-flex",
+                isActive("/account") || isActive("/login") || isActive("/register")
+                  ? "text-accent"
+                  : "text-ink hover:text-accent",
+              )}
+            >
+              <UserRound className="h-5 w-5" />
+            </Link>
             <LanguageSwitcher className="hidden sm:inline-flex" />
             <span className="hidden sm:inline-flex">
               <ButtonLink href="/contacts" size="md">
@@ -269,6 +317,10 @@ export function Header({ categories = [] }: { categories?: Category[] }) {
                 <div className="my-3 h-px bg-line" />
 
                 <div className="px-1 flex flex-col gap-2">
+                  <ButtonLink href={accountHref} size="lg" variant="secondary" className="w-full">
+                    <UserRound className="h-4 w-4" />
+                    {accountLabel}
+                  </ButtonLink>
                   <ButtonLink href="/contacts" size="lg" variant="secondary" className="w-full">
                     <ArrowUpRight className="h-4 w-4" />
                     {dict.header.contact}

@@ -12,6 +12,12 @@ import ContactsView from "@/components/pages/ContactsView";
 import ProductView from "@/components/pages/ProductDetailView";
 import PostView from "@/components/pages/PostDetailView";
 import ProjectView from "@/components/pages/ProjectDetailView";
+import LoginView from "@/components/pages/LoginView";
+import RegisterView from "@/components/pages/RegisterView";
+import AccountView from "@/components/pages/AccountView";
+import CartView from "@/components/pages/CartView";
+import KitsView from "@/components/pages/KitsView";
+import KitDetailView from "@/components/pages/KitDetailView";
 import NotFoundView from "@/components/pages/NotFoundView";
 
 /** Клиентский роутер SPA: сопоставляет путь (после локали) с представлением. */
@@ -30,6 +36,18 @@ function render(seg: string[]): React.ReactNode {
       return <ProjectsView />;
     case "contacts":
       return <ContactsView />;
+    case "login":
+      return <LoginView />;
+    case "register":
+      return <RegisterView />;
+    case "account":
+      return <AccountView />;
+    case "cart":
+      return <CartView />;
+    case "kits":
+      return <KitsView />;
+    case "kit":
+      return slug ? <KitDetailView slug={decodeURIComponent(slug)} /> : <NotFoundView />;
     case "product":
       return slug ? <ProductView slug={decodeURIComponent(slug)} /> : <NotFoundView />;
     case "post":

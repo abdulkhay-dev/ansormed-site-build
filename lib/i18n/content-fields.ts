@@ -32,7 +32,9 @@ const EXCLUDE_EXACT = new Set([
   "header.navLabel",
   "header.mainNavAria",
 ]);
-const EXCLUDE_PREFIX = ["nav", "meta.keywords", "months"];
+// `auth` — служебные подписи форм входа/регистрации и тексты ошибок: правки из
+// админки тут только ломают смысл, поэтому в CMS их не выносим.
+const EXCLUDE_PREFIX = ["nav", "meta.keywords", "months", "auth", "cart"];
 const isAria = (p: string) => /aria$/i.test(p);
 
 // Раскладка верхних разделов словаря по 5 разрешённым секциям API.
@@ -44,8 +46,7 @@ const SECTION_BUCKET: Record<string, string> = {
   about: "about",
   advantages: "about",
   stats: "about",
-  values: "about",
-  timeline: "about",
+  principles: "about",
   blog: "services",
   post: "services",
   products: "services",

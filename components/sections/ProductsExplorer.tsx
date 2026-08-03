@@ -32,6 +32,7 @@ import { MediaVisual } from "@/components/ui/MediaVisual";
 import { NewBadge } from "@/components/ui/NewBadge";
 import { Icon } from "@/components/ui/Icon";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
 import {
@@ -525,9 +526,22 @@ function CatalogCard({ product }: { product: LocalProduct }) {
           />
         )}
         {product.isNew && <NewBadge className="absolute left-4 top-4" />}
-        <span className="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full glass-strong text-ink-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent">
-          <ArrowUpRight className="h-4 w-4" />
-        </span>
+        <div className="absolute right-4 top-4 flex flex-col gap-2">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full glass-strong text-ink-muted transition-all duration-300 group-hover:rotate-45 group-hover:text-accent">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+          <AddToCartButton
+            variant="icon"
+            line={{
+              kind: "product",
+              id: product.id,
+              name: product.name,
+              slug: product.slug,
+              image: product.image,
+              price: product.price,
+            }}
+          />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-5">

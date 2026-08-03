@@ -16,6 +16,7 @@ export function Footer({ categories = [] }: { categories?: Category[] }) {
   const nav = [
     { label: dict.nav.home, href: "/" },
     { label: dict.nav.products, href: "/products" },
+    { label: dict.nav.kits, href: "/kits" },
     { label: dict.nav.blog, href: "/blog" },
     { label: dict.nav.about, href: "/about" },
     { label: dict.nav.contacts, href: "/contacts" },
