@@ -286,10 +286,58 @@ async function fetchAllPages<T>(path: string): Promise<T[]> {
   return out;
 }
 
+/* ---------- Кеш списков ---------- */
+
+/** Сколько живёт закешированный список (SPA не перезагружается — держим недолго). */
+const LIST_TTL = 5 * 60_000; // 5 минут
+
+/**
+ * Оборачивает загрузчик списка кешем в памяти: при переходах внутри SPA
+ * (каталог → карточка → назад) данные берутся из памяти, а не тянутся заново.
+ * Параллельные вызовы дедуплицируются, пустой ответ не кешируется, ошибка
+ * пробрасывается вызывающему (кеш при этом не портится).
+ *
+ * `peek()` отдаёт готовые данные синхронно — чтобы рендерить без скелетона.
+ */
+function listCache<T>(loader: () => Promise<T[]>, ttl = LIST_TTL) {
+  let cache: { at: number; data: T[] } | null = null;
+  let inflight: Promise<T[]> | null = null;
+
+  const fresh = () => !!cache && Date.now() - cache.at < ttl;
+
+  /** @param force — перечитать с сервера, игнорируя кеш. */
+  const get = (force = false): Promise<T[]> => {
+    if (!force) {
+      if (cache && fresh()) return Promise.resolve(cache.data);
+      if (inflight) return inflight;
+    }
+    inflight = loader()
+      .then((rows) => {
+        const data = rows ?? [];
+        if (data.length) cache = { at: Date.now(), data };
+        return data;
+      })
+      .finally(() => {
+        inflight = null;
+      });
+    return inflight;
+  };
+
+  const peek = (): T[] | null => (cache && fresh() ? cache.data : null);
+
+  return { get, peek };
+}
+
 /* ---------- Catalog / Categories ---------- */
 
-/** Весь каталог товаров — /api/products/ (все страницы). */
-export const getCatalog = () => fetchAllPages<ProductOut>(`/api/products/`);
+const catalogCache = listCache<ProductOut>(() =>
+  fetchAllPages<ProductOut>(`/api/products/`),
+);
+
+/** Весь каталог товаров — /api/products/ (все страницы, кеш на 5 минут). */
+export const getCatalog = catalogCache.get;
+/** Каталог из кеша без запроса: массив или null, если кеша нет. */
+export const peekCatalog = catalogCache.peek;
 
 /** Товар по slug — резолвится из полного каталога. */
 export async function getProductBySlug(slug: string): Promise<ProductOut | null> {
@@ -321,22 +369,34 @@ export async function globalSearch(q: string): Promise<SearchResults> {
  */
 const HIDDEN_CATEGORY_IDS = new Set<number>([6]);
 
-/** Категории — /api/categories/ (без скрытых). */
-export const listCategories = async () =>
+const categoriesCache = listCache<CategoryOut>(async () =>
   (await fetchAllPages<CategoryOut>(`/api/categories/`)).filter(
     (c) => !HIDDEN_CATEGORY_IDS.has(c.id),
-  );
+  ),
+);
 
-/** Подкатегории — /api/subcategories/ (без принадлежащих скрытым категориям). */
-export const listSubcategories = async () =>
+const subcategoriesCache = listCache<SubCategory>(async () =>
   (await fetchAllPages<SubCategory>(`/api/subcategories/`)).filter(
     (s) => !HIDDEN_CATEGORY_IDS.has(s.category),
-  );
+  ),
+);
+
+/** Категории — /api/categories/ (без скрытых, кеш на 5 минут). */
+export const listCategories = categoriesCache.get;
+/** Категории из кеша без запроса. */
+export const peekCategories = categoriesCache.peek;
+
+/** Подкатегории — /api/subcategories/ (без принадлежащих скрытым, кеш на 5 минут). */
+export const listSubcategories = subcategoriesCache.get;
+/** Подкатегории из кеша без запроса. */
+export const peekSubcategories = subcategoriesCache.peek;
 
 /* ---------- Комплекты ---------- */
 
-/** Комплекты — /api/kits/ (все страницы). */
-export const listKits = () => fetchAllPages<KitOut>(`/api/kits/`);
+/** Комплекты — /api/kits/ (все страницы, кеш на 5 минут). */
+export const listKits = listCache<KitOut>(() =>
+  fetchAllPages<KitOut>(`/api/kits/`),
+).get;
 
 /** Комплект по slug: detail-эндпоинт только по id, поэтому ищем в списке. */
 export async function getKitBySlug(slug: string): Promise<KitOut | null> {
@@ -381,8 +441,10 @@ export const createLead = (data: LeadInput) =>
 
 /* ---------- Blog ---------- */
 
-/** Список постов блога — /api/blog/ (все страницы). */
-export const listPosts = () => fetchAllPages<ApiBlogPost>(`/api/blog/`);
+/** Список постов блога — /api/blog/ (все страницы, кеш на 5 минут). */
+export const listPosts = listCache<ApiBlogPost>(() =>
+  fetchAllPages<ApiBlogPost>(`/api/blog/`),
+).get;
 
 /** Пост по slug — резолвится из списка. */
 export async function getPostBySlug(slug: string): Promise<ApiBlogPost | null> {
@@ -392,8 +454,10 @@ export async function getPostBySlug(slug: string): Promise<ApiBlogPost | null> {
 
 /* ---------- Projects ---------- */
 
-/** Список проектов — /api/projects/ (все страницы). */
-export const listProjects = () => fetchAllPages<ApiProject>(`/api/projects/`);
+/** Список проектов — /api/projects/ (все страницы, кеш на 5 минут). */
+export const listProjects = listCache<ApiProject>(() =>
+  fetchAllPages<ApiProject>(`/api/projects/`),
+).get;
 
 /** Проект по slug — резолвится из списка. */
 export async function getProjectBySlug(slug: string): Promise<ApiProject | null> {

@@ -12,7 +12,30 @@ import { Footer } from "@/components/layout/Footer";
 import { ContactFab } from "@/components/layout/ContactFab";
 import { SiteJsonLd } from "@/components/seo/JsonLd";
 import { getCategories, type Category } from "@/lib/data/categories";
-import { getDictionary, langFromPath } from "@/lib/i18n";
+import { getDictionary, langFromPath, routeSegments } from "@/lib/i18n";
+import { armCatalogRestore, disarmCatalogRestore } from "@/lib/catalog-state";
+
+/** Первый сегмент пути после локали: "/ru/product/x/" → "product". */
+function routeOf(pathname: string): string | undefined {
+  return routeSegments(pathname)[0];
+}
+
+/**
+ * Решает, восстанавливать ли состояние каталога (категория/страница/поиск)
+ * при следующем открытии /products.
+ * Каталог → карточка и карточка → каталог: восстанавливаем.
+ * Любой другой переход в каталог (меню, подвал, логотип): открываем с нуля.
+ */
+function syncCatalogRestore(fromPath: string, toPath: string) {
+  const from = routeOf(fromPath);
+  const to = routeOf(toPath);
+  if (to === "products") {
+    if (from === "product") armCatalogRestore();
+    else disarmCatalogRestore();
+  } else if (to === "product" && from === "products") {
+    armCatalogRestore();
+  }
+}
 
 /**
  * Клиентская оболочка SPA: определяет язык из URL, поднимает i18n-контекст и
@@ -75,12 +98,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         window.location.search +
         window.location.hash;
       if (dest !== current) {
+        syncCatalogRestore(window.location.pathname, url.pathname);
         window.history.pushState(null, "", dest);
         window.scrollTo({ top: 0, behavior: "instant" });
       }
     };
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
+  // «Назад/вперёд» в браузере: возврат в каталог должен открыть его там же,
+  // где человек его оставил. Слушатель синхронный — флаг успевает встать до
+  // перерисовки, и ProductsExplorer подхватит его при монтировании.
+  useEffect(() => {
+    const onPopState = () => {
+      if (routeOf(window.location.pathname) === "products") armCatalogRestore();
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   // Категории для навигации (шапка/подвал).

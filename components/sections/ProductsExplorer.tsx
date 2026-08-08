@@ -15,6 +15,9 @@ import {
   getCatalog,
   listCategories,
   listSubcategories,
+  peekCatalog,
+  peekCategories,
+  peekSubcategories,
   type CategoryOut,
   type ProductOut,
   type SubCategory,
@@ -35,11 +38,7 @@ import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
-import {
-  armCatalogRestore,
-  consumeCatalogState,
-  saveCatalogState,
-} from "@/lib/catalog-state";
+import { consumeCatalogState, saveCatalogState } from "@/lib/catalog-state";
 import { categorySortRank, cn, EASE, formatPrice, iconForCategory } from "@/lib/utils";
 
 const PAGE_SIZE = 15;
@@ -72,15 +71,20 @@ export function ProductsExplorer({
   const [catOpen, setCatOpen] = useState(false);
   const [page, setPage] = useState(1);
 
-  const [rawItems, setRawItems] = useState<ProductOut[]>([]);
-  const [rawCats, setRawCats] = useState<CategoryOut[]>([]);
-  const [rawSubs, setRawSubs] = useState<SubCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Каталог уже в памяти (пришли из карточки товара / с главной) — рисуем
+  // сразу, без скелетона и повторной загрузки.
+  const [rawItems, setRawItems] = useState<ProductOut[]>(() => peekCatalog() ?? []);
+  const [rawCats, setRawCats] = useState<CategoryOut[]>(() => peekCategories() ?? []);
+  const [rawSubs, setRawSubs] = useState<SubCategory[]>(
+    () => peekSubcategories() ?? [],
+  );
+  const [loading, setLoading] = useState(() => peekCatalog() === null);
 
-  // Каталог + категории + подкатегории — один раз при загрузке.
+  // Каталог + категории + подкатегории. Запросы дедуплицируются и кешируются
+  // в lib/api, так что при возврате в каталог сеть не трогается.
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    if (peekCatalog() === null) setLoading(true);
     Promise.all([
       getCatalog(),
       listCategories().catch(() => []),
@@ -167,19 +171,8 @@ export function ProductsExplorer({
     saveCatalogState({ active, page, query });
   }, [active, page, query]);
 
-  // Уход в карточку товара разрешает одно восстановление. Клики по ссылкам
-  // перехватывает AppShell (capture + stopPropagation), поэтому onClick на
-  // карточке не долетает до React — слушаем document в той же фазе.
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      const href = (e.target as HTMLElement | null)
-        ?.closest?.("a")
-        ?.getAttribute("href");
-      if (href?.includes("/product/")) armCatalogRestore();
-    };
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, []);
+  // Разрешением на восстановление (уход в карточку, возврат «назад») ведает
+  // AppShell — он перехватывает все переходы и слушает popstate.
 
   // Контекст «подкатегория → категория» для резолва категории товара.
   const catCtx = useMemo(

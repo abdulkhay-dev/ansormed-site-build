@@ -25,7 +25,8 @@ export function saveCatalogState(state: CatalogState) {
 
 /**
  * Разрешает одно восстановление: вызывается при уходе из каталога в карточку
- * товара. Без этого флага переход в каталог из меню откроет его «с нуля».
+ * товара и при возврате в каталог кнопкой «назад». Без этого флага переход в
+ * каталог из меню откроет его «с нуля».
  */
 export function armCatalogRestore() {
   try {
@@ -35,11 +36,37 @@ export function armCatalogRestore() {
   }
 }
 
+/** Отменяет восстановление: осознанный переход в каталог (меню, подвал, логотип). */
+export function disarmCatalogRestore() {
+  try {
+    sessionStorage.removeItem(ARMED_KEY);
+  } catch {
+    /* см. выше */
+  }
+}
+
+/**
+ * «Назад/вперёд» с полной перезагрузкой документа (например, после F5 на
+ * карточке товара): popstate не приходит, но браузер помечает навигацию как
+ * back_forward — этого достаточно, чтобы разрешить восстановление.
+ */
+function isBackForwardNavigation(): boolean {
+  try {
+    const [nav] = performance.getEntriesByType(
+      "navigation",
+    ) as PerformanceNavigationTiming[];
+    return nav?.type === "back_forward";
+  } catch {
+    return false;
+  }
+}
+
 /** Отдаёт сохранённое состояние один раз (и снимает флаг). */
 export function consumeCatalogState(): CatalogState | null {
   try {
-    if (sessionStorage.getItem(ARMED_KEY) !== "1") return null;
+    const armed = sessionStorage.getItem(ARMED_KEY) === "1";
     sessionStorage.removeItem(ARMED_KEY);
+    if (!armed && !isBackForwardNavigation()) return null;
     const raw = sessionStorage.getItem(STATE_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw) as Partial<CatalogState>;
