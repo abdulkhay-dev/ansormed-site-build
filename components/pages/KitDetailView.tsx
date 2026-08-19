@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader2, PackageX, Phone } from "lucide-react";
+import { ArrowLeft, Download, Loader2, PackageX, Phone } from "lucide-react";
 import { Container } from "@/components/ui/Section";
-import { ButtonLink } from "@/components/ui/Button";
+import { ButtonLink, buttonClasses } from "@/components/ui/Button";
 import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { MediaVisual } from "@/components/ui/MediaVisual";
 import { Prose, looksLikeHtml } from "@/components/ui/Prose";
@@ -11,7 +11,7 @@ import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { useDict, useLang } from "@/components/i18n/I18nProvider";
 import { interpolate } from "@/lib/i18n";
 import { formatPrice } from "@/lib/utils";
-import { getKitBySlug, listCategories, listSubcategories } from "@/lib/api";
+import { getKitBySlug, kitPdfUrl, listCategories, listSubcategories } from "@/lib/api";
 import { buildCategoryContext, localizeKit, type LocalKit } from "@/lib/catalog";
 
 type State =
@@ -177,6 +177,17 @@ export default function KitDetailView({ slug }: { slug: string }) {
                 {dict.product.contact}
               </ButtonLink>
             </div>
+
+            {/* PDF комплекта — /api/kits/{id}/pdf/, прямая ссылка на бэкенд. */}
+            <a
+              href={kitPdfUrl(kit.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonClasses("ghost", "md", "mt-4 self-start px-0")}
+            >
+              <Download className="h-4 w-4" />
+              {dict.product.downloadPdf}
+            </a>
           </div>
         </div>
 

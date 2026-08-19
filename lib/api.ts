@@ -33,6 +33,11 @@ export function productPdfUrl(id: number): string {
   return `${MEDIA_BASE}/api/products/${id}/pdf/`;
 }
 
+/** Прямой URL для скачивания PDF комплекта — /api/kits/{id}/pdf/. См. productPdfUrl. */
+export function kitPdfUrl(id: number): string {
+  return `${MEDIA_BASE}/api/kits/${id}/pdf/`;
+}
+
 /* ---------- Типы ответов API (openapi schema) ---------- */
 
 /** DRF-пагинация: обёртка над списками (?page=N). */
